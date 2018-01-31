@@ -2,9 +2,19 @@ from bittrex import Bittrex
 import pprint # debug
 import time
 import argparse
+import json
+
+class worker(object):
+	"""worker class that runs a tree with conditions and actions"""
+	def __init__(self, arg):
+		super(worker, self).__init__()
+		self.arg = arg
+
 
 def main(args):
-	pass
+	print(args)
+	a = json.load(args['input'])
+	print(a)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Process a tree with trading conditions and actions.')
