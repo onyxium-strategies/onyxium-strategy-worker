@@ -37,7 +37,7 @@ func (w *Worker) Start() {
         select {
         case work := <-w.Work:
           // Receive a work request.
-          fmt.Printf("worker%d: Received work request, delaying for %f seconds\n", w.ID, work.Delay.Seconds())
+          fmt.Println("worker", w.ID, ": Received work request, comparing", work.Tree.Condition.Value, "with current price")
 
           time.Sleep(work.Delay)
           fmt.Printf("worker%d: Hello, %s!\n", w.ID, work.Name)

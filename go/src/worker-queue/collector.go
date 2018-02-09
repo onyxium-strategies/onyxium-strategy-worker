@@ -39,8 +39,14 @@ func Collector(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  // Now, we take the delay, and the person's name, and make a WorkRequest out of them.
-  work := WorkRequest{Name: name, Delay: delay}
+  // Now, we information and make a WorkRequest out of them.
+    condition := Condition{ConditionType: "percentage-increase", BaseCurrency: "ETH", QuoteCurrency: "OMG", TimeframeInMS: 3600000, BaseMetric: "price", Value: 20}
+    action := Action{Type0: "order", OrderType: "limit-buy", OrderValueType: "absolute", BaseCurrency: "ETH", QuoteCurrency: "OMG", Quantity: 100, Value: 0.012}
+    leftchild := Tree{Left: nil, Right: nil, Condition: condition, Action: action}
+    root := Tree{Left: &leftchild, Right: nil, Condition: condition, Action: action}
+    work := WorkRequest{Name: name, Delay: delay, Tree: &root}
+    fmt.Println("Workrequest tree created")
+
 
   // Push the work onto the queue.
   WorkQueue <- work
