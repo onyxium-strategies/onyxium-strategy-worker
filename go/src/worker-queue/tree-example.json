@@ -9,6 +9,14 @@
             "timeframeInMS":3600000,
             "baseMetric":"price",
             "value":20
+         },
+         {
+            "conditionType":"percentage-increase",
+            "baseCurrency":"BTC",
+            "quoteCurrency":"OMG",
+            "timeframeInMS":1200000,
+            "baseMetric":"price",
+            "value":20
          }
       ],
       "action":{
