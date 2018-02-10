@@ -44,9 +44,8 @@ type Action struct {
 type Tree struct {
   Left  *Tree
   Right *Tree
-  Condition Condition
+  Conditions []Condition
   Action Action
-
 }
 
 type WorkRequest struct {
