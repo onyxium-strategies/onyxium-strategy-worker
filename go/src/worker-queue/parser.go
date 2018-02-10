@@ -23,7 +23,7 @@ func parseJson(jsonInput string) ([]interface{}, string) {
 func parseBinaryTree(tree []interface{}) bool {
     conditions := tree[0].(map[string]interface{})["conditions"]
 	action := tree[0].(map[string]interface{})["action"]
-    root := Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(conditions), Action: createActionFromMap(action.(map[string]interface {})) }
+    root := Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(conditions.([]interface{})), Action: createActionFromMap(action.(map[string]interface {})) }
     fmt.Println(root)
 	// _parseBinaryTree(tree, &root)
 	return true
@@ -37,11 +37,9 @@ func parseBinaryTree(tree []interface{}) bool {
 // 	}
 // }
 
-func createConditionsFromSlice(conditionsSlice interface{}) []Condition {
+func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
 	conditions := []Condition{}
-    cs := conditionsSlice.([]interface{})
-	for i, condition := range cs {
-        _ = i
+	for _, condition := range conditionsSlice {
 		conditions = append(conditions, createConditionFromMap(condition.(map[string]interface {})))
 	}
 	return conditions
