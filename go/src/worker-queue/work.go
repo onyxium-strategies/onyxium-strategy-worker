@@ -1,7 +1,5 @@
 package main
 
-import "time"
-
 type Condition struct {
   ConditionType string
   BaseCurrency string
@@ -42,6 +40,7 @@ type Action struct {
 
 
 type Tree struct {
+  // Parent *Tree
   Left  *Tree
   Right *Tree
   Conditions []Condition
@@ -49,8 +48,7 @@ type Tree struct {
 }
 
 type WorkRequest struct {
-  Name string
-  Delay time.Duration
+  Id int
   Tree *Tree
 }
 

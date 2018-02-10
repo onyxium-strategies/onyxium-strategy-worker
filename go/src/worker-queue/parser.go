@@ -1,16 +1,70 @@
 package main
 
 import (
-//"encoding/json"
-"github.com/tidwall/gjson"
-//"reflect"
-"fmt"
-"io/ioutil"
-"os"
+	"github.com/tidwall/gjson"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"github.com/mitchellh/mapstructure"
 )
 
-func parseJson(jsonFile string) []interface{} {
-	file, e := ioutil.ReadFile(jsonFile)
+// TODO return err obj
+func parseJson(jsonInput string) ([]interface{}, string) {
+	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
+	if !ok {
+		return data, "Invalid json structure"
+	}
+	return data, ""
+}
+
+/*
+[map[then:[map[conditions:[map[quoteCurrency:OMG timeframeInMS:3.6e+06 baseMetric:price value:20 conditionType:percentage-increase baseCurrency:ETH] map[quoteCurrency:OMG timeframeInMS:3.6e+06 baseMetric:price quoteMetric:boilinger-band-upper-bound value:20 conditionType:percentage-increase baseCurrency:ETH]] action:map[quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-buy orderValueType:absolute baseCurrency:ETH] priority:0] map[conditions:[map[quoteCurrency:OMG timeframeInMS:7.2e+06 baseMetric:rsi value:5 conditionType:absolute-increase baseCurrency:ETH]] action:map[quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-sell orderValueType:absolute baseCurrency:ETH] priority:1]] priority:0 conditions:[map[conditionType:percentage-increase baseCurrency:ETH quoteCurrency:OMG timeframeInMS:3.6e+06 baseMetric:price value:20]] action:map[quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-buy orderValueType:absolute baseCurrency:ETH]] map[conditions:[map[quoteCurrency:OMG timeframeInMS:7.2e+06 baseMetric:rsi value:5 conditionType:absolute-increase baseCurrency:ETH]] action:map[quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-buy orderValueType:absolute baseCurrency:ETH] priority:1] map[priority:2 conditions:[map[timeframeInMS:7.2e+06 baseMetric:rsi value:10 conditionType:absolute-decrease baseCurrency:ETH quoteCurrency:OMG]] action:map[orderValueType:absolute baseCurrency:ETH quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-sell]]]
+*/
+func parseBinaryTree(tree []interface{}) bool {
+	conditions := tree[0].(map[string]interface{})
+	fmt.Println(conditions["conditions"])
+	root := Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(conditions["conditions"]), Action: {} }
+	// fmt.Println(root)
+	// _parseBinaryTree(tree, &root)
+	return true
+}
+
+// func _parseBinaryTree(tree []interface{}, parent *Tree){
+// 	for i, node := range tree {
+// 		newNode := Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(tree[i]["conditions"]), Action: createActionFromMap(tree[i]["action"])}
+// 		parent.Left := node
+// 		_parseBinaryTree(tree[i], &node)
+// 	}
+// }
+
+func createConditionsFromSlice(s interface{}) []Condition {
+	conditions := make([]Condition, len(s))
+	for i, c := range s {
+		conditions = append(conditions, createConditionFromMap(c))
+	}
+	return conditions
+}
+
+func createConditionFromMap(m map[string]interface{}) Condition {
+    var result Condition
+    err := mapstructure.Decode(m, &result)
+    if err != nil {
+    	fmt.Printf("Error: %v\n", err)
+    }
+    return result
+}
+
+// func createActionFromMap(m map[string]interface{}) Action {
+//     var result Action
+//     err := mapstructure.Decode(m, &result)
+//     if err != nil {
+//     	fmt.Printf("Error: %v\n", err)
+//     }
+//     return result
+// }
+
+func main() {
+	file, e := ioutil.ReadFile("./tree-example.json")
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)
 		os.Exit(1)
@@ -18,14 +72,9 @@ func parseJson(jsonFile string) []interface{} {
 
 	myJson := string(file)
 
-	data, ok := gjson.Parse(myJson).Value().([]interface{})
-	if !ok {
-		fmt.Println("Error")
+	tree, err := parseJson(myJson)
+	if err != "" {
+		fmt.Printf(err)
 	}
-	return data
-}
-
-func main(){
-	data := parseJson("./tree-example.json")
-	fmt.Println(data)
+	parseBinaryTree(tree)
 }
