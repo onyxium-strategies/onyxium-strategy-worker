@@ -1,6 +1,5 @@
 [
    {
-      "type":"conditions",
       "priority":0,
       "conditions":[
          {
@@ -13,7 +12,6 @@
          }
       ],
       "action":{
-         "type":"order",
          "orderType":"limit-buy",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
@@ -23,7 +21,6 @@
       },
       "then":[
          {
-            "type":"conditions",
             "priority":0,
             "conditions":[
                {
@@ -45,7 +42,6 @@
                }
             ],
             "action":{
-               "type":"order",
                "orderType":"limit-buy",
                "orderValueType":"absolute",
                "baseCurrency":"ETH",
@@ -55,7 +51,6 @@
             }
          },
          {
-            "type":"conditions",
             "priority":1,
             "conditions":[
                {
@@ -68,7 +63,6 @@
                }
             ],
             "action":{
-               "type":"order",
                "orderType":"limit-sell",
                "orderValueType":"absolute",
                "baseCurrency":"ETH",
@@ -80,7 +74,6 @@
       ]
    },
    {
-      "type":"conditions",
       "priority":1,
       "conditions":[
          {
@@ -93,7 +86,6 @@
          }
       ],
       "action":{
-         "type":"order",
          "orderType":"limit-buy",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
@@ -103,7 +95,6 @@
       }
    },
    {
-      "type":"conditions",
       "priority":2,
       "conditions":[
          {
@@ -116,7 +107,6 @@
          }
       ],
       "action":{
-         "type":"order",
          "orderType":"limit-sell",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
