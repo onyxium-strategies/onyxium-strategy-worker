@@ -17,74 +17,11 @@ func parseJson(jsonInput string) ([]interface{}, string) {
 	return data, ""
 }
 
-/*
-[
-    map[
-        conditions:[
-            map[
-                value:20
-                conditionType:percentage-increase
-                baseCurrency:ETH
-                quoteCurrency:OMG
-                timeframeInMS:3.6e+06
-                baseMetric:price
-            ]
-        ]
-        action:
-            map[
-                value:0.012
-                orderType:limit-buy
-                orderValueType:absolute
-                baseCurrency:ETH
-                quoteCurrency:OMG
-                quantity:100
-            ]
-        then:[
-            map[
-                conditions:[
-                    map[
-                        timeframeInMS:3.6e+06
-                        baseMetric:price
-                        value:20
-                        conditionType:percentage-increase
-                        baseCurrency:ETH
-                        quoteCurrency:OMG
-                    ]
-                    map[
-                        baseCurrency:ETH
-                        quoteCurrency:OMG
-                        timeframeInMS:3.6e+06
-                        baseMetric:price
-                        quoteMetric:boilinger-band-upper-bound
-                        value:20
-                        conditionType:percentage-increase
-                    ]
-                ]
-                action:
-                    map[
-                        value:0.012
-                        orderType:limit-buy
-                        orderValueType:absolute
-                        baseCurrency:ETH
-                        quoteCurrency:OMG
-                        quantity:100
-                    ]
-            ]
-            map[conditions:[map[quoteCurrency:OMG timeframeInMS:7.2e+06 baseMetric:rsi value:5 conditionType:absolute-increase baseCurrency:ETH]] action:map[quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-sell orderValueType:absolute baseCurrency:ETH]]]] map[conditions:[map[timeframeInMS:7.2e+06 baseMetric:rsi value:5 conditionType:absolute-increase baseCurrency:ETH quoteCurrency:OMG]] action:map[orderValueType:absolute baseCurrency:ETH quoteCurrency:OMG quantity:100 value:0.012 orderType:limit-buy]] map[conditions:[map[timeframeInMS:7.2e+06 baseMetric:rsi value:10 conditionType:absolute-decrease baseCurrency:ETH quoteCurrency:OMG]] action:map[orderType:limit-sell orderValueType:absolute baseCurrency:ETH quoteCurrency:OMG quantity:100 value:0.012]]]
-*/
 func parseBinaryTree(tree []interface{}) Tree {
 	root := Tree{Left: nil, Right: nil, Conditions: []Condition{{ConditionType: "true"}}, Action: Action{}}
 	root.Left = _parseBinaryTree(tree, root.Left, 0)
 	return root
 }
-
-// for debugging
-// func insert(root *Tree, i int) *Tree {
-// 	if false {
-// 		root = &Tree{Left: nil, Right: nil, Conditions: []Condition{{ConditionType: "false"}}, Action: Action{}}
-// 	}
-// 	return root
-// }
 
 func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 	if i < len(siblings) {
@@ -134,7 +71,7 @@ func createActionFromMap(m map[string]interface{}) Action {
 // for debugging the tree
 func walk(tree *Tree) {
 	if tree != nil {
-		fmt.Println(tree.Action)
+		fmt.Println(tree)
 		walk(tree.Left)
 		walk(tree.Right)
 	}
