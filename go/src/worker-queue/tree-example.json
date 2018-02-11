@@ -1,6 +1,5 @@
 [
    {
-      "priority":0,
       "conditions":[
          {
             "conditionType":"percentage-increase",
@@ -9,18 +8,10 @@
             "timeframeInMS":3600000,
             "baseMetric":"price",
             "value":20
-         },
-         {
-            "conditionType":"percentage-increase",
-            "baseCurrency":"BTC",
-            "quoteCurrency":"OMG",
-            "timeframeInMS":1200000,
-            "baseMetric":"price",
-            "value":20
          }
       ],
       "action":{
-         "orderType":"limit-buy",
+         "orderType":"limit-buy - node B",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
          "quoteCurrency":"OMG",
@@ -29,7 +20,6 @@
       },
       "then":[
          {
-            "priority":0,
             "conditions":[
                {
                   "conditionType":"percentage-increase",
@@ -50,7 +40,7 @@
                }
             ],
             "action":{
-               "orderType":"limit-buy",
+               "orderType":"limit-buy - node E",
                "orderValueType":"absolute",
                "baseCurrency":"ETH",
                "quoteCurrency":"OMG",
@@ -59,7 +49,6 @@
             }
          },
          {
-            "priority":1,
             "conditions":[
                {
                   "conditionType":"absolute-increase",
@@ -71,7 +60,7 @@
                }
             ],
             "action":{
-               "orderType":"limit-sell",
+               "orderType":"limit-sell - node F",
                "orderValueType":"absolute",
                "baseCurrency":"ETH",
                "quoteCurrency":"OMG",
@@ -82,7 +71,6 @@
       ]
    },
    {
-      "priority":1,
       "conditions":[
          {
             "conditionType":"absolute-increase",
@@ -94,7 +82,7 @@
          }
       ],
       "action":{
-         "orderType":"limit-buy",
+         "orderType":"limit-buy - node C",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
          "quoteCurrency":"OMG",
@@ -103,7 +91,6 @@
       }
    },
    {
-      "priority":2,
       "conditions":[
          {
             "conditionType":"absolute-decrease",
@@ -115,7 +102,7 @@
          }
       ],
       "action":{
-         "orderType":"limit-sell",
+         "orderType":"limit-sell - node D",
          "orderValueType":"absolute",
          "baseCurrency":"ETH",
          "quoteCurrency":"OMG",

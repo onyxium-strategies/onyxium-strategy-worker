@@ -1,13 +1,14 @@
 package main
 
 type Condition struct {
-  ConditionType string
-  BaseCurrency string
-  QuoteCurrency string
-  TimeframeInMS int
-  BaseMetric string
-  Value float64
+	ConditionType string
+	BaseCurrency  string
+	QuoteCurrency string
+	TimeframeInMS int
+	BaseMetric    string
+	Value         float64
 }
+
 // example condition json:
 // {
 //  "conditionType":"percentage-increase",
@@ -19,14 +20,15 @@ type Condition struct {
 // }
 
 type Action struct {
-  Type0 string
-  OrderType string
-  OrderValueType string
-  BaseCurrency string
-  QuoteCurrency string
-  Quantity float32
-  Value float64
+	Type0          string
+	OrderType      string
+	OrderValueType string
+	BaseCurrency   string
+	QuoteCurrency  string
+	Quantity       float32
+	Value          float64
 }
+
 // example action json:
 // "action":{
 //  "type":"order",
@@ -38,17 +40,14 @@ type Action struct {
 //  "value":0.012
 // }
 
-
 type Tree struct {
-  // Parent *Tree
-  Left  *Tree
-  Right *Tree
-  Conditions []Condition
-  Action Action
+	Left       *Tree
+	Right      *Tree
+	Conditions []Condition
+	Action     Action
 }
 
 type WorkRequest struct {
-  Id int
-  Tree *Tree
+	Id   int
+	Tree *Tree
 }
-
