@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"log"
 	"net/http"
 	// "net/url"
@@ -135,7 +135,7 @@ func getMarketSummary() {
 	return
 }
 
-func main() {
-	getMarketSummary()
-	fmt.Println(market["BTC-LTC"])
-}
+// func main() {
+// 	getMarketSummary()
+// 	fmt.Println(market["BTC-LTC"])
+// }

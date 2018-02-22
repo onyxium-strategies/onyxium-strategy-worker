@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	// "golang.org/x/net/websocket"
+	"encoding/json"
 	"github.com/gorilla/websocket"
-	// "encoding/json"
 	"time"
 )
 
@@ -19,8 +19,19 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for {
-		time.Sleep(2 * time.Second)
-		err = conn.WriteMessage(websocket.TextMessage, "hoi")
+		time.Sleep(time.Second)
+		getMarketSummary()
+		myJson, err := json.Marshal(market)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		err = conn.WriteMessage(websocket.TextMessage, myJson)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
 	}
 
 }
