@@ -9,12 +9,12 @@ import (
 )
 
 type MarketSummaryResponse struct {
-	Success       bool   `json:"success"`
-	Message       string `json:"message"`
-	MarketSummary `json:"result"`
+	Success       bool     `json:"success"`
+	Message       string   `json:"message"`
+	MarketSummary []Market `json:"result"`
 }
 
-type MarketSummary []struct {
+type Market struct {
 	MarketName        string      `json:"MarketName"`
 	High              float64     `json:"High"`
 	Low               float64     `json:"Low"`
@@ -29,23 +29,6 @@ type MarketSummary []struct {
 	PrevDay           float64     `json:"PrevDay"`
 	Created           string      `json:"Created"`
 	DisplayMarketName interface{} `json:"DisplayMarketName"`
-}
-
-type Market struct {
-	MarketName        string
-	High              float64
-	Low               float64
-	Volume            float64
-	Last              float64
-	BaseVolume        float64
-	TimeStamp         string
-	Bid               float64
-	Ask               float64
-	OpenBuyOrders     int
-	OpenSellOrders    int
-	PrevDay           float64
-	Created           string
-	DisplayMarketName interface{}
 }
 
 /*
@@ -115,27 +98,12 @@ func getMarketSummary() {
 	market = make(map[string]Market)
 
 	for _, i := range record.MarketSummary {
-		market[i.MarketName] = Market{
-			MarketName:        i.MarketName,
-			High:              i.High,
-			Low:               i.Low,
-			Volume:            i.Volume,
-			Last:              i.Last,
-			BaseVolume:        i.BaseVolume,
-			TimeStamp:         i.TimeStamp,
-			Bid:               i.Bid,
-			Ask:               i.Ask,
-			OpenBuyOrders:     i.OpenBuyOrders,
-			OpenSellOrders:    i.OpenSellOrders,
-			PrevDay:           i.PrevDay,
-			Created:           i.Created,
-			DisplayMarketName: i.DisplayMarketName,
-		}
+		market[i.MarketName] = i
 	}
 	return
 }
 
 // func main() {
 // 	getMarketSummary()
-// 	fmt.Println(market["BTC-LTC"])
+// 	fmt.Println(market)
 // }

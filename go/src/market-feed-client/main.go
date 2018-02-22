@@ -12,6 +12,23 @@ import (
 	"time"
 )
 
+type Market struct {
+	MarketName        string      `json:"MarketName"`
+	High              float64     `json:"High"`
+	Low               float64     `json:"Low"`
+	Volume            float64     `json:"Volume"`
+	Last              float64     `json:"Last"`
+	BaseVolume        float64     `json:"BaseVolume"`
+	TimeStamp         string      `json:"TimeStamp"`
+	Bid               float64     `json:"Bid"`
+	Ask               float64     `json:"Ask"`
+	OpenBuyOrders     int         `json:"OpenBuyOrders"`
+	OpenSellOrders    int         `json:"OpenSellOrders"`
+	PrevDay           float64     `json:"PrevDay"`
+	Created           string      `json:"Created"`
+	DisplayMarketName interface{} `json:"DisplayMarketName"`
+}
+
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
 func main() {
@@ -49,9 +66,12 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
-			var objmap map[string]*json.RawMessage
-			err = json.Unmarshal(message, &objmap)
-			fmt.Printf("recv: %s", objmap["BTC-LTC"])
+			var markets map[string]Market
+			if err = json.Unmarshal(message, &markets); err != nil {
+				fmt.Println("error:", err)
+			}
+			fmt.Println(markets["BTC-LTC"])
+			fmt.Printf("Bid: %f, Ask: %f, Last: %f", markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
 			fmt.Println("\n")
 
 		case <-timer:
