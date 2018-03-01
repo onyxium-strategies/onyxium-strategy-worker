@@ -2,45 +2,47 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"time"
+	"os"
 )
 
 // A buffered channel that we can send work requests on.
 var WorkQueue = make(chan WorkRequest, 100)
 
 func Collector(w http.ResponseWriter, r *http.Request) {
-  // Make sure we can only be called with an HTTP POST request.
+	// Make sure we can only be called with an HTTP POST request.
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	json, err := parseJson(r.FormValue("json"))
-	if err != nil {
-		http.Error(w, err, http.StatusBadRequest)
-		return
+	// Tree part, now works by just hardcoded json file
+	// But need to fix / use the json from http post in the future
+	file, e := ioutil.ReadFile("./tree-example.json")
+	if e != nil {
+		fmt.Printf("File error: %v\n", e)
+		os.Exit(1)
 	}
 
+	myJson := string(file)
 
-  // Now, we information and make a WorkRequest out of them.
-	// condition := Condition{ConditionType: "percentage-increase", BaseCurrency: "ETH", QuoteCurrency: "OMG", TimeframeInMS: 3600000, BaseMetric: "price", Value: 20}
-	// action := Action{Type0: "order", OrderType: "limit-buy", OrderValueType: "absolute", BaseCurrency: "ETH", QuoteCurrency: "OMG", Quantity: 100, Value: 0.012}
-	// leftchild := Tree{Left: nil, Right: nil, Condition: condition, Action: action}
-	// root := Tree{Left: &leftchild, Right: nil, Condition: condition, Action: action}
+	tree, err := parseJson(myJson)
+	if err != nil {
+		fmt.Println(err)
+	}
+	root := parseBinaryTree(tree)
+	/* -- */
 
-
-
-	work := WorkRequest{Id: 1, Tree: &root}
+	work := WorkRequest{ID: 1, Tree: &root}
 	fmt.Println("Workrequest tree created")
 
-
-  // Push the work onto the queue.
+	// Push the work onto the queue.
 	WorkQueue <- work
 	fmt.Println("Work request queued")
 
-  // And let the user know their work request was created.
+	// And let the user know their work request was created.
 	w.WriteHeader(http.StatusCreated)
 	return
 }

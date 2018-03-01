@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/tidwall/gjson"
@@ -9,12 +10,13 @@ import (
 )
 
 // TODO return err obj
-func parseJson(jsonInput string) ([]interface{}, string) {
+func parseJson(jsonInput string) ([]interface{}, error) {
 	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
 	if !ok {
-		return data, "Invalid json structure"
+		err := errors.New("Invalid json structure")
+		return data, err
 	}
-	return data, ""
+	return data, nil
 }
 
 func parseBinaryTree(tree []interface{}) Tree {
@@ -77,7 +79,7 @@ func walk(tree *Tree) {
 	}
 }
 
-func main() {
+func readTreeExample() Tree {
 	file, e := ioutil.ReadFile("./tree-example.json")
 	if e != nil {
 		fmt.Printf("File error: %v\n", e)
@@ -87,9 +89,10 @@ func main() {
 	myJson := string(file)
 
 	tree, err := parseJson(myJson)
-	if err != "" {
-		fmt.Printf(err)
+	if err != nil {
+		fmt.Println(err)
 	}
 	root := parseBinaryTree(tree)
-	walk(&root)
+	// walk(&root)
+	return root
 }

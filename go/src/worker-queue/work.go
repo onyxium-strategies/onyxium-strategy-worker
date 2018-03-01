@@ -48,6 +48,6 @@ type Tree struct {
 }
 
 type WorkRequest struct {
-	Id   int
+	ID   int
 	Tree *Tree
 }
