@@ -10,6 +10,8 @@ import (
 // A buffered channel that we can send work requests on.
 var WorkQueue = make(chan WorkRequest, 100)
 
+var id int
+
 func Collector(w http.ResponseWriter, r *http.Request) {
 	// Make sure we can only be called with an HTTP POST request.
 	if r.Method != "POST" {
@@ -35,7 +37,8 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 	root := parseBinaryTree(tree)
 	/* -- */
 
-	work := WorkRequest{ID: 1, Tree: &root}
+	work := WorkRequest{ID: id, Tree: &root}
+	id = id + 1
 	fmt.Println("Workrequest tree created")
 
 	// Push the work onto the queue.

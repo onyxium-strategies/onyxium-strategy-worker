@@ -78,7 +78,7 @@ func (w *Worker) Start() {
 				done := make(chan bool)
 
 				// Close the connection after a duration
-				timer := time.NewTimer(20 * time.Second).C
+				timer := time.NewTimer(5 * time.Second).C
 
 				for {
 					select {
