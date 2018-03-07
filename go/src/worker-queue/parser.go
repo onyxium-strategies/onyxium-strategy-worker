@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-// TODO return err obj
 func parseJson(jsonInput string) ([]interface{}, error) {
 	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
 	if !ok {

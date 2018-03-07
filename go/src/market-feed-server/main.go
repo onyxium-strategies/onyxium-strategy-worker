@@ -26,7 +26,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		println("Got market summary")
+		fmt.Println("Got market summary")
 
 		myJson, err := json.Marshal(market)
 		if err != nil {
