@@ -20,8 +20,14 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		time.Sleep(time.Second)
-		getMarketSummary()
+		market, err = getMarketSummary()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		println("Got market summary")
+
 		myJson, err := json.Marshal(market)
 		if err != nil {
 			fmt.Println(err)

@@ -57,14 +57,14 @@ response:
 var market map[string]Market
 
 // Return
-func getMarketSummary() {
+func getMarketSummary() (map[string]Market, error) {
 	url := "https://bittrex.com/api/v1.1/public/getmarketsummaries"
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal("NewRequest: ", err)
-		return
+		return make(map[string]Market), err
 	}
 
 	// For control over HTTP client headers,
@@ -79,7 +79,7 @@ func getMarketSummary() {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal("Do: ", err)
-		return
+		return make(map[string]Market), err
 	}
 
 	// Callers should close resp.Body
@@ -100,7 +100,7 @@ func getMarketSummary() {
 	for _, i := range record.MarketSummary {
 		market[i.MarketName] = i
 	}
-	return
+	return market, nil
 }
 
 // func main() {
