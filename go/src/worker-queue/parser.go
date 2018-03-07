@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// Parse nested json string to json object
 func parseJson(jsonInput string) ([]interface{}, error) {
 	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
 	if !ok {
@@ -18,12 +19,14 @@ func parseJson(jsonInput string) ([]interface{}, error) {
 	return data, nil
 }
 
+// Parse json tree from frontend to a binary tree for backend
 func parseBinaryTree(tree []interface{}) Tree {
 	root := Tree{Left: nil, Right: nil, Conditions: []Condition{{ConditionType: "true"}}, Action: Action{}}
 	root.Left = _parseBinaryTree(tree, root.Left, 0)
 	return root
 }
 
+// Recursive version of parseBinaryTree
 func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 	if i < len(siblings) {
 		conditions := siblings[i].(map[string]interface{})["conditions"]
@@ -43,6 +46,7 @@ func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 	return root
 }
 
+// Helper for parseBinaryTree
 func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
 	conditions := []Condition{}
 	for _, condition := range conditionsSlice {
@@ -51,6 +55,7 @@ func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
 	return conditions
 }
 
+// Helper for parseBinaryTree
 func createConditionFromMap(m map[string]interface{}) Condition {
 	var result Condition
 	err := mapstructure.Decode(m, &result)
@@ -60,6 +65,7 @@ func createConditionFromMap(m map[string]interface{}) Condition {
 	return result
 }
 
+// Helper for parseBinaryTree
 func createActionFromMap(m map[string]interface{}) Action {
 	var result Action
 	err := mapstructure.Decode(m, &result)
@@ -67,31 +73,4 @@ func createActionFromMap(m map[string]interface{}) Action {
 		fmt.Printf("Error: %v\n", err)
 	}
 	return result
-}
-
-// for debugging the tree
-func walk(tree *Tree) {
-	if tree != nil {
-		fmt.Println(tree)
-		walk(tree.Left)
-		walk(tree.Right)
-	}
-}
-
-func readTreeExample() Tree {
-	file, e := ioutil.ReadFile("./tree-example.json")
-	if e != nil {
-		fmt.Printf("File error: %v\n", e)
-		os.Exit(1)
-	}
-
-	myJson := string(file)
-
-	tree, err := parseJson(myJson)
-	if err != nil {
-		fmt.Println(err)
-	}
-	root := parseBinaryTree(tree)
-	// walk(&root)
-	return root
 }

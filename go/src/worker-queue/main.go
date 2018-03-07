@@ -28,7 +28,4 @@ func main() {
 	if err := http.ListenAndServe(*HTTPAddr, nil); err != nil {
 		fmt.Println(err.Error())
 	}
-
-	// Can be ran with:
-	// for i in {1..12}; do curl localhost:8000/work -d name=$USER -d delay=$(expr $i % 11)s; done
 }
