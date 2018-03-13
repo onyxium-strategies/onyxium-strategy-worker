@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
-	// "log"
-	"net/http"
-
-	// "golang.org/x/net/websocket"
-	"encoding/json"
-	"github.com/gorilla/websocket"
+	"gopkg.in/mgo.v2"
+	// "gopkg.in/mgo.v2/bson"
+	"log"
 	"time"
 )
 
-func echoHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+func main() {
+	session, err := mgo.Dial("localhost")
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
+	defer session.Close()
+
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+
+	c := session.DB("coinflow").C("market")
 
 	for {
 		time.Sleep(time.Second)
@@ -25,38 +27,12 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 			return
 		}
-
+		// for debugging
 		fmt.Println("Got market summary")
 
-		myJson, err := json.Marshal(market)
+		err = c.Insert(&market)
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
-
-		err = conn.WriteMessage(websocket.TextMessage, myJson)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-	}
-
-}
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
-func main() {
-
-	http.HandleFunc("/echo", echoHandler)
-
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic("ListenAndServe: " + err.Error())
 	}
 }
