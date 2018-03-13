@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"os"
+	// "io/ioutil"
+	// "os"
 )
 
 // Parse nested json string to json object

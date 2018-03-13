@@ -1,32 +1,29 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
+	"gopkg.in/mgo.v2"
+	// "gopkg.in/mgo.v2/bson"
 	"log"
-	"net/url"
 	"time"
 )
 
-// Probably not required anymore
-// type Market struct {
-// 	MarketName        string      `json:"MarketName"`
-// 	High              float64     `json:"High"`
-// 	Low               float64     `json:"Low"`
-// 	Volume            float64     `json:"Volume"`
-// 	Last              float64     `json:"Last"`
-// 	BaseVolume        float64     `json:"BaseVolume"`
-// 	TimeStamp         string      `json:"TimeStamp"`
-// 	Bid               float64     `json:"Bid"`
-// 	Ask               float64     `json:"Ask"`
-// 	OpenBuyOrders     int         `json:"OpenBuyOrders"`
-// 	OpenSellOrders    int         `json:"OpenSellOrders"`
-// 	PrevDay           float64     `json:"PrevDay"`
-// 	Created           string      `json:"Created"`
-// 	DisplayMarketName interface{} `json:"DisplayMarketName"`
-// }
+type Market struct {
+	MarketName        string      `json:"MarketName"`
+	High              float64     `json:"High"`
+	Low               float64     `json:"Low"`
+	Volume            float64     `json:"Volume"`
+	Last              float64     `json:"Last"`
+	BaseVolume        float64     `json:"BaseVolume"`
+	TimeStamp         string      `json:"TimeStamp"`
+	Bid               float64     `json:"Bid"`
+	Ask               float64     `json:"Ask"`
+	OpenBuyOrders     int         `json:"OpenBuyOrders"`
+	OpenSellOrders    int         `json:"OpenSellOrders"`
+	PrevDay           float64     `json:"PrevDay"`
+	Created           string      `json:"Created"`
+	DisplayMarketName interface{} `json:"DisplayMarketName"`
+}
 
 type Worker struct {
 	ID          int
@@ -49,8 +46,6 @@ func NewWorker(id int, workerQueue chan chan WorkRequest) Worker {
 	return worker
 }
 
-// var addr = flag.String("addr", "localhost:8080", "http service address")
-
 // This function "starts" the worker by starting a goroutine, that is
 // an infinite "for-select" loop.
 func (w *Worker) Start() {
@@ -65,15 +60,17 @@ func (w *Worker) Start() {
 				// Receive a work request.
 				fmt.Println("worker", w.ID, ": Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
 
-				// Connect with websocket url
-				// u := url.URL{Scheme: "ws", Host: *addr, Path: "/echo"}
-				// log.Printf("connecting to %s", u.String())
+				// Connect with DB
+				session, err := mgo.Dial("localhost")
+				if err != nil {
+					panic(err)
+				}
+				defer session.Close()
 
-				// conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-				// if err != nil {
-				// 	log.Fatal("dial:", err)
-				// }
-				// defer conn.Close()
+				// Optional. Switch the session to a monotonic behavior.
+				session.SetMode(mgo.Monotonic, true)
+
+				c := session.DB("coinflow").C("market")
 
 				ticker := time.NewTicker(1 * time.Second).C
 				done := make(chan bool)
@@ -84,18 +81,13 @@ func (w *Worker) Start() {
 				for {
 					select {
 					case <-ticker:
-						// _, message, err := conn.ReadMessage()
-						// if err != nil {
-						// 	log.Println("read:", err)
-						// 	return
-						// }
-						// var markets map[string]Market
-						// if err = json.Unmarshal(message, &markets); err != nil {
-						// 	fmt.Println("error:", err)
-						// }
-						// fmt.Println(markets["BTC-LTC"])
-						// fmt.Printf("Bid: %f, Ask: %f, Last: %f", markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
-						// fmt.Println("\n")
+						result := make(map[string]Market)
+						err = c.Find(nil).Limit(1).Sort("-$natural").One(&result)
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", result["BTC-LTC"].TimeStamp, result["BTC-LTC"].Bid, result["BTC-LTC"].Ask, result["BTC-LTC"].Last)
 
 					case <-timer:
 						log.Println("timer ended")

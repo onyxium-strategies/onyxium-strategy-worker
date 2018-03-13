@@ -1,0 +1,44 @@
+{
+	"info": {
+		"name": "coinflow",
+		"_postman_id": "da8d00a6-be73-485d-bd20-5036180bda27",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "work request",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"percentage-increase\",\n            \"baseCurrency\":\"ETH\",\n            \"quoteCurrency\":\"OMG\",\n            \"timeframeInMS\":3600000,\n            \"baseMetric\":\"price\",\n            \"value\":20\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-buy - node B\",\n         \"orderValueType\":\"absolute\",\n         \"baseCurrency\":\"ETH\",\n         \"quoteCurrency\":\"OMG\",\n         \"quantity\":100,\n         \"value\":0.012\n      },\n      \"then\":[\n         {\n            \"conditions\":[\n               {\n                  \"conditionType\":\"percentage-increase\",\n                  \"baseCurrency\":\"ETH\",\n                  \"quoteCurrency\":\"OMG\",\n                  \"timeframeInMS\":3600000,\n                  \"baseMetric\":\"price\",\n                  \"value\":20\n               },\n               {\n                  \"conditionType\":\"percentage-increase\",\n                  \"baseCurrency\":\"ETH\",\n                  \"quoteCurrency\":\"OMG\",\n                  \"timeframeInMS\":3600000,\n                  \"baseMetric\":\"price\",\n                  \"quoteMetric\":\"boilinger-band-upper-bound\",\n                  \"value\":20\n               }\n            ],\n            \"action\":{\n               \"orderType\":\"limit-buy - node E\",\n               \"orderValueType\":\"absolute\",\n               \"baseCurrency\":\"ETH\",\n               \"quoteCurrency\":\"OMG\",\n               \"quantity\":100,\n               \"value\":0.012\n            }\n         },\n         {\n            \"conditions\":[\n               {\n                  \"conditionType\":\"absolute-increase\",\n                  \"baseCurrency\":\"ETH\",\n                  \"quoteCurrency\":\"OMG\",\n                  \"timeframeInMS\":7200000,\n                  \"baseMetric\":\"rsi\",\n                  \"value\":5\n               }\n            ],\n            \"action\":{\n               \"orderType\":\"limit-sell - node F\",\n               \"orderValueType\":\"absolute\",\n               \"baseCurrency\":\"ETH\",\n               \"quoteCurrency\":\"OMG\",\n               \"quantity\":100,\n               \"value\":0.012\n            }\n         }\n      ]\n   },\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"absolute-increase\",\n            \"baseCurrency\":\"ETH\",\n            \"quoteCurrency\":\"OMG\",\n            \"timeframeInMS\":7200000,\n            \"baseMetric\":\"rsi\",\n            \"value\":5\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-buy - node C\",\n         \"orderValueType\":\"absolute\",\n         \"baseCurrency\":\"ETH\",\n         \"quoteCurrency\":\"OMG\",\n         \"quantity\":100,\n         \"value\":0.012\n      }\n   },\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"absolute-decrease\",\n            \"baseCurrency\":\"ETH\",\n            \"quoteCurrency\":\"OMG\",\n            \"timeframeInMS\":7200000,\n            \"baseMetric\":\"rsi\",\n            \"value\":10\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-sell - node D\",\n         \"orderValueType\":\"absolute\",\n         \"baseCurrency\":\"ETH\",\n         \"quoteCurrency\":\"OMG\",\n         \"quantity\":100,\n         \"value\":0.012\n      }\n   }\n]\n"
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/work",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"work"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
