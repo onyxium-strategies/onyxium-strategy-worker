@@ -54,8 +54,6 @@ response:
 }
 */
 
-var market map[string]Market
-
 // Return
 func getMarketSummary() (map[string]Market, error) {
 	url := "https://bittrex.com/api/v1.1/public/getmarketsummaries"
@@ -95,7 +93,7 @@ func getMarketSummary() (map[string]Market, error) {
 		log.Println(err)
 	}
 
-	market = make(map[string]Market)
+	market := make(map[string]Market)
 
 	for _, i := range record.MarketSummary {
 		market[i.MarketName] = i

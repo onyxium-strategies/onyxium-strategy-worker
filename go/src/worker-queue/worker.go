@@ -49,16 +49,22 @@ func NewWorker(id int, workerQueue chan chan WorkRequest) Worker {
 // This function "starts" the worker by starting a goroutine, that is
 // an infinite "for-select" loop.
 func (w *Worker) Start() {
-
 	go func() {
 		for {
-			// Add ourselves into the worker queue.
+			fmt.Println("Add ourselves into the worker queue.")
 			w.WorkerQueue <- w.Work
 
 			select {
 			case work := <-w.Work:
 				// Receive a work request.
 				fmt.Println("worker", w.ID, ": Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
+
+				// Close the connection after a duration
+				timer := time.NewTimer(10 * time.Second)
+				go func() {
+					<-timer.C
+					w.Stop()
+				}()
 
 				// Connect with DB
 				session, err := mgo.Dial("localhost")
@@ -72,44 +78,16 @@ func (w *Worker) Start() {
 
 				c := session.DB("coinflow").C("market")
 
-				ticker := time.NewTicker(1 * time.Second).C
-				done := make(chan bool)
+				// ticker := time.NewTicker(1 * time.Second).C
+				// done := make(chan bool)
 
-				// Close the connection after a duration
-				timer := time.NewTimer(5 * time.Second).C
-
-				for {
-					select {
-					case <-ticker:
-						result := make(map[string]Market)
-						err = c.Find(nil).Limit(1).Sort("-$natural").One(&result)
-						if err != nil {
-							log.Fatal(err)
-						}
-
-						fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", result["BTC-LTC"].TimeStamp, result["BTC-LTC"].Bid, result["BTC-LTC"].Ask, result["BTC-LTC"].Last)
-
-					case <-timer:
-						log.Println("timer ended")
-						return
-					case <-done:
-						log.Println("job done")
-						return
-
-						// Cleanly close the connection by sending a close message and then
-						// waiting (with timeout) for the server to close the connection.
-						// err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-						// if err != nil {
-						// 	log.Println("write close:", err)
-						// 	return
-						// }
-						// select {
-						// case <-done:
-						// case <-time.After(time.Second):
-						// }
-						return
-					}
+				result := make(map[string]Market)
+				err = c.Find(nil).Limit(1).Sort("-$natural").One(&result)
+				if err != nil {
+					log.Fatal(err)
 				}
+
+				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", result["BTC-LTC"].TimeStamp, result["BTC-LTC"].Bid, result["BTC-LTC"].Ask, result["BTC-LTC"].Last)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.

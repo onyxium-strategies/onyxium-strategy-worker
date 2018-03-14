@@ -22,6 +22,7 @@ func main() {
 
 	for {
 		time.Sleep(time.Second)
+		market := make(map[string]Market)
 		market, err = getMarketSummary()
 		if err != nil {
 			fmt.Println(err)
