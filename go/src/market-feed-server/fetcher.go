@@ -56,7 +56,7 @@ response:
 
 // Return
 func getMarketSummary() (map[string]Market, error) {
-	url := "https://bittrex.com/api/v1.1/public/getmarketsummaries"
+	url := "https://a871b5d8-42d5-4331-bc03-bd48441b7bd1.mock.pstmn.io/getmarketsummaries"
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)

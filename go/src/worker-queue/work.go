@@ -20,7 +20,7 @@ type Condition struct {
 // }
 
 type Action struct {
-	Type0          string
+	Type           string
 	OrderType      string
 	OrderValueType string
 	BaseCurrency   string
