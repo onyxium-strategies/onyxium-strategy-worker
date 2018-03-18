@@ -81,13 +81,15 @@ func (w *Worker) Start() {
 				// ticker := time.NewTicker(1 * time.Second).C
 				// done := make(chan bool)
 
-				result := make(map[string]Market)
-				err = c.Find(nil).Limit(1).Sort("-$natural").One(&result)
+				markets := make(map[string]Market)
+				err = c.Find(nil).Limit(1).Sort("-$natural").One(&markets)
 				if err != nil {
 					log.Fatal(err)
 				}
 
-				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", result["BTC-LTC"].TimeStamp, result["BTC-LTC"].Bid, result["BTC-LTC"].Ask, result["BTC-LTC"].Last)
+				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", markets["BTC-LTC"].TimeStamp, markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
+
+				walk(work.Tree, work.Tree, markets)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.
@@ -107,11 +109,42 @@ func (w *Worker) Stop() {
 	}()
 }
 
+// Maybe make a Method from this function
 // Walk a tree example
-func walk(tree *Tree) {
+func walk(tree *Tree, root *Tree, markets map[string]Market) {
 	if tree != nil {
 		fmt.Println(tree)
-		walk(tree.Left)
-		walk(tree.Right)
+		// if all conditions true do action then Tree.Left
+		// else go to next sibling Tree.Right
+		doAction := true
+		for _, condition := range tree.Conditions {
+			market := markets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+			switch condition.ConditionType {
+			case "absolute-above":
+				switch condition.BaseMetric {
+				case "price":
+					if market.Last < condition.Value {
+						doAction = false
+					}
+				}
+			case "absolute-below":
+				switch condition.BaseMetric {
+				case "price":
+					if market.Last > condition.Value {
+						doAction = false
+					}
+				}
+			}
+		}
+		if doAction {
+			fmt.Println(tree.Action)
+			walk(tree.Left, root, markets)
+		} else {
+			if tree.Right == nil {
+				walk(root, root, markets)
+			} else {
+				walk(tree.Right, root, markets)
+			}
+		}
 	}
 }

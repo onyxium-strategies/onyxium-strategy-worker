@@ -21,7 +21,7 @@ func parseJson(jsonInput string) ([]interface{}, error) {
 
 // Parse json tree from frontend to a binary tree for backend
 func parseBinaryTree(tree []interface{}) Tree {
-	root := Tree{Left: nil, Right: nil, Conditions: []Condition{{ConditionType: "true"}}, Action: Action{}}
+	root := Tree{Left: nil, Right: nil, Conditions: []Condition{{ConditionType: "root"}}, Action: Action{}}
 	root.Left = _parseBinaryTree(tree, root.Left, 0)
 	return root
 }
