@@ -113,7 +113,7 @@ func (w *Worker) Stop() {
 // Walk a tree example
 func walk(tree *Tree, root *Tree, markets map[string]Market) {
 	if tree != nil {
-		fmt.Println(tree)
+		fmt.Println("Current node: ", tree)
 		// if all conditions true do action then Tree.Left
 		// else go to next sibling Tree.Right
 		doAction := true
@@ -138,9 +138,11 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 		}
 		if doAction {
 			fmt.Println(tree.Action)
-			walk(tree.Left, root, markets)
+			walk(tree.Left, tree.Left, markets)
 		} else {
 			if tree.Right == nil {
+				fmt.Println("\nJumping back to root: ", root)
+				time.Sleep(3 * time.Second)
 				walk(root, root, markets)
 			} else {
 				walk(tree.Right, root, markets)

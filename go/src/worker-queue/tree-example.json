@@ -81,65 +81,65 @@
                      "quantity":300,
                      "value":0.02
                   },
-                  // "then":[
-                  //    {
-                  //       "conditions":[
-                  //          {
-                  //             "conditionType":"absolute-above",
-                  //             "baseCurrency":"BTC",
-                  //             "quoteCurrency":"LTC",
-                  //             "baseMetric":"price",
-                  //             "value": 0.1
-                  //          }
-                  //       ],
-                  //       "action":{
-                  //          "orderType":"limit-buy",
-                  //          "orderValueType":"absolute",
-                  //          "baseCurrency":"BTC",
-                  //          "quoteCurrency":"LTC",
-                  //          "quantity":10,
-                  //          "value":0.02
-                  //       }
-                  //    },
-                  //    {
-                  //       "conditions":[
-                  //          {
-                  //             "conditionType":"absolute-above",
-                  //             "baseCurrency":"BTC",
-                  //             "quoteCurrency":"LTC",
-                  //             "baseMetric":"price",
-                  //             "value": 0.1
-                  //          }
-                  //       ],
-                  //       "action":{
-                  //          "orderType":"limit-buy",
-                  //          "orderValueType":"absolute",
-                  //          "baseCurrency":"BTC",
-                  //          "quoteCurrency":"LTC",
-                  //          "quantity":10,
-                  //          "value":0.02
-                  //       }
-                  //    },
-                  //    {
-                  //       "conditions":[
-                  //          {
-                  //             "conditionType":"absolute-above",
-                  //             "baseCurrency":"BTC",
-                  //             "quoteCurrency":"LTC",
-                  //             "baseMetric":"price",
-                  //             "value": 0.1
-                  //          }
-                  //       ],
-                  //       "action":{
-                  //          "orderType":"limit-buy",
-                  //          "orderValueType":"absolute",
-                  //          "baseCurrency":"BTC",
-                  //          "quoteCurrency":"LTC",
-                  //          "quantity":10,
-                  //          "value":0.02
-                  //       }
-                  //    }
-                  // ]
+                  "then":[
+                     {
+                        "conditions":[
+                           {
+                              "conditionType":"absolute-above",
+                              "baseCurrency":"BTC",
+                              "quoteCurrency":"LTC",
+                              "baseMetric":"price",
+                              "value": 1
+                           }
+                        ],
+                        "action":{
+                           "orderType":"limit-buy",
+                           "orderValueType":"absolute",
+                           "baseCurrency":"BTC",
+                           "quoteCurrency":"LTC",
+                           "quantity":10,
+                           "value":0.02
+                        }
+                     },
+                     {
+                        "conditions":[
+                           {
+                              "conditionType":"absolute-above",
+                              "baseCurrency":"BTC",
+                              "quoteCurrency":"LTC",
+                              "baseMetric":"price",
+                              "value": 0.1
+                           }
+                        ],
+                        "action":{
+                           "orderType":"limit-buy",
+                           "orderValueType":"absolute",
+                           "baseCurrency":"BTC",
+                           "quoteCurrency":"LTC",
+                           "quantity":10,
+                           "value":0.02
+                        }
+                     },
+                     {
+                        "conditions":[
+                           {
+                              "conditionType":"absolute-above",
+                              "baseCurrency":"BTC",
+                              "quoteCurrency":"LTC",
+                              "baseMetric":"price",
+                              "value": 0.1
+                           }
+                        ],
+                        "action":{
+                           "orderType":"limit-buy",
+                           "orderValueType":"absolute",
+                           "baseCurrency":"BTC",
+                           "quoteCurrency":"LTC",
+                           "quantity":10,
+                           "value":0.02
+                        }
+                     }
+                  ]
 
                }
             ]
