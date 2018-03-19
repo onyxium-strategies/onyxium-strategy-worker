@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2"
 	// "gopkg.in/mgo.v2/bson"
+	"../database"
 	"log"
 	"time"
 )
@@ -66,23 +66,8 @@ func (w *Worker) Start() {
 					w.Stop()
 				}()
 
-				// Connect with DB
-				session, err := mgo.Dial("localhost")
-				if err != nil {
-					panic(err)
-				}
-				defer session.Close()
-
-				// Optional. Switch the session to a monotonic behavior.
-				session.SetMode(mgo.Monotonic, true)
-
-				c := session.DB("coinflow").C("market")
-
-				// ticker := time.NewTicker(1 * time.Second).C
-				// done := make(chan bool)
-
 				markets := make(map[string]Market)
-				err = c.Find(nil).Limit(1).Sort("-$natural").One(&markets)
+				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -110,21 +95,33 @@ func (w *Worker) Stop() {
 }
 
 // Maybe make a Method from this function
-// Walk a tree example
 func walk(tree *Tree, root *Tree, markets map[string]Market) {
 	if tree != nil {
-		fmt.Println("Current node: ", tree)
+
+		// get latest market update
+		err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("\nCURRENT NODE: ", tree)
+
 		// if all conditions true do action then Tree.Left
 		// else go to next sibling Tree.Right
 		doAction := true
+
 		for _, condition := range tree.Conditions {
 			market := markets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+			fmt.Println("MARKET last:", market.Last)
 			switch condition.ConditionType {
 			case "absolute-above":
 				switch condition.BaseMetric {
 				case "price":
 					if market.Last < condition.Value {
+						fmt.Println("COMPARISON Market", market.Last, "< than condition value", condition.Value)
 						doAction = false
+					} else {
+						fmt.Println("COMPARISON Market", market.Last, "> than condition value", condition.Value)
 					}
 				}
 			case "absolute-below":
@@ -134,17 +131,28 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 						doAction = false
 					}
 				}
+			case "absolute-increase":
+				fmt.Println("COMPARISON absolute-increase not supported yet, so doAction set to false")
+				doAction = false
+			case "absolute-decrease":
+				fmt.Println("COMPARISON absolute-decrease not supported yet, so doAction set to false")
+				doAction = false
 			}
 		}
 		if doAction {
-			fmt.Println(tree.Action)
+			fmt.Println("ACTION:", tree.Action)
+			if tree.Left == nil {
+				fmt.Println("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+			}
 			walk(tree.Left, tree.Left, markets)
+
 		} else {
 			if tree.Right == nil {
-				fmt.Println("\nJumping back to root: ", root)
+				fmt.Println("JUMPING to root: ", root)
 				time.Sleep(3 * time.Second)
 				walk(root, root, markets)
 			} else {
+				fmt.Println("JUMPING to right")
 				walk(tree.Right, root, markets)
 			}
 		}
