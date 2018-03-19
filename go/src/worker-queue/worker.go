@@ -138,6 +138,27 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 		}
 		if doAction {
 			fmt.Println(tree.Action)
+			/*url := "https://a32c09b8-1835-4963-a32a-e87a473414c3.mock.pstmn.io/market/buylimit"
+			// Build the request
+			req, err := http.NewRequest("GET", url, nil)
+			if err != nil {
+				log.Fatal("NewRequest: ", err)
+			}
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Fatal("Do: ", err)
+			}
+			defer resp.Body.Close()
+
+			// Fill the record with the data from the JSON
+			var record MarketSummaryResponse
+
+			// Use json.Decode for reading streams of JSON data
+			if err := json.NewDecoder(resp.Body).Decode(&record); err != nil {
+				log.Println(err)
+			}
+			*/
 			walk(tree.Left, tree.Left, markets)
 		} else {
 			if tree.Right == nil {
