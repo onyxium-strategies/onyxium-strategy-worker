@@ -147,12 +147,13 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 		if doAction {
 			fmt.Println("ACTION:", tree.Action)
 			if tree.Left == nil {
-				fmt.Println("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+				fmt.Println("\nNO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 				tree = nil
+			} else {
+				tree = tree.Left
+				root = root.Left
+				fmt.Println("JUMPING to left")
 			}
-			fmt.Println("JUMPING to left")
-			tree = tree.Left
-			root = tree.Left
 			i = 0
 		} else {
 			if tree.Right == nil {
