@@ -74,7 +74,7 @@ func (w *Worker) Start() {
 
 				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", markets["BTC-LTC"].TimeStamp, markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
 
-				go walk(work.Tree, work.Tree, markets)
+				go walk(work.Tree.Left, work.Tree.Left, markets)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.
@@ -96,15 +96,17 @@ func (w *Worker) Stop() {
 
 // Maybe make a Method from this function
 func walk(tree *Tree, root *Tree, markets map[string]Market) {
-	if tree != nil {
+	i := 0
+	for tree != nil {
 
 		// get latest market update
 		err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		fmt.Println("\nCURRENT NODE: ", tree)
+		fmt.Printf("\n%x condition iterations after last action", i)
+		fmt.Println("\nCURRENT ROOT: ", root)
+		fmt.Println("CURRENT NODE: ", tree)
 
 		// if all conditions true do action then Tree.Left
 		// else go to next sibling Tree.Right
@@ -139,22 +141,31 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 				doAction = false
 			}
 		}
+
+		// In next section, new root and or tree will be set for next while loop.
+
 		if doAction {
 			fmt.Println("ACTION:", tree.Action)
 			if tree.Left == nil {
 				fmt.Println("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+				tree = nil
 			}
-			walk(tree.Left, tree.Left, markets)
-
+			fmt.Println("JUMPING to left")
+			tree = tree.Left
+			root = tree.Left
+			i = 0
 		} else {
 			if tree.Right == nil {
 				fmt.Println("JUMPING to root: ", root)
 				time.Sleep(3 * time.Second)
-				walk(root, root, markets)
+				tree = root
+				i += 1
 			} else {
 				fmt.Println("JUMPING to right")
-				walk(tree.Right, root, markets)
+				tree = tree.Right
 			}
 		}
+
 	}
+
 }
