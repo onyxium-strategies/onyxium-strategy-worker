@@ -74,7 +74,7 @@ func (w *Worker) Start() {
 
 				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", markets["BTC-LTC"].TimeStamp, markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
 
-				go walk(work.Tree.Left, work.Tree.Left, markets)
+				walk(work.Tree.Left, work.Tree.Left, markets)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.
