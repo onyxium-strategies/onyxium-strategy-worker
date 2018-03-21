@@ -59,13 +59,6 @@ func (w *Worker) Start() {
 				// Receive a work request.
 				fmt.Println("worker", w.ID, ": Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
 
-				// Close the connection after a duration
-				timer := time.NewTimer(10 * time.Second)
-				go func() {
-					<-timer.C
-					w.Stop()
-				}()
-
 				markets := make(map[string]Market)
 				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
 				if err != nil {
