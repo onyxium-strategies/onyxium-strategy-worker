@@ -94,6 +94,7 @@ func (w *Worker) Stop() {
 	}()
 }
 
+// Walk: https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree
 // Maybe make a Method from this function
 func walk(tree *Tree, root *Tree, markets map[string]Market) {
 	if tree != nil {
@@ -144,7 +145,6 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 			if tree.Left == nil {
 				fmt.Println("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 			}
-			fmt.Println(tree.Action)
 			/*url := "https://a32c09b8-1835-4963-a32a-e87a473414c3.mock.pstmn.io/market/buylimit"
 			// Build the request
 			req, err := http.NewRequest("GET", url, nil)

@@ -9,36 +9,15 @@ type Condition struct {
 	Value         float64
 }
 
-// example condition json:
-// {
-//  "conditionType":"percentage-increase",
-//  "baseCurrency":"ETH",
-//  "quoteCurrency":"OMG",
-//  "timeframeInMS":3600000,
-//  "baseMetric":"price",
-//  "value":20
-// }
-
 type Action struct {
-	Type           string
-	OrderType      string
-	OrderValueType string
-	BaseCurrency   string
-	QuoteCurrency  string
-	Quantity       float32
-	Value          float64
+	OrderType        string
+	ValueType        string
+	ValueQuoteMetric string
+	BaseCurrency     string
+	QuoteCurrency    string
+	Quantity         float32
+	Value            float64
 }
-
-// example action json:
-// "action":{
-//  "type":"order",
-//  "orderType":"limit-buy",
-//  "orderValueType":"absolute",
-//  "baseCurrency":"ETH",
-//  "quoteCurrency":"OMG",
-//  "quantity":100,
-//  "value":0.012
-// }
 
 type Tree struct {
 	Left       *Tree
