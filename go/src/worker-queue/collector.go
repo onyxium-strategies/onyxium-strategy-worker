@@ -34,11 +34,10 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 
 	root := parseBinaryTree(tree)
 	work := WorkRequest{ID: id, Tree: &root}
+	fmt.Println("Workrequest created")
 
 	// TODO: get last ID from database, use that one + 1
 	id = id + 1
-
-	fmt.Println("Workrequest tree created")
 
 	// Push the work onto the queue.
 	WorkQueue <- work

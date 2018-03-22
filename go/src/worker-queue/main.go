@@ -11,11 +11,15 @@ import (
 var (
 	NWorkers = flag.Int("n", 4, "The number of workers to start")
 	HTTPAddr = flag.String("http", "127.0.0.1:8000", "Address to listen for HTTP requests on")
+	Verbose  = flag.Int("v", 0, "The level of verbosity of the print statements") //
 )
 
 func main() {
 	// Parse the command-line flags.
+
 	flag.Parse()
+
+	fmt.Println(Verbose)
 
 	// Start and share database connection
 	// https://stackoverflow.com/questions/31218008/sharing-a-globally-defined-db-conn-with-multiple-packages-in-golang
