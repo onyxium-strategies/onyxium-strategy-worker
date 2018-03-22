@@ -10,13 +10,13 @@ type Condition struct {
 }
 
 type Action struct {
-	Type           string
-	OrderType      string
-	OrderValueType string
-	BaseCurrency   string
-	QuoteCurrency  string
-	Quantity       float32
-	Value          float64
+	OrderType        string
+	ValueType        string
+	ValueQuoteMetric string
+	BaseCurrency     string
+	QuoteCurrency    string
+	Quantity         float32
+	Value            float64
 }
 
 type Tree struct {

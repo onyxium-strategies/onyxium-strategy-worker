@@ -56,7 +56,7 @@ response:
 
 // Return
 func getMarketSummary() (map[string]Market, error) {
-	url := "https://a871b5d8-42d5-4331-bc03-bd48441b7bd1.mock.pstmn.io/getmarketsummaries"
+	url := "https://44233382-898e-4f31-bbdb-01c4ed42f0f7.mock.pstmn.io/getmarketsummaries"
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
