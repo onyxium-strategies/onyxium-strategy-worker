@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-	// "gopkg.in/mgo.v2/bson"
 	"../database"
+	"fmt"
 	"log"
 	"time"
 )
@@ -51,20 +50,13 @@ func NewWorker(id int, workerQueue chan chan WorkRequest) Worker {
 func (w *Worker) Start() {
 	go func() {
 		for {
-			fmt.Println("Add ourselves into the worker queue.")
+			fmt.Println("Worker", w.ID, "Add ourselves into the worker queue.")
 			w.WorkerQueue <- w.Work
 
 			select {
 			case work := <-w.Work:
 				// Receive a work request.
-				fmt.Println("worker", w.ID, ": Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
-
-				// Close the connection after a duration
-				timer := time.NewTimer(10 * time.Second)
-				go func() {
-					<-timer.C
-					w.Stop()
-				}()
+				fmt.Println("Worker", w.ID, "Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
 
 				markets := make(map[string]Market)
 				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
@@ -72,13 +64,12 @@ func (w *Worker) Start() {
 					log.Fatal(err)
 				}
 
-				fmt.Printf("Timestamp: %s, Bid: %f, Ask: %f, Last: %f \n", markets["BTC-LTC"].TimeStamp, markets["BTC-LTC"].Bid, markets["BTC-LTC"].Ask, markets["BTC-LTC"].Last)
-
 				walk(work.Tree.Left, work.Tree.Left, markets)
+				fmt.Printf("Worker %d's work is done\n", w.ID)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.
-				fmt.Printf("worker%d stopping\n", w.ID)
+				fmt.Printf("Worker%d stopping\n", w.ID)
 				return
 			}
 		}
@@ -105,9 +96,11 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("\n%x condition iterations after last action", i)
-		fmt.Println("\nCURRENT ROOT: ", root)
-		fmt.Println("CURRENT NODE: ", tree)
+		if *Verbose >= 3 {
+			fmt.Printf("\n%x condition iterations after last action", i)
+			fmt.Println("\nCURRENT ROOT: ", root)
+			fmt.Println("CURRENT NODE: ", tree)
+		}
 
 		// if all conditions true do action then Tree.Left
 		// else go to next sibling Tree.Right
@@ -115,16 +108,22 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 
 		for _, condition := range tree.Conditions {
 			market := markets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
-			fmt.Println("MARKET last:", market.Last)
+			if *Verbose >= 3 {
+				fmt.Println("MARKET last:", market.Last)
+			}
 			switch condition.ConditionType {
 			case "absolute-above":
 				switch condition.BaseMetric {
 				case "price":
 					if market.Last < condition.Value {
-						fmt.Println("COMPARISON Market", market.Last, "< than condition value", condition.Value)
+						if *Verbose >= 3 {
+							fmt.Println("COMPARISON Market", market.Last, "< than condition value", condition.Value)
+						}
 						doAction = false
 					} else {
-						fmt.Println("COMPARISON Market", market.Last, "> than condition value", condition.Value)
+						if *Verbose >= 3 {
+							fmt.Println("COMPARISON Market", market.Last, "> than condition value", condition.Value)
+						}
 					}
 				}
 			case "absolute-below":
@@ -135,35 +134,47 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 					}
 				}
 			case "absolute-increase":
-				fmt.Println("COMPARISON absolute-increase not supported yet, so doAction set to false")
+				if *Verbose >= 3 {
+					fmt.Println("COMPARISON absolute-increase not supported yet, so doAction set to false")
+				}
 				doAction = false
 			case "absolute-decrease":
-				fmt.Println("COMPARISON absolute-decrease not supported yet, so doAction set to false")
+				if *Verbose >= 3 {
+					fmt.Println("COMPARISON absolute-decrease not supported yet, so doAction set to false")
+				}
 				doAction = false
 			}
 		}
 
-		// In next section, new root and or tree will be set for next while loop.
-
 		if doAction {
-			fmt.Println("ACTION:", tree.Action)
+			if *Verbose >= 3 {
+				fmt.Println("ACTION:", tree.Action)
+			}
 			if tree.Left == nil {
-				fmt.Println("\nNO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+				if *Verbose >= 3 {
+					fmt.Println("\nNO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+				}
 				tree = nil
 			} else {
 				tree = tree.Left
 				root = root.Left
-				fmt.Println("JUMPING to left")
+				if *Verbose >= 3 {
+					fmt.Println("JUMPING to left")
+				}
 			}
 			i = 0
 		} else {
 			if tree.Right == nil {
-				fmt.Println("JUMPING to root: ", root)
+				if *Verbose >= 3 {
+					fmt.Println("JUMPING to root: ", root)
+				}
 				time.Sleep(3 * time.Second)
 				tree = root
 				i += 1
 			} else {
-				fmt.Println("JUMPING to right")
+				if *Verbose >= 3 {
+					fmt.Println("JUMPING to right")
+				}
 				tree = tree.Right
 			}
 		}
