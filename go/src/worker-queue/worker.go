@@ -1,10 +1,11 @@
 package main
 
 import (
-	"../database"
 	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"time"
+	"worker-queue/database"
 )
 
 type Market struct {
@@ -58,13 +59,7 @@ func (w *Worker) Start() {
 				// Receive a work request.
 				fmt.Println("Worker", w.ID, "Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
 
-				markets := make(map[string]Market)
-				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				walk(work.Tree.Left, work.Tree.Left, markets)
+				walk(work.Tree.Left, work.Tree.Left)
 				fmt.Printf("Worker %d's work is done\n", w.ID)
 
 			case <-w.QuitChan:
@@ -85,13 +80,30 @@ func (w *Worker) Stop() {
 	}()
 }
 
+// To get the current value of a metric
+func getCurrentValue(baseMetric string, timeframeInMS int, market Market) float64 {
+	switch baseMetric {
+	case "price-last":
+		currentValue := market.Last
+	case "price-ask":
+		currentValue := market.Ask
+	case "price-bid":
+		currentValue := market.Bid
+	case "volume":
+		currentValue := market.Volume
+	}
+
+	return currentValue
+}
+
 // Walk: https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree
 // Maybe make a Method from this function
-func walk(tree *Tree, root *Tree, markets map[string]Market) {
+func walk(tree *Tree, root *Tree) {
 	i := 0
 	for tree != nil {
 
 		// get latest market update
+		markets := make(map[string]Market)
 		err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
 		if err != nil {
 			log.Fatal(err)
@@ -113,37 +125,75 @@ func walk(tree *Tree, root *Tree, markets map[string]Market) {
 			}
 			switch condition.ConditionType {
 			case "absolute-above":
+				var currentValue float64
 				switch condition.BaseMetric {
-				case "price":
-					if market.Last < condition.Value {
-						if *Verbose >= 3 {
-							fmt.Println("COMPARISON Market", market.Last, "< than condition value", condition.Value)
-						}
+				case "price-last":
+					currentValue := market.Last
+					if currentValue <= condition.Value {
 						doAction = false
-					} else {
-						if *Verbose >= 3 {
-							fmt.Println("COMPARISON Market", market.Last, "> than condition value", condition.Value)
-						}
 					}
+				case "price-ask":
+					currentValue := market.Ask
+					if currentValue <= condition.Value {
+						doAction = false
+					}
+				case "price-bid":
+					currentValue := market.Bid
+					if currentValue <= condition.Value {
+						doAction = false
+					}
+				case "volume":
+					currentValue := market.Volume
+					if currentValue <= condition.Value {
+						doAction = false
+					}
+				default:
+					fmt.Errorf("Condition BaseMetric %s does not exist", condition.BaseMetric)
+				}
+				if *Verbose >= 3 {
+					fmt.Println("COMPARISON Market ", currentValue, " <= than condition value ", condition.Value)
 				}
 			case "absolute-below":
+				var currentValue float64
 				switch condition.BaseMetric {
-				case "price":
-					if market.Last > condition.Value {
-						doAction = false
-					}
+				case "price-last":
+					currentValue := market.Last
+				case "price-ask":
+					currentValue := market.Ask
+				case "price-bid":
+					currentValue := market.Bid
+				case "volume":
+					currentValue := market.Volume
+				default:
+					fmt.Errorf("Condition BaseMetric %s does not exist", condition.BaseMetric)
 				}
-			case "absolute-increase":
 				if *Verbose >= 3 {
-					fmt.Println("COMPARISON absolute-increase not supported yet, so doAction set to false")
+					fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
 				}
-				doAction = false
-			case "absolute-decrease":
-				if *Verbose >= 3 {
-					fmt.Println("COMPARISON absolute-decrease not supported yet, so doAction set to false")
+				if currentValue >= condition.Value {
+					doAction = false
 				}
-				doAction = false
+			case "percentage-increase":
+				currentTime := time.Now()
+				pastTime := currentTime.Add(-time.Duration(condition.TimeframeInMS) * time.Millisecond)
+				fmt.Println(pastTime)
+				pastMarkets := make(map[string]Market)
+				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("$natural").One(&pastMarkets)
+				// err := database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": {"$lt": pastTime}}).Limit(1).Sort("-$natural").One(&pastMarkets)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(pastMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency].Last)
+
+				// if *Verbose >= 3 {
+				// 	fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
+				// }
+				// if currentValue >= condition.Value {
+				// 	doAction = false
+				// }
+			case "percentage-decrease":
 			}
+
 		}
 
 		if doAction {

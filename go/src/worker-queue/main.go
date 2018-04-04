@@ -1,11 +1,11 @@
 package main
 
 import (
-	"../database"
 	"flag"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"net/http"
+	"worker-queue/database"
 )
 
 var (
