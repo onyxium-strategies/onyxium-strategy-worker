@@ -25,7 +25,7 @@ type Market struct {
 	DisplayMarketName interface{} `json:"DisplayMarketName"`
 }
 
-type MarketRecords struct {
+type MarketRecord struct {
 	Id     bson.ObjectId     `json:"id" bson:"_id,omitempty"`
 	Market map[string]Market `bson:",inline"`
 }
@@ -48,45 +48,34 @@ func main() {
 	// var m bson.M
 	// err = database.DBCon.DB("coinflow").C("market").Find(nil).One(&m)
 
-	// for key, _ := range m {
-	// 	fmt.Println(key)
-	// }
-	// fmt.Println(m["_id"].ObjectId)
+	// Get all marketrecord
+	// markets := make([]MarketRecord, 0)
+	// err = database.DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").All(&markets)
 
-	// Get multiple marketrecords
-	markets := make([]MarketRecords, 0)
-	err = database.DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").All(&markets)
-
-	// Get one marketrecord
-	// markets := MarketRecords{}
-	// err = database.DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(&markets)
-	// err = database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
-
-	fmt.Printf("size of collection: %d\n", len(markets))
-	// for _, market := range markets {
-	// 	fmt.Println(market.Id.Time())
-	// 	fmt.Println(market.Market["BTC-LTC"])
-	// }
+	// Get latest marketrecord
+	market := MarketRecord{}
+	err = database.DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(&market)
 
 	// Get records between certain time range
-	seconds := 5
+	seconds := 10000
 	toDate := bson.Now()
 	toId := bson.NewObjectIdWithTime(toDate)
 	fromDate := toDate.Add(-time.Duration(seconds) * time.Second)
 	fromId := bson.NewObjectIdWithTime(fromDate)
-	err = database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("-$natural").All(&markets)
 
-	fmt.Printf("size of range: %d\n", len(markets))
-	fmt.Printf("Now: %s\n", time.Now())
-	var sumAsk, sumBid, sumLast float64
-	for _, market := range markets {
-		fmt.Println(market.Id.Time())
-		sumAsk = sumAsk + market.Market["BTC-LTC"].Ask
-		sumBid = sumBid + market.Market["BTC-LTC"].Bid
-		sumLast = sumLast + market.Market["BTC-LTC"].Last
-	}
-	denominator := float64(len(markets))
-	avgAsk, avgBid, avgLast := sumAsk/denominator, sumBid/denominator, sumLast/denominator
-	fmt.Printf("The last %d seconds the average price-bid: %.8f, price-last: %.8f, price-ask: %.8f\n", seconds, avgBid, avgLast, avgAsk)
+	// Get the latest record
+	toRecord := MarketRecord{}
+	err = database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("-$natural").One(&toRecord)
 
+	// Get the record that is x seconds old
+	fromRecord := MarketRecord{}
+	err = database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(&fromRecord)
+
+	fmt.Printf("%s BTC-LTC record with last price: %.8f\n", toRecord.Id.Time(), toRecord.Market["BTC-LTC"].Last)
+	fmt.Printf("%s BTC-LTC record with last price: %.8f\n", fromRecord.Id.Time(), fromRecord.Market["BTC-LTC"].Last)
+
+	// Compute the percentage difference between the 2 points
+	nieuw := toRecord.Market["BTC-LTC"].Last
+	oud := fromRecord.Market["BTC-LTC"].Last
+	fmt.Printf("De afgelopen %.2f seconden heeft er een procentuele verandering van %.3f%% plaatsgevonden.\n", toRecord.Id.Time().Sub(fromRecord.Id.Time()).Seconds(), (nieuw-oud)/oud*100)
 }
