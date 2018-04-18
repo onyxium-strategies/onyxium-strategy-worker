@@ -3,9 +3,6 @@ package main
 import (
 	"fmt"
 	"worker-queue/database"
-	// "gopkg.in/mgo.v2/bson"
-	"log"
-	"time"
 )
 
 type Worker struct {
