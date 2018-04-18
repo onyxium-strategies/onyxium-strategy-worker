@@ -149,12 +149,12 @@
    {
       "conditions":[
          {
-            "conditionType":"absolute-increase",
+            "conditionType":"percentage-increase",
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
             "timeframeInMS":7200000,
             "baseMetric":"price",
-            "value": 0.01
+            "value": 10.00
          }
       ],
       "action":{
@@ -169,12 +169,12 @@
    {
       "conditions":[
          {
-            "conditionType":"absolute-decrease",
+            "conditionType":"percentage-decrease",
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
             "timeframeInMS":7200000,
             "baseMetric":"price",
-            "value":0.01
+            "value":9.00
          }
       ],
       "action":{
