@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
+	"worker-queue/database"
+	// "gopkg.in/mgo.v2/bson"
 	"log"
 	"time"
-	"worker-queue/database"
 )
 
 type Market struct {
@@ -82,18 +82,31 @@ func (w *Worker) Stop() {
 
 // To get the current value of a metric
 func getCurrentValue(baseMetric string, timeframeInMS int, market Market) float64 {
+	var currentValue float64
+
 	switch baseMetric {
 	case "price-last":
-		currentValue := market.Last
+		currentValue = market.Last
 	case "price-ask":
-		currentValue := market.Ask
+		currentValue = market.Ask
 	case "price-bid":
-		currentValue := market.Bid
+		currentValue = market.Bid
 	case "volume":
-		currentValue := market.Volume
+		currentValue = market.Volume
+	default:
+		fmt.Errorf("Condition BaseMetric %s does not exist", baseMetric)
 	}
 
 	return currentValue
+}
+
+func getMarketsObject() map[string]Market {
+	markets := make(map[string]Market)
+	err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return markets
 }
 
 // Walk: https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree
@@ -103,11 +116,8 @@ func walk(tree *Tree, root *Tree) {
 	for tree != nil {
 
 		// get latest market update
-		markets := make(map[string]Market)
-		err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
-		if err != nil {
-			log.Fatal(err)
-		}
+		markets := getMarketsObject()
+
 		if *Verbose >= 3 {
 			fmt.Printf("\n%x condition iterations after last action", i)
 			fmt.Println("\nCURRENT ROOT: ", root)
@@ -123,55 +133,27 @@ func walk(tree *Tree, root *Tree) {
 			if *Verbose >= 3 {
 				fmt.Println("MARKET last:", market.Last)
 			}
+
 			switch condition.ConditionType {
 			case "absolute-above":
-				var currentValue float64
-				switch condition.BaseMetric {
-				case "price-last":
-					currentValue := market.Last
-					if currentValue <= condition.Value {
-						doAction = false
+				currentValue := getCurrentValue(condition.BaseMetric, 1000, market)
+
+				if currentValue <= condition.Value {
+					doAction = false
+
+					if *Verbose >= 3 {
+						fmt.Println("COMPARISON Market ", condition.BaseMetric, currentValue, " <= than condition value ", condition.Value)
 					}
-				case "price-ask":
-					currentValue := market.Ask
-					if currentValue <= condition.Value {
-						doAction = false
-					}
-				case "price-bid":
-					currentValue := market.Bid
-					if currentValue <= condition.Value {
-						doAction = false
-					}
-				case "volume":
-					currentValue := market.Volume
-					if currentValue <= condition.Value {
-						doAction = false
-					}
-				default:
-					fmt.Errorf("Condition BaseMetric %s does not exist", condition.BaseMetric)
-				}
-				if *Verbose >= 3 {
-					fmt.Println("COMPARISON Market ", currentValue, " <= than condition value ", condition.Value)
 				}
 			case "absolute-below":
-				var currentValue float64
-				switch condition.BaseMetric {
-				case "price-last":
-					currentValue := market.Last
-				case "price-ask":
-					currentValue := market.Ask
-				case "price-bid":
-					currentValue := market.Bid
-				case "volume":
-					currentValue := market.Volume
-				default:
-					fmt.Errorf("Condition BaseMetric %s does not exist", condition.BaseMetric)
-				}
-				if *Verbose >= 3 {
-					fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
-				}
+				currentValue := getCurrentValue(condition.BaseMetric, 1000, market)
+
 				if currentValue >= condition.Value {
 					doAction = false
+
+					if *Verbose >= 3 {
+						fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
+					}
 				}
 			case "percentage-increase":
 				currentTime := time.Now()
@@ -191,7 +173,12 @@ func walk(tree *Tree, root *Tree) {
 				// if currentValue >= condition.Value {
 				// 	doAction = false
 				// }
+
+				fmt.Println("percentage-decrease not supported yet")
+				doAction = false //
 			case "percentage-decrease":
+				fmt.Println("percentage-decrease not supported yet")
+				doAction = false
 			}
 
 		}
