@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"worker-queue/database"
+	"worker-queue/models"
 	// "gopkg.in/mgo.v2/bson"
 	"log"
 	"time"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"net/http"
-	"worker-queue/database"
+	"worker-queue/models"
 )
 
 var (
@@ -21,17 +21,7 @@ func main() {
 
 	fmt.Println(Verbose)
 
-	// Start and share database connection
-	// https://stackoverflow.com/questions/31218008/sharing-a-globally-defined-db-conn-with-multiple-packages-in-golang
-	// Possible interesting: https://hackernoon.com/how-to-work-with-databases-in-golang-33b002aa8c47
-	var err error
-	database.DBCon, err = mgo.Dial("localhost")
-	if err != nil {
-		panic(err)
-	}
-	defer database.DBCon.Close()
-	database.DBCon.SetMode(mgo.Monotonic, true)
-	fmt.Println(database.DBCon)
+	models.InitDB("localhost")
 
 	// Start the dispatcher.
 	fmt.Println("Starting the dispatcher")
