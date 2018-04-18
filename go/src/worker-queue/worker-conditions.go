@@ -18,7 +18,7 @@ type Market struct {
 }
 
 // To get the current value of a metric
-func getMetricValue(baseMetric string, timeframeInMS int, market Market) float64 {
+func getMetricValue(baseMetric string, market Market) float64 {
 	var currentValue float64
 
 	switch baseMetric {
@@ -37,13 +37,35 @@ func getMetricValue(baseMetric string, timeframeInMS int, market Market) float64
 	return currentValue
 }
 
-func getMarketsObject() map[string]Market {
-	markets := make(map[string]Market)
-	err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("-$natural").One(&markets)
+func getCurrentMarket() map[string]Market {
+	seconds = 10
+	toDate := bson.Now()
+	toId := bson.NewObjectIdWithTime(toDate)
+	fromDate := toDate.Add(-time.Duration(seconds) * time.Second)
+	fromId := bson.NewObjectIdWithTime(fromDate)
+
+	// Get the latest record
+	toRecord := MarketRecord{}
+	err = database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("-$natural").One(&toRecord)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return markets
+	return toRecord
+}
+
+func getHistoricMarket(seconds int) map[string]Market {
+	toDate := bson.Now()
+	toId := bson.NewObjectIdWithTime(toDate)
+	fromDate := toDate.Add(-time.Duration(seconds) * time.Second)
+	fromId := bson.NewObjectIdWithTime(fromDate)
+
+	// Get the record that is x seconds old
+	fromRecord := MarketRecord{}
+	err = database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(&fromRecord)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fromRecord
 }
 
 // Walk: https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree
@@ -53,7 +75,7 @@ func walk(tree *Tree, root *Tree) {
 	for tree != nil {
 
 		// get latest market update
-		markets := getMarketsObject()
+		markets := getCurrentMarket()
 
 		if *Verbose >= 3 {
 			fmt.Printf("\n%x condition iterations after last action", i)
@@ -73,7 +95,7 @@ func walk(tree *Tree, root *Tree) {
 
 			switch condition.ConditionType {
 			case "absolute-above":
-				currentValue := getMetricValue(condition.BaseMetric, 1000, market)
+				currentValue := getMetricValue(condition.BaseMetric, market)
 
 				if currentValue <= condition.Value {
 					doAction = false
@@ -83,7 +105,7 @@ func walk(tree *Tree, root *Tree) {
 					}
 				}
 			case "absolute-below":
-				currentValue := getMetricValue(condition.BaseMetric, 1000, market)
+				currentValue := getMetricValue(condition.BaseMetric, market)
 
 				if currentValue >= condition.Value {
 					doAction = false
@@ -93,27 +115,20 @@ func walk(tree *Tree, root *Tree) {
 					}
 				}
 			case "percentage-increase":
-				currentTime := time.Now()
-				pastTime := currentTime.Add(-time.Duration(condition.TimeframeInMS) * time.Millisecond)
-				fmt.Println(pastTime)
-				pastMarkets := make(map[string]Market)
-				err := database.DBCon.DB("coinflow").C("market").Find(nil).Limit(1).Sort("$natural").One(&pastMarkets)
-				// err := database.DBCon.DB("coinflow").C("market").Find(bson.M{"_id": {"$lt": pastTime}}).Limit(1).Sort("-$natural").One(&pastMarkets)
-				if err != nil {
-					log.Fatal(err)
+				pastMarkets := getHistoricMarket(TimeframeInMS)
+				pastMarket := pastMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+				newValue = getMetricValue(condition.BaseMetric, market)
+				oldValue = getMetricValue(condition.BaseMetric, pastMarket)
+
+				percentage = (newValue - oldValue) / oldValue
+
+				if percentage >= condition.Value {
+					doAction = true
 				}
-				fmt.Println(pastMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency].Last)
 
-				// if *Verbose >= 3 {
-				//  fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
-				// }
-				// if currentValue >= condition.Value {
-				//  doAction = false
-				// }
-
-				fmt.Println("percentage-decrease not supported yet")
-				doAction = false //
 			case "percentage-decrease":
+				pastMarkets := getHistoricMarket(1000)
 				fmt.Println("percentage-decrease not supported yet")
 				doAction = false
 			}
