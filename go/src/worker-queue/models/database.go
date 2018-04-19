@@ -16,12 +16,12 @@ func InitDB(dataSourceName string) {
 	var err error
 	DBCon, err = mgo.Dial(dataSourceName)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 	// defer DBCon.Close()
 	DBCon.SetMode(mgo.Monotonic, true)
 
 	if err = DBCon.Ping(); err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 }

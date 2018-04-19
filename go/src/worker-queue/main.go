@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"gopkg.in/mgo.v2"
+	"log"
 	"net/http"
 	"worker-queue/models"
 )
@@ -19,9 +20,22 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println(Verbose)
+	fmt.Println(*Verbose)
 
 	models.InitDB("localhost")
+	defer models.DBCon.Close()
+
+	// use case example
+	market, err := models.GetLatestMarket()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(market.Market["BTC-LTC"])
+	market, err = models.GetHistoryMarket(100000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(market.Market["BTC-LTC"])
 
 	// Start the dispatcher.
 	fmt.Println("Starting the dispatcher")
