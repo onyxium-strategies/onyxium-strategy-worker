@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopkg.in/mgo.v2"
 	"log"
 	"net/http"
 	"worker-queue/models"

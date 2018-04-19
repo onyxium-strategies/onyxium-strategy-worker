@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"worker-queue/models"
 )
 
 type Worker struct {

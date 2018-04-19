@@ -2,28 +2,31 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
+	"worker-queue/models"
 	// "gopkg.in/mgo.v2/bson"
 )
 
-type Market struct {
-	MarketName        string      `json:"MarketName"`
-	High              float64     `json:"High"`
-	Low               float64     `json:"Low"`
-	Volume            float64     `json:"Volume"`
-	Last              float64     `json:"Last"`
-	BaseVolume        float64     `json:"BaseVolume"`
-	TimeStamp         string      `json:"TimeStamp"`
-	Bid               float64     `json:"Bid"`
-	Ask               float64     `json:"Ask"`
-	OpenBuyOrders     int         `json:"OpenBuyOrders"`
-	OpenSellOrders    int         `json:"OpenSellOrders"`
-	PrevDay           float64     `json:"PrevDay"`
-	Created           string      `json:"Created"`
-	DisplayMarketName interface{} `json:"DisplayMarketName"`
-}
+// type Market struct {
+// 	MarketName        string      `json:"MarketName"`
+// 	High              float64     `json:"High"`
+// 	Low               float64     `json:"Low"`
+// 	Volume            float64     `json:"Volume"`
+// 	Last              float64     `json:"Last"`
+// 	BaseVolume        float64     `json:"BaseVolume"`
+// 	TimeStamp         string      `json:"TimeStamp"`
+// 	Bid               float64     `json:"Bid"`
+// 	Ask               float64     `json:"Ask"`
+// 	OpenBuyOrders     int         `json:"OpenBuyOrders"`
+// 	OpenSellOrders    int         `json:"OpenSellOrders"`
+// 	PrevDay           float64     `json:"PrevDay"`
+// 	Created           string      `json:"Created"`
+// 	DisplayMarketName interface{} `json:"DisplayMarketName"`
+// }
 
 // To get the current value of a metric
-func getMetricValue(baseMetric string, market Market) float64 {
+func getMetricValue(baseMetric string, market models.Market) float64 {
 	var currentValue float64
 
 	switch baseMetric {
@@ -49,7 +52,10 @@ func walk(tree *Tree, root *Tree) {
 	for tree != nil {
 
 		// get latest market update
-		markets := getCurrentMarket()
+		latestMarkets, err := models.GetLatestMarket()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if *Verbose >= 3 {
 			fmt.Printf("\n%x condition iterations after last action", i)
@@ -62,56 +68,68 @@ func walk(tree *Tree, root *Tree) {
 		doAction := true
 
 		for _, condition := range tree.Conditions {
-			market := markets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+			latestMarket := latestMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 			if *Verbose >= 3 {
-				fmt.Println("MARKET last:", market.Last)
+				fmt.Println("MARKET last:", latestMarket.Last)
 			}
 
 			switch condition.ConditionType {
 			case "absolute-above":
-				currentValue := getMetricValue(condition.BaseMetric, market)
-
+				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+				fmt.Println("Currenvalue", currentValue)
 				if currentValue < condition.Value {
 					doAction = false
 
 					if *Verbose >= 3 {
-						fmt.Println("COMPARISON Market ", condition.BaseMetric, currentValue, " <= than condition value ", condition.Value)
+						fmt.Printf("COMPARISON Market %s with value %.8f is < than condition value %.8f\n", condition.BaseMetric, currentValue, condition.Value)
 					}
 				}
 			case "absolute-below":
-				currentValue := getMetricValue(condition.BaseMetric, market)
+				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
 
 				if currentValue > condition.Value {
 					doAction = false
 
 					if *Verbose >= 3 {
-						fmt.Println("COMPARISON Market ", currentValue, " >= than condition value ", condition.Value)
+						fmt.Printf("COMPARISON Market %s with value %.8f is > than condition value %.8f\n", condition.BaseMetric, currentValue, condition.Value)
 					}
 				}
 			case "percentage-increase":
-				pastMarkets := getHistoryRecord(TimeframeInMS)
-				pastMarket := pastMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
+				if err != nil {
+					log.Fatal(err)
+				}
+				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-				newValue := getMetricValue(condition.BaseMetric, market)
-				oldValue := getMetricValue(condition.BaseMetric, pastMarket)
+				newValue := getMetricValue(condition.BaseMetric, latestMarket)
+				oldValue := getMetricValue(condition.BaseMetric, historyMarket)
 
 				percentage := (newValue - oldValue) / oldValue
 
 				if percentage < condition.Value {
 					doAction = false
+					if *Verbose >= 3 {
+						fmt.Printf("COMPARISON Market %s with percentage difference of %.3f is < than condition value %.3f\n", condition.BaseMetric, percentage, condition.Value)
+					}
 				}
 
 			case "percentage-decrease":
-				pastMarkets := getHistoryRecord(TimeframeInMS)
-				pastMarket := pastMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
+				if err != nil {
+					log.Fatal(err)
+				}
+				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-				newValue := getMetricValue(condition.BaseMetric, market)
-				oldValue := getMetricValue(condition.BaseMetric, pastMarket)
+				newValue := getMetricValue(condition.BaseMetric, latestMarket)
+				oldValue := getMetricValue(condition.BaseMetric, historyMarket)
 
 				percentage := (newValue - oldValue) / oldValue
 
 				if percentage > -condition.Value {
 					doAction = false
+					if *Verbose >= 3 {
+						fmt.Printf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f\n", condition.BaseMetric, percentage, condition.Value)
+					}
 				}
 			}
 

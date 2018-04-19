@@ -5,7 +5,7 @@
             "conditionType":"absolute-above",
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
-            "baseMetric":"price",
+            "baseMetric":"price-last",
             "value": 0.01990991
          }
       ],
@@ -24,7 +24,7 @@
                   "conditionType":"absolute-above",
                   "baseCurrency":"BTC",
                   "quoteCurrency":"LTC",
-                  "baseMetric":"price",
+                  "baseMetric":"price-last",
                   "value": 0.02
                }
             ],
@@ -43,7 +43,7 @@
                   "conditionType":"absolute-above",
                   "baseCurrency":"BTC",
                   "quoteCurrency":"LTC",
-                  "baseMetric":"price",
+                  "baseMetric":"price-last",
                   "value": 0.01990991
                }
             ],
@@ -62,14 +62,14 @@
                         "conditionType":"absolute-above",
                         "baseCurrency":"BTC",
                         "quoteCurrency":"LTC",
-                        "baseMetric":"price",
+                        "baseMetric":"price-last",
                         "value": 0.01990991
                      },
                      {
                         "conditionType":"absolute-below",
                         "baseCurrency":"BTC",
                         "quoteCurrency":"LTC",
-                        "baseMetric":"price",
+                        "baseMetric":"price-last",
                         "value": 0.02
                      }
                   ],
@@ -88,7 +88,7 @@
                               "conditionType":"absolute-above",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
-                              "baseMetric":"price",
+                              "baseMetric":"price-last",
                               "value": 1
                            }
                         ],
@@ -107,7 +107,7 @@
                               "conditionType":"absolute-above",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
-                              "baseMetric":"price",
+                              "baseMetric":"price-last",
                               "value": 0.1
                            }
                         ],
@@ -126,7 +126,7 @@
                               "conditionType":"absolute-above",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
-                              "baseMetric":"price",
+                              "baseMetric":"price-last",
                               "value": 0.1
                            }
                         ],
@@ -153,7 +153,7 @@
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
             "timeframeInMS":7200000,
-            "baseMetric":"price",
+            "baseMetric":"price-last",
             "value": 10.00
          }
       ],
@@ -173,7 +173,7 @@
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
             "timeframeInMS":7200000,
-            "baseMetric":"price",
+            "baseMetric":"price-last",
             "value":9.00
          }
       ],
