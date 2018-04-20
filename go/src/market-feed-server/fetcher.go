@@ -2,33 +2,16 @@ package main
 
 import (
 	"encoding/json"
-	// "fmt"
 	"log"
 	"net/http"
+	"worker-queue/models"
 	// "net/url"
 )
 
 type MarketSummaryResponse struct {
-	Success       bool     `json:"success"`
-	Message       string   `json:"message"`
-	MarketSummary []Market `json:"result"`
-}
-
-type Market struct {
-	MarketName        string      `json:"MarketName"`
-	High              float64     `json:"High"`
-	Low               float64     `json:"Low"`
-	Volume            float64     `json:"Volume"`
-	Last              float64     `json:"Last"`
-	BaseVolume        float64     `json:"BaseVolume"`
-	TimeStamp         string      `json:"TimeStamp"`
-	Bid               float64     `json:"Bid"`
-	Ask               float64     `json:"Ask"`
-	OpenBuyOrders     int         `json:"OpenBuyOrders"`
-	OpenSellOrders    int         `json:"OpenSellOrders"`
-	PrevDay           float64     `json:"PrevDay"`
-	Created           string      `json:"Created"`
-	DisplayMarketName interface{} `json:"DisplayMarketName"`
+	Success       bool            `json:"success"`
+	Message       string          `json:"message"`
+	MarketSummary []models.Market `json:"result"`
 }
 
 /*
@@ -55,14 +38,14 @@ response:
 */
 
 // Return
-func getMarketSummary() (map[string]Market, error) {
+func getMarketSummary() (map[string]models.Market, error) {
 	url := "https://bittrex.com/api/v1.1/public/getmarketsummaries"
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal("NewRequest: ", err)
-		return make(map[string]Market), err
+		return make(map[string]models.Market), err
 	}
 
 	// For control over HTTP client headers,
@@ -77,7 +60,7 @@ func getMarketSummary() (map[string]Market, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal("Do: ", err)
-		return make(map[string]Market), err
+		return make(map[string]models.Market), err
 	}
 
 	// Callers should close resp.Body
@@ -93,15 +76,10 @@ func getMarketSummary() (map[string]Market, error) {
 		log.Println(err)
 	}
 
-	market := make(map[string]Market)
+	market := make(map[string]models.Market)
 
 	for _, i := range record.MarketSummary {
 		market[i.MarketName] = i
 	}
 	return market, nil
 }
-
-// func main() {
-// 	getMarketSummary()
-// 	fmt.Println(market)
-// }

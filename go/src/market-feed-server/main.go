@@ -6,6 +6,7 @@ import (
 	// "gopkg.in/mgo.v2/bson"
 	"log"
 	"time"
+	"worker-queue/models"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 
 	for {
 		time.Sleep(time.Second)
-		market := make(map[string]Market)
+		market := make(map[string]models.Market)
 		market, err = getMarketSummary()
 		if err != nil {
 			fmt.Println(err)

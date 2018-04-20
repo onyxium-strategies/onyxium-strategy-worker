@@ -8,23 +8,6 @@ import (
 	// "gopkg.in/mgo.v2/bson"
 )
 
-// type Market struct {
-// 	MarketName        string      `json:"MarketName"`
-// 	High              float64     `json:"High"`
-// 	Low               float64     `json:"Low"`
-// 	Volume            float64     `json:"Volume"`
-// 	Last              float64     `json:"Last"`
-// 	BaseVolume        float64     `json:"BaseVolume"`
-// 	TimeStamp         string      `json:"TimeStamp"`
-// 	Bid               float64     `json:"Bid"`
-// 	Ask               float64     `json:"Ask"`
-// 	OpenBuyOrders     int         `json:"OpenBuyOrders"`
-// 	OpenSellOrders    int         `json:"OpenSellOrders"`
-// 	PrevDay           float64     `json:"PrevDay"`
-// 	Created           string      `json:"Created"`
-// 	DisplayMarketName interface{} `json:"DisplayMarketName"`
-// }
-
 // To get the current value of a metric
 func getMetricValue(baseMetric string, market models.Market) float64 {
 	var currentValue float64
