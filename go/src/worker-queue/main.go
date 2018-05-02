@@ -25,16 +25,16 @@ func main() {
 	defer models.DBCon.Close()
 
 	// use case example
-	market, err := models.GetLatestMarket()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(market.Market["BTC-LTC"])
-	market, err = models.GetHistoryMarket(100000)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(market.Market["BTC-LTC"])
+	// market, err := models.GetLatestMarket()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(market.Market["BTC-LTC"])
+	// market, err = models.GetHistoryMarket(100000)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(market.Market["BTC-LTC"])
 
 	// Start the dispatcher.
 	fmt.Println("Starting the dispatcher")
@@ -42,7 +42,7 @@ func main() {
 
 	// Register our collector as an HTTP handler function.
 	fmt.Println("Registering the collector")
-	http.HandleFunc("/work", Collector)
+	http.HandleFunc("/api/work", Collector)
 
 	// Start the HTTP server!
 	fmt.Println("HTTP server listening on", *HTTPAddr)
