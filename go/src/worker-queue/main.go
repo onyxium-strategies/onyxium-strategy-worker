@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	// "log"
 	"net/http"
 	"worker-queue/models"
 )
