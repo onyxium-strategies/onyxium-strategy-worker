@@ -3,19 +3,19 @@ An end user specifies the conditions and actions of his strategy in the frontend
 
 # Getting started
 Install go: https://golang.org/dl/
-Make sure your $GOPATH is correct. In order to clone a private bitbucket repo we need to enable default cloning with SSH instead of https.
-`git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"`
-`go get bitbucket.org/visa-startups/coinflow-strategy-worker`
-`cd $GOPATH/bin`
-`./coinflow-strategy-worker`
+Make sure your $GOPATH is correct. In order to clone a private bitbucket repo we need to enable default cloning with SSH instead of https.  
+`git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"`  
+`go get bitbucket.org/visa-startups/coinflow-strategy-worker`  
+`cd $GOPATH/bin`  
+`./coinflow-strategy-worker`  
 
 # Development
 Dependancy management during development is done with [golang/dep](https://golang.github.io/dep/docs/introduction.html).
 Note that this is not intended for end users who are installing Go software - that's what `go get` does.
 
-Install with homebrew: `brew install dep`
-Pull all dependencies: `dep ensure`
-Add new dependency to project: `dep ensure -add github.com/foo/bar`
+Install with homebrew: `brew install dep`  
+Pull all dependencies: `dep ensure`  
+Add new dependency to project: `dep ensure -add github.com/foo/bar`  
 
 # Resources
 * [Go tour](https://tour.golang.org/welcome/1)
