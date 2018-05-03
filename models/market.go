@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -32,7 +32,7 @@ func GetLatestMarket() (*MarketRecord, error) {
 	record := &MarketRecord{}
 	err := DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(record)
 	if err != nil {
-		return nil, errors.New("No record found.")
+		return nil, fmt.Errorf("Failed to get latest market record.")
 	}
 	return record, nil
 }
@@ -47,7 +47,7 @@ func GetHistoryMarket(TimeframeInMS int) (*MarketRecord, error) {
 	fromRecord := &MarketRecord{}
 	err := DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(fromRecord)
 	if err != nil {
-		return nil, errors.New("No record found.")
+		return nil, fmt.Errorf("Failed to get history market record with TimeframeInMS %d.", TimeframeInMS)
 	}
 	return fromRecord, nil
 }

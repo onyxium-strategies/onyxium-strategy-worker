@@ -28,7 +28,7 @@ func getMetricValue(baseMetric string, market models.Market) float64 {
 }
 
 // Walk: https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree
-// Maybe make a Method from this function
+// Should make this a method of a Worker because now we can't send information about the worker in an error message
 func walk(tree *Tree, root *Tree) {
 	i := 0
 	for tree != nil {

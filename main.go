@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"flag"
+	"github.com/johntdyer/slackrus"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -39,6 +40,13 @@ func initLogger(level int) {
 		log.SetLevel(log.WarnLevel)
 	}
 
+	log.AddHook(&slackrus.SlackrusHook{
+		HookURL:        "https://hooks.slack.com/services/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",
+		AcceptedLevels: slackrus.LevelThreshold(log.PanicLevel),
+		Channel:        "#development",
+		IconEmoji:      ":robot_face:",
+		Username:       "workerbot",
+	})
 }
 
 func main() {

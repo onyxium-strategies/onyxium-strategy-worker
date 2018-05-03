@@ -3,6 +3,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/johntdyer/slack-go"
+  packages = ["."]
+  revision = "95fac1160b220c5abcf8b0ef88e9c3cb213c09f4"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/johntdyer/slackrus"
+  packages = ["."]
+  revision = "3992f319fd0ac349483279ef74742cd787841cba"
+
+[[projects]]
+  branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
@@ -55,6 +67,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a269e9f713594f443c997bc406f0ad35f6f51ee764bcbbc157e732be1789b3dd"
+  inputs-digest = "8e6e7eb0a2022e994365f02c861ebe55dfc77709b11099f1c76e69426d6e8099"
   solver-name = "gps-cdcl"
   solver-version = 1
