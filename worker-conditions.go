@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"fmt"
 	"log"
 	"time"
-	"worker-queue/models"
 	// "gopkg.in/mgo.v2/bson"
 )
 

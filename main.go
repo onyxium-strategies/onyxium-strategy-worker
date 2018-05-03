@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	// "log"
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"net/http"
-	"worker-queue/models"
 )
 
 var (
