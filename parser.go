@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"github.com/mitchellh/mapstructure"
+	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	// "io/ioutil"
 	// "os"
@@ -60,7 +60,7 @@ func createConditionFromMap(m map[string]interface{}) Condition {
 	var result Condition
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		log.Error(err)
 	}
 	return result
 }
@@ -70,7 +70,7 @@ func createActionFromMap(m map[string]interface{}) Action {
 	var result Action
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		log.Error(err)
 	}
 	return result
 }

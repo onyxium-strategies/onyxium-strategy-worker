@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 type Worker struct {
@@ -30,20 +30,20 @@ func NewWorker(id int, workerQueue chan chan WorkRequest) Worker {
 func (w *Worker) Start() {
 	go func() {
 		for {
-			fmt.Println("Worker", w.ID, "Add ourselves into the worker queue.")
+			log.Infof("Worker %d Add ourselves into the worker queue.", w.ID)
 			w.WorkerQueue <- w.Work
 
 			select {
 			case work := <-w.Work:
 				// Receive a work request.
-				fmt.Println("Worker", w.ID, "Received work request ", work.ID, work.Tree.Conditions[0].ConditionType)
+				log.Infof("Worker %d Received work request %d", w.ID, work.ID)
 
 				walk(work.Tree.Left, work.Tree.Left)
-				fmt.Printf("Worker %d's work is done\n", w.ID)
+				log.Infof("Worker %d work is done", w.ID)
 
 			case <-w.QuitChan:
 				// We have been asked to stop.
-				fmt.Printf("Worker%d stopping\n", w.ID)
+				log.Infof("Worker %d stopping", w.ID)
 				return
 			}
 		}

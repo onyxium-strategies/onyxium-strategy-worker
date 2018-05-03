@@ -2,8 +2,7 @@ package main
 
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
-	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"time"
 	// "gopkg.in/mgo.v2/bson"
 )
@@ -22,7 +21,7 @@ func getMetricValue(baseMetric string, market models.Market) float64 {
 	case "volume":
 		currentValue = market.Volume
 	default:
-		fmt.Errorf("Condition BaseMetric %s does not exist", baseMetric)
+		log.Errorf("Condition BaseMetric %s does not exist", baseMetric)
 	}
 
 	return currentValue
@@ -40,11 +39,9 @@ func walk(tree *Tree, root *Tree) {
 			log.Fatal(err)
 		}
 
-		if *Verbose >= 3 {
-			fmt.Printf("\n%x condition iterations after last action", i)
-			fmt.Println("\nCURRENT ROOT: ", root)
-			fmt.Println("CURRENT NODE: ", tree)
-		}
+		log.Infof("%d condition iterations after last action", i)
+		log.Infof("CURRENT ROOT: %+v", root)
+		log.Infof("CURRENT NODE: %+v", tree)
 
 		// if all conditions true do action then Tree.Left
 		// else go to next sibling Tree.Right
@@ -52,20 +49,17 @@ func walk(tree *Tree, root *Tree) {
 
 		for _, condition := range tree.Conditions {
 			latestMarket := latestMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
-			if *Verbose >= 3 {
-				fmt.Println("MARKET last:", latestMarket.Last)
-			}
+
+			log.Infof("MARKET last: %8f", latestMarket.Last)
 
 			switch condition.ConditionType {
 			case "absolute-above":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				fmt.Println("Currenvalue", currentValue)
+				log.Infof("Current value %8f", currentValue)
 				if currentValue < condition.Value {
 					doAction = false
 
-					if *Verbose >= 3 {
-						fmt.Printf("COMPARISON Market %s with value %.8f is < than condition value %.8f\n", condition.BaseMetric, currentValue, condition.Value)
-					}
+					log.Infof("COMPARISON Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
 			case "absolute-below":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
@@ -73,9 +67,7 @@ func walk(tree *Tree, root *Tree) {
 				if currentValue > condition.Value {
 					doAction = false
 
-					if *Verbose >= 3 {
-						fmt.Printf("COMPARISON Market %s with value %.8f is > than condition value %.8f\n", condition.BaseMetric, currentValue, condition.Value)
-					}
+					log.Infof("COMPARISON Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
 			case "percentage-increase":
 				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
@@ -91,9 +83,8 @@ func walk(tree *Tree, root *Tree) {
 
 				if percentage < condition.Value {
 					doAction = false
-					if *Verbose >= 3 {
-						fmt.Printf("COMPARISON Market %s with percentage difference of %.3f is < than condition value %.3f\n", condition.BaseMetric, percentage, condition.Value)
-					}
+
+					log.Infof("COMPARISON Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
 				}
 
 			case "percentage-decrease":
@@ -110,43 +101,32 @@ func walk(tree *Tree, root *Tree) {
 
 				if percentage > -condition.Value {
 					doAction = false
-					if *Verbose >= 3 {
-						fmt.Printf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f\n", condition.BaseMetric, percentage, condition.Value)
-					}
+
+					log.Infof("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
 				}
 			}
 
 		}
 
 		if doAction {
-			if *Verbose >= 3 {
-				fmt.Println("ACTION:", tree.Action)
-			}
+			log.Info("ACTION:", tree.Action)
 			if tree.Left == nil {
-				if *Verbose >= 3 {
-					fmt.Println("\nNO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
-				}
+				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 				tree = nil
 			} else {
 				tree = tree.Left
 				root = root.Left
-				if *Verbose >= 3 {
-					fmt.Println("JUMPING to left")
-				}
+				log.Info("JUMPING to left")
 			}
 			i = 0
 		} else {
 			if tree.Right == nil {
-				if *Verbose >= 3 {
-					fmt.Println("JUMPING to root: ", root)
-				}
+				log.Infof("JUMPING to root: %+v", root)
 				time.Sleep(3 * time.Second)
 				tree = root
 				i += 1
 			} else {
-				if *Verbose >= 3 {
-					fmt.Println("JUMPING to right")
-				}
+				log.Info("JUMPING to right")
 				tree = tree.Right
 			}
 		}

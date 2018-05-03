@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
@@ -23,25 +23,25 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 	}
 	myJson := string(body)
 
 	tree, err := parseJson(myJson)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 	}
 
 	root := parseBinaryTree(tree)
 	work := WorkRequest{ID: id, Tree: &root}
-	fmt.Println("Workrequest created")
+	log.Info("Workrequest created")
 
 	// TODO: get last ID from database, use that one + 1
 	id = id + 1
 
 	// Push the work onto the queue.
 	WorkQueue <- work
-	fmt.Println("Work request queued")
+	log.Info("Work request queued")
 
 	// And let the user know their work request was created.
 	w.WriteHeader(http.StatusCreated)
