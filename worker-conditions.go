@@ -47,7 +47,7 @@ func walk(tree *Tree, root *Tree) {
 		doAction := true
 
 		for _, condition := range tree.Conditions {
-			if condition.ConditionType == "geq" || condition.ConditionType == "leq" {
+			if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
 				log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
 			} else {
 				log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
@@ -56,14 +56,14 @@ func walk(tree *Tree, root *Tree) {
 			latestMarket := latestMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
 			switch condition.ConditionType {
-			case "geq":
+			case "greater-than-or-equal-to":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
 				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 				if currentValue < condition.Value {
 					doAction = false
 					log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
-			case "leq":
+			case "less-than-or-equal-to":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
 				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 				if currentValue > condition.Value {

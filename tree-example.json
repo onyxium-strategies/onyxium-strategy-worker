@@ -2,7 +2,7 @@
    {
       "conditions":[
          {
-            "conditionType":"geq",
+            "conditionType":"greater-than-or-equal-to",
             "baseCurrency":"BTC",
             "quoteCurrency":"LTC",
             "baseMetric":"price-last",
@@ -21,7 +21,7 @@
          {
             "conditions":[
                {
-                  "conditionType":"geq",
+                  "conditionType":"greater-than-or-equal-to",
                   "baseCurrency":"BTC",
                   "quoteCurrency":"LTC",
                   "baseMetric":"price-last",
@@ -40,7 +40,7 @@
          {
             "conditions":[
                {
-                  "conditionType":"geq",
+                  "conditionType":"greater-than-or-equal-to",
                   "baseCurrency":"BTC",
                   "quoteCurrency":"LTC",
                   "baseMetric":"price-last",
@@ -59,14 +59,14 @@
                {
                   "conditions": [
                      {
-                        "conditionType":"geq",
+                        "conditionType":"greater-than-or-equal-to",
                         "baseCurrency":"BTC",
                         "quoteCurrency":"LTC",
                         "baseMetric":"price-last",
                         "value": 0.01990991
                      },
                      {
-                        "conditionType":"leq",
+                        "conditionType":"less-than-or-equal-to",
                         "baseCurrency":"BTC",
                         "quoteCurrency":"LTC",
                         "baseMetric":"price-last",
@@ -85,7 +85,7 @@
                      {
                         "conditions":[
                            {
-                              "conditionType":"geq",
+                              "conditionType":"greater-than-or-equal-to",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
                               "baseMetric":"price-last",
@@ -104,7 +104,7 @@
                      {
                         "conditions":[
                            {
-                              "conditionType":"geq",
+                              "conditionType":"greater-than-or-equal-to",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
                               "baseMetric":"price-last",
@@ -123,7 +123,7 @@
                      {
                         "conditions":[
                            {
-                              "conditionType":"geq",
+                              "conditionType":"greater-than-or-equal-to",
                               "baseCurrency":"BTC",
                               "quoteCurrency":"LTC",
                               "baseMetric":"price-last",
