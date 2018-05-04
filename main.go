@@ -12,7 +12,7 @@ import (
 var (
 	NWorkers = flag.Int("n", 4, "The number of workers to start")
 	HTTPAddr = flag.String("http", "127.0.0.1:8000", "Address to listen for HTTP requests on")
-	Verbose  = flag.Int("v", 2, "The level of verbosity of the log statements")
+	Verbose  = flag.Int("v", 1, "The level of verbosity of the log statements")
 )
 
 func initLogger(level int) {

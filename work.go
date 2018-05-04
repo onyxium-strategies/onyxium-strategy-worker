@@ -15,7 +15,7 @@ type Action struct {
 	ValueQuoteMetric string
 	BaseCurrency     string
 	QuoteCurrency    string
-	Quantity         float32
+	Quantity         float64
 	Value            float64
 }
 

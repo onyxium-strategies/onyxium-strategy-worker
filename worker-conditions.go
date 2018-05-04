@@ -39,35 +39,36 @@ func walk(tree *Tree, root *Tree) {
 			log.Fatal(err)
 		}
 
-		log.Infof("%d condition iterations after last action", i)
-		log.Infof("CURRENT ROOT: %+v", root)
 		log.Infof("CURRENT NODE: %+v", tree)
 
-		// if all conditions true do action then Tree.Left
-		// else go to next sibling Tree.Right
+		// If all conditions true do action then Tree.Left else go to next sibling Tree.Right
+		// If order to check if all conditions are true we check if not any is false
+		// All true == not any False
 		doAction := true
 
 		for _, condition := range tree.Conditions {
+			if condition.ConditionType == "geq" || condition.ConditionType == "leq" {
+				log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
+			} else {
+				log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
+			}
+
 			latestMarket := latestMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-			log.Infof("MARKET last: %8f", latestMarket.Last)
-
 			switch condition.ConditionType {
-			case "absolute-above":
+			case "geq":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				log.Infof("Current value %8f", currentValue)
+				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 				if currentValue < condition.Value {
 					doAction = false
-
-					log.Infof("COMPARISON Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+					log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
-			case "absolute-below":
+			case "leq":
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-
+				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 				if currentValue > condition.Value {
 					doAction = false
-
-					log.Infof("COMPARISON Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+					log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
 			case "percentage-increase":
 				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
@@ -76,15 +77,14 @@ func walk(tree *Tree, root *Tree) {
 				}
 				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-				newValue := getMetricValue(condition.BaseMetric, latestMarket)
-				oldValue := getMetricValue(condition.BaseMetric, historyMarket)
+				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
 
-				percentage := (newValue - oldValue) / oldValue
-
+				percentage := (currentValue - pastValue) / pastValue
+				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 				if percentage < condition.Value {
 					doAction = false
-
-					log.Infof("COMPARISON Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
+					log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
 				}
 
 			case "percentage-decrease":
@@ -94,22 +94,32 @@ func walk(tree *Tree, root *Tree) {
 				}
 				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-				newValue := getMetricValue(condition.BaseMetric, latestMarket)
-				oldValue := getMetricValue(condition.BaseMetric, historyMarket)
+				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
 
-				percentage := (newValue - oldValue) / oldValue
-
+				percentage := (currentValue - pastValue) / pastValue
+				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 				if percentage > -condition.Value {
 					doAction = false
-
-					log.Infof("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
+					log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
 				}
+			default:
+				doAction = false
+				log.Warningf("Unknown ConditionType %s", condition.ConditionType)
 			}
 
 		}
 
 		if doAction {
-			log.Info("ACTION:", tree.Action)
+			switch tree.Action.ValueType {
+			case "absolute":
+				log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency, tree.Action.Value*tree.Action.Quantity, tree.Action.BaseCurrency)
+			case "relative-above", "relative-below":
+				log.Infof("Set a %s order for %.8f %s at the future rate of %s +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
+			case "percentage-above", "percentage-below":
+				log.Infof("Set a %s order for %.8f %s at the future rate of %s * (1 +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
+			}
+
 			if tree.Left == nil {
 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 				tree = nil
@@ -121,12 +131,13 @@ func walk(tree *Tree, root *Tree) {
 			i = 0
 		} else {
 			if tree.Right == nil {
-				log.Infof("JUMPING to root: %+v", root)
-				time.Sleep(3 * time.Second)
+				log.Infof("None of the conditions of each child are true. JUMPING to root: %+v", root)
+				time.Sleep(3 * time.Second) // Change in production to check each time new market data is available
 				tree = root
 				i += 1
+				log.Infof("%d condition iterations after last action", i)
 			} else {
-				log.Info("JUMPING to right")
+				log.Info("None of the conditions are true. JUMPING to right sibling.")
 				tree = tree.Right
 			}
 		}
