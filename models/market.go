@@ -28,16 +28,16 @@ type MarketRecord struct {
 	Market map[string]Market `bson:",inline"`
 }
 
-func GetLatestMarket() (*MarketRecord, error) {
+func (db *DB) GetLatestMarket() (*MarketRecord, error) {
 	record := &MarketRecord{}
-	err := DBCon.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(record)
+	err := db.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(record)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get latest market record.")
 	}
 	return record, nil
 }
 
-func GetHistoryMarket(TimeframeInMS int) (*MarketRecord, error) {
+func (db *DB) GetHistoryMarket(TimeframeInMS int) (*MarketRecord, error) {
 	toDate := bson.Now()
 	toId := bson.NewObjectIdWithTime(toDate)
 	fromDate := toDate.Add(-time.Duration(TimeframeInMS) * time.Millisecond)
@@ -45,7 +45,7 @@ func GetHistoryMarket(TimeframeInMS int) (*MarketRecord, error) {
 
 	// Get the record that is x millisecond old
 	fromRecord := &MarketRecord{}
-	err := DBCon.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(fromRecord)
+	err := db.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(fromRecord)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get history market record with TimeframeInMS %d.", TimeframeInMS)
 	}

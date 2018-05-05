@@ -66,7 +66,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 	for tree != nil {
 
 		// get latest market update
-		latestMarkets, err := models.GetLatestMarket()
+		latestMarkets, err := env.db.GetLatestMarket()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -103,7 +103,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 					log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
 			case "percentage-increase":
-				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
+				historyMarkets, err := env.db.GetHistoryMarket(condition.TimeframeInMS)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -120,7 +120,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 				}
 
 			case "percentage-decrease":
-				historyMarkets, err := models.GetHistoryMarket(condition.TimeframeInMS)
+				historyMarkets, err := env.db.GetHistoryMarket(condition.TimeframeInMS)
 				if err != nil {
 					log.Fatal(err)
 				}
