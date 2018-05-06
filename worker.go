@@ -40,7 +40,7 @@ func (w *Worker) Start() {
 				// Receive a work request.
 				log.Infof("Worker %d Received work request %d", w.ID, work.ID)
 
-				w.Walk(work.Tree.Left, work.Tree.Left)
+				w.Walk(work.Tree, work.Tree)
 				log.Infof("Worker %d work is done", w.ID)
 
 			case <-w.QuitChan:

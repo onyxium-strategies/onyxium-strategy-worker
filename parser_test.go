@@ -62,3 +62,20 @@ func TestCreateActionFromMap(t *testing.T) {
 		t.Errorf("Expected condition to be %+v but it was %+v", expectedAction, action)
 	}
 }
+
+// TODO make jsonInput a valid tree structure
+// Walk over the tree and see if the order is correct
+// Dont care about condition and action structs only that the order is correct.
+func TestParseBinaryTree(t *testing.T) {
+	var jsonInput = `[{"conditions":[{}],"action":{},"then":[]}]`
+
+	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
+	if !ok {
+		t.Fatal("Json input is not a slice")
+	}
+
+	tree := parseBinaryTree(data)
+
+	t.Logf("%+v", tree.Left)
+
+}
