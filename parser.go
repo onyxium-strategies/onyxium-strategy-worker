@@ -9,8 +9,8 @@ import (
 	// "os"
 )
 
-// Parse nested json string to json object
-func parseJson(jsonInput string) ([]interface{}, error) {
+// Parse nested array json string to json object
+func parseJsonArray(jsonInput string) ([]interface{}, error) {
 	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
 	if !ok {
 		err := errors.New("Invalid json structure")
