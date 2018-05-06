@@ -27,6 +27,7 @@ func (c *CollectorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 	}
 	myJson := string(body)
+	log.Debugf("Received json string: %s", myJson)
 
 	tree, err := parseJsonArray(myJson)
 	if err != nil {

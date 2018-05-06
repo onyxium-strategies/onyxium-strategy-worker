@@ -46,7 +46,7 @@ func main() {
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
 	if err := http.ListenAndServe(*HTTPAddr, nil); err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 }
 

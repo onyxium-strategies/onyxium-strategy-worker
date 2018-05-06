@@ -179,7 +179,8 @@
       ],
       "action":{
          "orderType":"limit-buy",
-         "valueType":"absolute",
+         "valueType":"percentage-above",
+         "valueQuoteMetric":"price-ask",
          "baseCurrency":"BTC",
          "quoteCurrency":"LTC",
          "quantity":10,

@@ -11,10 +11,13 @@ import (
 
 // Parse nested array json string to json object
 func parseJsonArray(jsonInput string) ([]interface{}, error) {
+	if !gjson.Valid(jsonInput) {
+		return nil, errors.New("Invalid json structure")
+	}
+
 	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
 	if !ok {
-		err := errors.New("Invalid json structure")
-		return data, err
+		return nil, errors.New("Input is not a json array")
 	}
 	return data, nil
 }
@@ -46,7 +49,7 @@ func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 	return root
 }
 
-// Helper for parseBinaryTree
+// Decode json array of Condition structs
 func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
 	conditions := []Condition{}
 	for _, condition := range conditionsSlice {
@@ -55,7 +58,7 @@ func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
 	return conditions
 }
 
-// Helper for parseBinaryTree
+// Decode json to Condition struct
 func createConditionFromMap(m map[string]interface{}) Condition {
 	var result Condition
 	err := mapstructure.Decode(m, &result)
@@ -65,7 +68,7 @@ func createConditionFromMap(m map[string]interface{}) Condition {
 	return result
 }
 
-// Helper for parseBinaryTree
+// Decode json to Action struct
 func createActionFromMap(m map[string]interface{}) Action {
 	var result Action
 	err := mapstructure.Decode(m, &result)

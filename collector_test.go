@@ -18,7 +18,7 @@ func TestCollectorHandler_ServeHTTP(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/api/work", bytes.NewBuffer(content))
 	if err != nil {
-		t.Fatalf("Request error: %s", err.Error())
+		t.Fatalf("Request error: %s", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
