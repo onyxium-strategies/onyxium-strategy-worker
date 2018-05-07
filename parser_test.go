@@ -63,24 +63,24 @@ func TestCreateActionFromMap(t *testing.T) {
 	}
 }
 
-// TODO make jsonInput a valid tree structure
-// Walk over the tree and see if the order is correct
-// Dont care about condition and action structs only that the order is correct.
+// Right now the test is dependent on property OrderType of Action. If the property changes this test breaks.
+// Have to find a way to test the tree traversal without using OrderType
 func TestParseBinaryTree(t *testing.T) {
 	var jsonInput = `[{"conditions":[{}],"action":{"OrderType": "A"},"then":[{"conditions":[{}],"action":{"OrderType": "B"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "C"},"then":[]}]}, {"conditions":[{}],"action":{"OrderType": "D"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "E"},"then":[]}]`
-
+	// var jsonInput = `[{"then":[{"then":[]}, {"then":[]}]}, {"then":[]}, {"then":[]}]`
 	data, err := parseJsonArray(jsonInput)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	// t.Logf("%+v", data)
 	tree := parseBinaryTree(data)
+	// t.Logf("%+v", tree)
 	size := 6
 	ch := make(chan string, size)
-	walk(t, &tree, ch)
+	inOrderTraverse(t, &tree, ch)
 
 	expectedCh := make(chan string, size)
-	expectedCh <- ""
+	expectedCh <- "" //root
 	expectedCh <- "A"
 	expectedCh <- "B"
 	expectedCh <- "C"
@@ -91,16 +91,15 @@ func TestParseBinaryTree(t *testing.T) {
 
 	for i := range ch {
 		if j := <-expectedCh; i != j {
-			t.Fatalf("Incorrected tree structure expected node to be %s but it was %s", i, j)
+			t.Fatalf("Incorrected tree structure expected node to be %s but it was %s", j, i)
 		}
 	}
-
 }
 
-func walk(t *testing.T, node *Tree, ch chan string) {
+func inOrderTraverse(t *testing.T, node *Tree, ch chan string) {
 	if node != nil {
 		ch <- node.Action.OrderType
-		walk(t, node.Left, ch)
-		walk(t, node.Right, ch)
+		inOrderTraverse(t, node.Left, ch)
+		inOrderTraverse(t, node.Right, ch)
 	}
 }

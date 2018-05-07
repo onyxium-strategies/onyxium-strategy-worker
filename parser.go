@@ -5,8 +5,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-	// "io/ioutil"
-	// "os"
 )
 
 // Parse nested array json string to json object
@@ -32,8 +30,14 @@ func parseBinaryTree(tree []interface{}) Tree {
 // Recursive version of parseBinaryTree
 func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 	if i < len(siblings) {
-		conditions := siblings[i].(map[string]interface{})["conditions"]
-		action := siblings[i].(map[string]interface{})["action"]
+		conditions, ok := siblings[i].(map[string]interface{})["conditions"]
+		if !ok {
+			conditions = make([]interface{}, 0)
+		}
+		action, ok := siblings[i].(map[string]interface{})["action"]
+		if !ok {
+			action = make(map[string]interface{})
+		}
 		root = &Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(conditions.([]interface{})), Action: createActionFromMap(action.(map[string]interface{}))}
 
 		if then, ok := siblings[i].(map[string]interface{})["then"]; ok {
