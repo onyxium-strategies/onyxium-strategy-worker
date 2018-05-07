@@ -67,15 +67,40 @@ func TestCreateActionFromMap(t *testing.T) {
 // Walk over the tree and see if the order is correct
 // Dont care about condition and action structs only that the order is correct.
 func TestParseBinaryTree(t *testing.T) {
-	var jsonInput = `[{"conditions":[{}],"action":{},"then":[]}]`
+	var jsonInput = `[{"conditions":[{}],"action":{"OrderType": "A"},"then":[{"conditions":[{}],"action":{"OrderType": "B"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "C"},"then":[]}]}, {"conditions":[{}],"action":{"OrderType": "D"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "E"},"then":[]}]`
 
-	data, ok := gjson.Parse(jsonInput).Value().([]interface{})
-	if !ok {
-		t.Fatal("Json input is not a slice")
+	data, err := parseJsonArray(jsonInput)
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	tree := parseBinaryTree(data)
+	size := 6
+	ch := make(chan string, size)
+	walk(t, &tree, ch)
 
-	t.Logf("%+v", tree.Left)
+	expectedCh := make(chan string, size)
+	expectedCh <- ""
+	expectedCh <- "A"
+	expectedCh <- "B"
+	expectedCh <- "C"
+	expectedCh <- "D"
+	expectedCh <- "E"
+	close(ch)
+	close(expectedCh)
 
+	for i := range ch {
+		if j := <-expectedCh; i != j {
+			t.Fatalf("Incorrected tree structure expected node to be %s but it was %s", i, j)
+		}
+	}
+
+}
+
+func walk(t *testing.T, node *Tree, ch chan string) {
+	if node != nil {
+		ch <- node.Action.OrderType
+		walk(t, node.Left, ch)
+		walk(t, node.Right, ch)
+	}
 }
