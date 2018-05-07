@@ -1,23 +1,15 @@
 package main
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
-	log "github.com/sirupsen/logrus"
-	"os"
+	// "bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	// log "github.com/sirupsen/logrus"
+	// "os"
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	log.SetLevel(log.DebugLevel)
-	db, err := models.InitDB("localhost")
-	if err != nil {
-		log.Panic(err)
-	}
-	defer db.Close()
-	env.db = db
-	os.Exit(m.Run())
-}
-
+// TODO mock database records
+// TODO add expected path
+// TODO assert taken path is expected path
 func TestWalk(t *testing.T) {
 	WorkerQueue = make(chan chan WorkRequest, 1)
 	testCases := []struct {

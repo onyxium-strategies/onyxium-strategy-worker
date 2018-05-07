@@ -66,7 +66,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 	for tree != nil {
 
 		// get latest market update
-		latestMarkets, err := env.db.GetLatestMarket()
+		latestMarkets, err := env.DataStore.GetLatestMarket()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -85,7 +85,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 				log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
 			}
 
-			latestMarket := latestMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+			latestMarket := latestMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
 			switch condition.ConditionType {
 			case "greater-than-or-equal-to":
@@ -103,11 +103,11 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 					log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 				}
 			case "percentage-increase":
-				historyMarkets, err := env.db.GetHistoryMarket(condition.TimeframeInMS)
+				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
 				if err != nil {
 					log.Fatal(err)
 				}
-				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
 				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
@@ -120,11 +120,11 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 				}
 
 			case "percentage-decrease":
-				historyMarkets, err := env.db.GetHistoryMarket(condition.TimeframeInMS)
+				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
 				if err != nil {
 					log.Fatal(err)
 				}
-				historyMarket := historyMarkets.Market[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
 				pastValue := getMetricValue(condition.BaseMetric, historyMarket)

@@ -5,9 +5,9 @@ import (
 	// "log"
 )
 
-type Datastore interface {
-	GetLatestMarket() (*MarketRecord, error)
-	GetHistoryMarket(TimeframeInMS int) (*MarketRecord, error)
+type DataStore interface {
+	GetLatestMarket() (map[string]Market, error)
+	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
 }
 
 type DB struct {

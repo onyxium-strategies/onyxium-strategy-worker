@@ -10,7 +10,7 @@ import (
 )
 
 type Env struct {
-	db models.Datastore
+	DataStore models.DataStore
 }
 
 var (
@@ -32,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	env.db = db
+	env.DataStore = db
 
 	// Start the dispatcher.
 	log.Infof("Starting the dispatcher with %d workers", *NWorkers)
