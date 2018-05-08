@@ -1,21 +1,18 @@
 package main
 
 import (
-	// "bitbucket.org/visa-startups/coinflow-strategy-worker/models"
-	// log "github.com/sirupsen/logrus"
-	// "os"
 	"testing"
 	"time"
 )
 
 // TODO assert taken path is expected path
-func TestWalk(t *testing.T) {
+func TestWalkDeadlock(t *testing.T) {
 	WorkerQueue = make(chan chan WorkRequest, 1)
 	testCases := []struct {
 		name         string
 		w            Worker
 		t            *Tree
-		expectedPath []int
+		expectedPath []int //Action.Quantity
 	}{
 		{
 			name: "greater-than-or-equal-to",

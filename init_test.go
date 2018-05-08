@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -45,17 +46,8 @@ func (FakeDataStore) GetHistoryMarket(TimeframeInMS int) (map[string]models.Mark
 }
 
 func TestMain(m *testing.M) {
-	log.SetLevel(log.DebugLevel)
+	// log.SetLevel(log.DebugLevel)
+	log.SetOutput(ioutil.Discard)
 	env.DataStore = FakeDataStore{}
 	os.Exit(m.Run())
 }
-
-// This func just serves to play around with the mock db
-// func TestDBB(t *testing.T) {
-// 	m, _ := env.DataStore.GetLatestMarket()
-// 	t.Log(m["BTC-ETH"])
-// 	m, _ = env.DataStore.GetHistoryMarket(0)
-// 	t.Log(m["BTC-ETH"])
-// 	m, _ = env.DataStore.GetHistoryMarket(1)
-// 	t.Log(m["BTC-ETH"])
-// }
