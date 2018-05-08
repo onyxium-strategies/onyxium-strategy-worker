@@ -28,17 +28,17 @@ func (FakeDataStore) GetHistoryMarket(TimeframeInMS int) (map[string]models.Mark
 	record := make(map[string]models.Market)
 	if TimeframeInMS == 1 {
 		record["BTC-ETH"] = models.Market{
-			Volume: 7000,
-			Last:   0.065,
-			Bid:    0.063,
-			Ask:    0.067,
+			Volume: 7000,  //+42.85%
+			Last:   0.065, //+7.69%
+			Bid:    0.063, //+7.93%
+			Ask:    0.067, //+7.46%
 		}
 	} else { // TimeframeInMs == 0
 		record["BTC-ETH"] = models.Market{
-			Volume: 12000,
-			Last:   0.075,
-			Bid:    0.073,
-			Ask:    0.077,
+			Volume: 12000, //-16.66%
+			Last:   0.075, //-6.66%
+			Bid:    0.073, //-6.84%
+			Ask:    0.077, //-6.49%
 		}
 	}
 	return record, nil
@@ -51,11 +51,11 @@ func TestMain(m *testing.M) {
 }
 
 // This func just serves to play around with the mock db
-func TestDBB(t *testing.T) {
-	m, _ := env.DataStore.GetLatestMarket()
-	t.Log(m["BTC-ETH"])
-	m, _ = env.DataStore.GetHistoryMarket(0)
-	t.Log(m["BTC-ETH"])
-	m, _ = env.DataStore.GetHistoryMarket(1)
-	t.Log(m["BTC-ETH"])
-}
+// func TestDBB(t *testing.T) {
+// 	m, _ := env.DataStore.GetLatestMarket()
+// 	t.Log(m["BTC-ETH"])
+// 	m, _ = env.DataStore.GetHistoryMarket(0)
+// 	t.Log(m["BTC-ETH"])
+// 	m, _ = env.DataStore.GetHistoryMarket(1)
+// 	t.Log(m["BTC-ETH"])
+// }

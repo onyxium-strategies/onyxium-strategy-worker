@@ -156,8 +156,8 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 				tree = nil
 			} else {
+				root = tree.Left
 				tree = tree.Left
-				root = root.Left
 				log.Info("JUMPING to left")
 			}
 			i = 0
@@ -189,7 +189,8 @@ func getMetricValue(baseMetric string, market models.Market) float64 {
 		currentValue = market.Bid
 	case "volume":
 		currentValue = market.Volume
-	default:
+	default: // This could be dangerous because now the value 0 is returned
+		// TODO Need to find a solution that doesn't cause a run-time panic but does stop this worker
 		log.Errorf("Condition BaseMetric %s does not exist", baseMetric)
 	}
 

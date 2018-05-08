@@ -22,6 +22,7 @@ func parseJsonArray(jsonInput string) ([]interface{}, error) {
 
 // Parse json tree from frontend to a binary tree for backend
 func parseBinaryTree(tree []interface{}) Tree {
+	// TODO can we exclude this root node from the tree?
 	root := Tree{Left: nil, Right: nil, Conditions: []Condition{}, Action: Action{}}
 	root.Left = _parseBinaryTree(tree, root.Left, 0)
 	return root
