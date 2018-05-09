@@ -1,6 +1,7 @@
 package omisego
 
 import (
+	"github.com/icrowley/fake"
 	"net/http"
 	"testing"
 )
@@ -12,55 +13,76 @@ var (
 	email    = "admin@example.com"
 	pwd      = "u22rNF38veC5acIDS1flgA"
 
-	// aua = &AdminUserAuth{
-	// 	apiKeyId: apiKeyId,
-	// 	apiKey:   apiKey,
-	// 	userId:        "e4c6087c-034e-40cf-b23f-820a865689a7",
-	// 	userAuthToken: "hdTAcBwCJkp1Py8qZacf294cwAhQiQmSaXj0SbCGpfw",
-	// }
+	aua = &AdminUserAuth{
+		apiKeyId:      apiKeyId,
+		apiKey:        apiKey,
+		userId:        "usr_01cd29gyb4yrtnf1dmxqm33kbs",
+		userAuthToken: "Hz8znbje5ahmVGlnmhG0kh8yIfdr5qr6R-sq9tUgQ08",
+	}
 	aca = &AdminClientAuth{
 		apiKeyId: apiKeyId,
 		apiKey:   apiKey,
 	}
-	// adminUser = AdminAPI{
-	// 	auth:      aua,
-	// 	c:         &http.Client{},
-	// 	baseUrl:   "http://localhost:4000",
-	// 	serverUrl: "/admin/api/",
-	// }
-	adminClient = AdminAPI{
+	sa = &ServerAuth{
+		accessKey: "68HazVGtFNAw4rbSa7k2oz3UvSWOG6MCydXyuPmYoqg",
+		secretKey: "AVqnuxAlbOtpPIer89BjPCLTMQh_PY8g0wd_Dxd-pGU",
+	}
+)
+
+func TestLoginLogout(t *testing.T) {
+	adminClient := AdminAPI{
 		auth:      aca,
 		c:         &http.Client{},
 		baseUrl:   "http://localhost:4000",
 		serverUrl: "/admin/api/",
 	}
-)
 
-func TestStuff(t *testing.T) {
-	body := LoginArgs{
+	body := LoginParams{
 		Email:    email,
 		Password: pwd,
 	}
-	res := adminClient.Login(body)
-	t.Log(res.Data["user_id"])
-	t.Log(res.Data["authentication_token"])
+	res, err := adminClient.Login(body)
+	if err != nil {
+		t.Fatalf("%s %+v", err, res)
+	}
 
-	aua := &AdminUserAuth{
+	loggedInAdmin := &AdminUserAuth{
 		apiKeyId:      apiKeyId,
 		apiKey:        apiKey,
 		userId:        res.Data["user_id"].(string),
 		userAuthToken: res.Data["authentication_token"].(string),
 	}
 	adminUser := AdminAPI{
-		auth:      aua,
+		auth:      loggedInAdmin,
 		c:         &http.Client{},
 		baseUrl:   "http://localhost:4000",
 		serverUrl: "/admin/api/",
 	}
-	t.Logf("%+v", adminUser)
-	res = adminUser.Logout()
-	t.Logf("%+v", res)
+	res, err = adminUser.Logout()
+	if err != nil {
+		t.Fatalf("%s %+v", err, res)
+	}
+}
 
-	// ExampleAdminUserReqeust()
-	// ExampleServerReqeust()
+func TestCreateUser(t *testing.T) {
+	serverUser := EWalletAPI{
+		auth:      sa,
+		c:         &http.Client{},
+		baseUrl:   "http://localhost:4000",
+		serverUrl: "/api/",
+	}
+
+	body := UserCreateParams{
+		ProviderUserId: fake.CharactersN(10),
+		Username:       fake.UserName(),
+		Metadata: map[string]interface{}{
+			"first_name": fake.FirstName(),
+			"last_name":  fake.LastName(),
+		},
+	}
+
+	res, err := serverUser.UserCreate(body)
+	if err != nil {
+		t.Fatalf("%s %+v", err, res)
+	}
 }

@@ -3,8 +3,9 @@ package omisego
 import (
 	"bytes"
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
-	// "io/ioutil"
+	// "fmt"
+	"errors"
+	// log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -15,95 +16,75 @@ type AdminAPI struct {
 	serverUrl string
 }
 
-type LoginArgs struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-// {
-//   "version": "1",
-//   "success": false,
-//   "data": {
-//     "object": "error",
-//     "code": "server:internal_server_error",
-//     "description": "Something went wrong on the server",
-//     "messages": {
-//       "error_key": "error_reason"
-//     }
-//   }
-// }
-
-// {
-//   "version": "1",
-//   "success": true,
-//   "data": {
-//     "object": "list",
-//     "data": [
-//       {
-//         "object": "minted_token",
-//         "id": "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1",
-//         "symbol": "ABC",
-//         "name": "ABC Point",
-//         "subunit_to_unit": 100,
-//         "created_at": "2018-01-01T00:00:00Z",
-//         "updated_at": "2018-01-01T10:00:00Z"
-//       }
-//     ],
-//     "pagination": {
-//       "per_page": 10,
-//       "current_page": 1,
-//       "is_first_page": true,
-//       "is_last_page": true
-//     }
-//   }
-// }
-
 type Response struct {
 	Version string                 `json:"version"`
 	Success bool                   `json:"success"`
 	Data    map[string]interface{} `json:"data"`
 }
 
-func (a *AdminAPI) Login(reqBody LoginArgs) Response {
+func (a *AdminAPI) addDefaultHeaders(req *http.Request) {
+	req.Header.Set("Authorization", a.auth.CreateAuthorizationHeader())
+	req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
+	req.Header.Set("accept", "application/vnd.omisego.v1+json")
+}
+
+/////////////////
+// Session
+/////////////////
+type LoginParams struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (a *AdminAPI) Login(reqBody LoginParams) (Response, error) {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(reqBody)
 	req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"login", b)
-
-	req.Header.Set("Authorization", a.auth.CreateAuthorizationHeader())
-	req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
-	req.Header.Set("accept", "application/vnd.omisego.v1+json")
-
+	a.addDefaultHeaders(req)
 	res, err := a.c.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return Response{}, err
 	}
 
 	resBody := Response{}
 	json.NewDecoder(res.Body).Decode(&resBody)
-
 	if !resBody.Success {
-		log.Errorf("Unsuccesful request with error message: %s", resBody.Data["description"])
+		return resBody, errors.New("Unsuccessful request.")
 	}
-	return resBody
+	return resBody, nil
 }
 
-func (a *AdminAPI) Logout() Response {
+func (a *AdminAPI) Logout() (Response, error) {
 	req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"logout", nil)
-
-	req.Header.Set("Authorization", a.auth.CreateAuthorizationHeader())
-	req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
-	req.Header.Set("accept", "application/vnd.omisego.v1+json")
-
+	a.addDefaultHeaders(req)
 	res, err := a.c.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return Response{}, err
 	}
 
 	resBody := Response{}
 	json.NewDecoder(res.Body).Decode(&resBody)
-
 	if !resBody.Success {
-		log.Errorf("Unsuccesful request with error message: %s", resBody.Data["description"])
+		return resBody, errors.New("Unsuccessful request.")
 	}
-	return resBody
+	return resBody, nil
+}
+
+/////////////////
+// API Access
+/////////////////
+func (a *AdminAPI) AccessKeyCreate() (Response, error) {
+	req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"access_key.create", nil)
+	a.addDefaultHeaders(req)
+	res, err := a.c.Do(req)
+	if err != nil {
+		return Response{}, errors.New("Unsuccesful request")
+	}
+
+	resBody := Response{}
+	json.NewDecoder(res.Body).Decode(&resBody)
+	if !resBody.Success {
+		return resBody, errors.New("Unsuccesful request")
+	}
+	return resBody, nil
 }
