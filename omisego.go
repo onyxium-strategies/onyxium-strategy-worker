@@ -13,7 +13,8 @@ type Authorization interface {
 }
 
 type OmisegoAPI struct {
-	c *http.Client
+	auth Authorization
+	c    *http.Client
 }
 
 type AdminClientAuth struct {
@@ -29,23 +30,37 @@ type AdminUserAuth struct {
 }
 
 func (a *AdminClientAuth) CreateAuthorizationHeader() string {
-	data := []byte(AdminUserAuth.apiKeyId + ":" + AdminUserAuth.apiKey + ":" + AdminUserAuth + ":" + AdminUserAuth.userAuthToken)
+	data := []byte(a.apiKeyId + ":" + a.apiKey)
 	str := base64.StdEncoding.EncodeToString(data)
-	return str
+	return "OMGAdmin " + str
+}
+
+func (a *AdminUserAuth) CreateAuthorizationHeader() string {
+	data := []byte(a.apiKeyId + ":" + a.apiKey + ":" + a.userId + ":" + a.userAuthToken)
+	str := base64.StdEncoding.EncodeToString(data)
+	return "OMGAdmin " + str
 }
 
 func ExampleReqeust() {
-	client := &http.Client{}
+	client := OmisegoAPI{
+		auth: &AdminUserAuth{
+			apiKeyId:      "e8a74b60-4959-40a6-92d7-dbb6986f80c2",
+			apiKey:        "j8cPwzVTYG1l8i-4KNG4NvTHBiQU8TTBEGCIerrDkY8",
+			userId:        "e4c6087c-034e-40cf-b23f-820a865689a7",
+			userAuthToken: "hdTAcBwCJkp1Py8qZacf294cwAhQiQmSaXj0SbCGpfw",
+		},
+		c: &http.Client{},
+	}
 
 	var body = []byte(`{"page": 1,"per_page": 10,"search_term": "","sort_by": "email","sort_dir": "asc"}`)
 	req, err := http.NewRequest("POST", "http://localhost:4000/admin/api/admin.all", bytes.NewBuffer(body))
 
-	req.Header.Set("Authorization", "OMGAdmin MWNlOTNkYWItYmFmMi00MzEzLWIzNDgtZjI5NjJiZGY5MDFkOlBtWE81N0p3N09pWVJxYk1Ha3pXQk4yZC1yaDYwbExWcDZJTzBJLUYyZ286NTk5YmE3ZTAtMmU2MC00ODk4LThlYTEtNzhiYjJmZTNlYWZiOmN5a2RDVDFWSXFpci1ybHlmeDR4cEw0VjJsazVIT1FXRm5XQzdURFNIY1k=")
+	req.Header.Set("Authorization", client.auth.CreateAuthorizationHeader())
 	req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
 	req.Header.Set("accept", "application/vnd.omisego.v1+json")
 
 	log.Info("Request: ", req)
-	res, err := client.Do(req)
+	res, err := client.c.Do(req)
 	log.Info("Res: ", res)
 	resBody, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
@@ -53,4 +68,8 @@ func ExampleReqeust() {
 		log.Fatal(err)
 	}
 	log.Infof("Response: %s", string(resBody))
+}
+
+func main() {
+	ExampleReqeust()
 }
