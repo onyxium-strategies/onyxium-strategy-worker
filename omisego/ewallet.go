@@ -3,69 +3,20 @@ package omisego
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
 
-type Authorization interface {
-	CreateAuthorizationHeader() string
-}
-
-type OmisegoAPI struct {
-	auth    Authorization
-	c       *http.Client
-	baseUrl string
-}
-
-type AdminClientAuth struct {
-	apiKeyId string
-	apiKey   string
-}
-
-type AdminUserAuth struct {
-	apiKeyId      string
-	apiKey        string
-	userId        string
-	userAuthToken string
-}
-
-type ServerAuth struct {
-	accessKey string
-	secretKey string
-}
-
-func (a *AdminClientAuth) CreateAuthorizationHeader() string {
-	data := []byte(a.apiKeyId + ":" + a.apiKey)
-	str := base64.StdEncoding.EncodeToString(data)
-	return "OMGAdmin " + str
-}
-
-func (a *AdminUserAuth) CreateAuthorizationHeader() string {
-	data := []byte(a.apiKeyId + ":" + a.apiKey + ":" + a.userId + ":" + a.userAuthToken)
-	str := base64.StdEncoding.EncodeToString(data)
-	return "OMGAdmin " + str
-}
-
-func (s *ServerAuth) CreateAuthorizationHeader() string {
-	data := []byte(s.accessKey + ":" + s.secretKey)
-	str := base64.StdEncoding.EncodeToString(data)
-	return "OMGServer " + str
+type EWalletAPI struct {
+	auth      Authorization
+	c         *http.Client
+	baseUrl   string
+	serverUrl string
 }
 
 var (
-	aua = &AdminUserAuth{
-		apiKeyId:      "e8a74b60-4959-40a6-92d7-dbb6986f80c2",
-		apiKey:        "j8cPwzVTYG1l8i-4KNG4NvTHBiQU8TTBEGCIerrDkY8",
-		userId:        "e4c6087c-034e-40cf-b23f-820a865689a7",
-		userAuthToken: "hdTAcBwCJkp1Py8qZacf294cwAhQiQmSaXj0SbCGpfw",
-	}
-	aca = &AdminClientAuth{
-		apiKeyId: "e8a74b60-4959-40a6-92d7-dbb6986f80c2",
-		apiKey:   "j8cPwzVTYG1l8i-4KNG4NvTHBiQU8TTBEGCIerrDkY8",
-	}
 	sa = &ServerAuth{
 		accessKey: "94Fk-3qQwWmRZ8id8c5Q3SEHE7lpmdeQXuOi5TV4Q4c",
 		secretKey: "NDccDpezX7W2HJs7V4MLDprbhc9DW6G3kj_Xqg2UJmA",
@@ -73,8 +24,8 @@ var (
 )
 
 func ExampleAdminUserReqeust() {
-	client := OmisegoAPI{
-		auth: aua,
+	client := EWalletAPI{
+		auth: aca,
 		c:    &http.Client{},
 	}
 
@@ -97,7 +48,7 @@ func ExampleAdminUserReqeust() {
 }
 
 func ExampleServerReqeust() {
-	client := OmisegoAPI{
+	client := EWalletAPI{
 		auth: sa,
 		c:    &http.Client{},
 	}
@@ -128,7 +79,7 @@ func getIdempotencyToken() string {
 	return uUIDVersion4(b)
 }
 
-// UUIDVersion4 returns a Version 4 random UUID from the byte slice provided
+// uUIDVersion4 returns a Version 4 random UUID from the byte slice provided
 func uUIDVersion4(u []byte) string {
 	// https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_.28random.29
 	// 13th character is "4"
