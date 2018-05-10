@@ -7,20 +7,20 @@ import (
 )
 
 type Market struct {
-	MarketName        string      `json:"MarketName"`
-	High              float64     `json:"High"`
-	Low               float64     `json:"Low"`
-	Volume            float64     `json:"Volume"`
-	Last              float64     `json:"Last"`
-	BaseVolume        float64     `json:"BaseVolume"`
-	TimeStamp         string      `json:"TimeStamp"`
-	Bid               float64     `json:"Bid"`
-	Ask               float64     `json:"Ask"`
-	OpenBuyOrders     int         `json:"OpenBuyOrders"`
-	OpenSellOrders    int         `json:"OpenSellOrders"`
-	PrevDay           float64     `json:"PrevDay"`
-	Created           string      `json:"Created"`
-	DisplayMarketName interface{} `json:"DisplayMarketName"`
+	MarketName        string      `json:"MarketName" bson:"marketName"`
+	High              float64     `json:"High" bson:"high"`
+	Low               float64     `json:"Low" bson:"low"`
+	Volume            float64     `json:"Volume" bson:"volume"`
+	Last              float64     `json:"Last" bson:"last"`
+	BaseVolume        float64     `json:"BaseVolume" bson:"baseVolume"`
+	TimeStamp         string      `json:"TimeStamp" bson:"timeStamp"`
+	Bid               float64     `json:"Bid" bson:"bid"`
+	Ask               float64     `json:"Ask" bson:"ask"`
+	OpenBuyOrders     int         `json:"OpenBuyOrders" bson:"openBuyOrders"`
+	OpenSellOrders    int         `json:"OpenSellOrders" bson:"openSellOrders"`
+	PrevDay           float64     `json:"PrevDay" bson:"prevDay"`
+	Created           string      `json:"Created" bson:"created"`
+	DisplayMarketName interface{} `json:"DisplayMarketName" bson:"displayMarketName"`
 }
 
 type MarketRecord struct {
