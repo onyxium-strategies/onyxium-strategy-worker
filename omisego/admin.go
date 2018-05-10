@@ -6,12 +6,6 @@ type AdminAPI struct {
 	Client
 }
 
-// func (a *AdminAPI) addDefaultHeaders(req *http.Request) {
-// 	req.Header.Set("Authorization", a.auth.CreateAuthorizationHeader())
-// 	req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
-// 	req.Header.Set("accept", "application/vnd.omisego.v1+json")
-// }
-
 /////////////////
 // Session
 /////////////////
@@ -29,22 +23,6 @@ func (a *AdminAPI) Login(reqBody LoginParams) (Response, error) {
 	var res Response
 	_, err = a.do(req, &res)
 	return res, err
-
-	// b := new(bytes.Buffer)
-	// json.NewEncoder(b).Encode(reqBody)
-	// req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"login", b)
-	// a.addDefaultHeaders(req)
-	// res, err := a.c.Do(req)
-	// if err != nil {
-	// 	return Response{}, err
-	// }
-
-	// resBody := Response{}
-	// json.NewDecoder(res.Body).Decode(&resBody)
-	// if !resBody.Success {
-	// 	return resBody, errors.New("Unsuccessful request.")
-	// }
-	// return resBody, nil
 }
 
 func (a *AdminAPI) Logout() (Response, error) {
@@ -56,20 +34,6 @@ func (a *AdminAPI) Logout() (Response, error) {
 	var res Response
 	_, err = a.do(req, &res)
 	return res, err
-
-	// req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"logout", nil)
-	// a.addDefaultHeaders(req)
-	// res, err := a.c.Do(req)
-	// if err != nil {
-	// 	return Response{}, err
-	// }
-
-	// resBody := Response{}
-	// json.NewDecoder(res.Body).Decode(&resBody)
-	// if !resBody.Success {
-	// 	return resBody, errors.New("Unsuccessful request.")
-	// }
-	// return resBody, nil
 }
 
 /////////////////
@@ -84,18 +48,4 @@ func (a *AdminAPI) AccessKeyCreate() (Response, error) {
 	var res Response
 	_, err = a.do(req, &res)
 	return res, err
-
-	// req, err := http.NewRequest("POST", a.baseUrl+a.serverUrl+"access_key.create", nil)
-	// a.addDefaultHeaders(req)
-	// res, err := a.c.Do(req)
-	// if err != nil {
-	// 	return Response{}, errors.New("Unsuccesful request")
-	// }
-
-	// resBody := Response{}
-	// json.NewDecoder(res.Body).Decode(&resBody)
-	// if !resBody.Success {
-	// 	return resBody, errors.New("Unsuccesful request")
-	// }
-	// return resBody, nil
 }

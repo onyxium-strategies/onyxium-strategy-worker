@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	// log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
