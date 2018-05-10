@@ -18,7 +18,7 @@ var (
 		Path:   "/api",
 	}
 	serverUser = EWalletAPI{
-		Client: Client{
+		Client: &Client{
 			auth:       sa,
 			httpClient: &http.Client{},
 			BaseURL:    ewalletURL,
@@ -36,11 +36,8 @@ func TestCreateUser(t *testing.T) {
 		},
 	}
 
-	res, err := serverUser.UserCreate(body)
+	_, err := serverUser.UserCreate(body)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if !res.Success {
-		t.Fatalf("%+v", res)
 	}
 }

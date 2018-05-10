@@ -1,10 +1,10 @@
 package omisego
 
 import (
-	log "github.com/sirupsen/logrus"
-	"net/http"
+	// log "github.com/sirupsen/logrus"
+	// "net/http"
 	"net/url"
-	"os"
+	// "os"
 	"testing"
 )
 
@@ -22,71 +22,43 @@ var (
 		Path:   "/admin/api",
 	}
 
-	aua = &AdminUserAuth{
-		apiKeyId:      apiKeyId,
-		apiKey:        apiKey,
-		userId:        userId,
-		userAuthToken: "",
-	}
-	aca = &AdminClientAuth{
-		apiKeyId: apiKeyId,
-		apiKey:   apiKey,
-	}
-
-	adminClient = AdminAPI{
-		Client: Client{
-			auth:       aca,
-			httpClient: &http.Client{},
-			BaseURL:    adminURL,
-		},
-	}
-	adminUser = AdminAPI{
-		Client: Client{
-			auth:       aua,
-			httpClient: &http.Client{},
-			BaseURL:    adminURL,
-		},
+	loginBody = LoginParams{
+		Email:    email,
+		Password: pwd,
 	}
 )
 
-// We have to login to get the auth token before we can start testing
-func TestMain(m *testing.M) {
+func TestLogin(t *testing.T) {
+	c, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{
+		Client: c,
+	}
 	body := LoginParams{
 		Email:    email,
 		Password: pwd,
 	}
-	res, err := adminClient.Login(body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !res.Success {
-		log.Fatalf("%+v", res)
-	}
-	aua.userAuthToken = res.Data["authentication_token"].(string)
-	os.Exit(m.Run())
-}
-
-// func TestLogin(t *testing.T) {
-// 	body := LoginParams{
-// 		Email:    email,
-// 		Password: pwd,
-// 	}
-// 	res, err := adminClient.Login(body)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	if !res.Success {
-// 		t.Fatalf("%+v", res)
-// 	}
-// 	t.Log(res)
-// }
-
-func TestLogout(t *testing.T) {
-	res, err := adminUser.Logout()
+	_, err := adminClient.Login(body)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !res.Success {
-		t.Fatalf("%+v", res)
+}
+
+func TestLogout(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	err := adminClient.Logout()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAccessKeyCreate(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	_, err := adminClient.AccessKeyCreate()
+	if err != nil {
+		t.Fatal(err)
 	}
 }
