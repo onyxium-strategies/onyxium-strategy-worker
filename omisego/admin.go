@@ -276,6 +276,10 @@ func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedTokenM
 }
 
 /////////////////
+// Transaction
+/////////////////
+
+/////////////////
 // API Access
 /////////////////
 type AccessKeyCreateResponse struct {

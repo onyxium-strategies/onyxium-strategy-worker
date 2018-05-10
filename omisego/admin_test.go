@@ -3,6 +3,9 @@ package omisego
 import (
 	"net/url"
 	// "os"
+	"github.com/mitchellh/mapstructure"
+	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 	"testing"
 )
 
@@ -157,4 +160,21 @@ func TestMintedTokenMint(t *testing.T) {
 	if err.Error() != "{Object:error Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
 		t.Fatal(err)
 	}
+}
+
+func TestStuff(t *testing.T) {
+	input := `{"object":"list","data":[{"object":"transaction","id":"ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1","from":{"object":"transaction_source","address":"XXX123","amount":1000,"minted_token":{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"ABC","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}},"to":{"object":"transaction_source","address":"XXX123","amount":1000,"minted_token":{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"ABC","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}},"exchange":{"object":"exchange","rate":1},"metadata":{},"encrypted_metadata":{},"status":"confirmed","created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"},{"object":"transaction","id":"hoi","from":{"object":"transaction_source","address":"XXX123","amount":1000,"minted_token":{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"DBE","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}},"to":{"object":"transaction_source","address":"XXX123","amount":1000,"minted_token":{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"ABC","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}},"exchange":{"object":"exchange","rate":1},"metadata":{},"encrypted_metadata":{},"status":"confirmed","created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}],"pagination":{"per_page":10,"current_page":1,"is_first_page":true,"is_last_page":true}}`
+
+	data, ok := gjson.Parse(input).Value().(map[string]interface{})
+	log.Info(data)
+	if !ok {
+		t.Fatal("Json input is not a slice")
+	}
+	var i Transaction
+	err := mapstructure.Decode(data, &i)
+	log.Infof("%#v", i)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// log.Info(i.Data[1].(Transaction).Id)
 }
