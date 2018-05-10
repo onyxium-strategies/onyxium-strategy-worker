@@ -2,7 +2,7 @@ package omisego
 
 import (
 	"net/url"
-	"os"
+	// "os"
 	"testing"
 )
 
@@ -98,6 +98,63 @@ func TestPasswordUpdate(t *testing.T) {
 	}
 	err := adminClient.PasswordUpdate(body)
 	if err.Error() != "{Object:error Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestMintedTokenAll(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := MintedTokenAllParams{
+		Page:    1,
+		PerPage: 10,
+	}
+	_, err := adminClient.MintedTokenAll(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestMintedTokenGet(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := MintedTokenGetParams{
+		Id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3",
+	}
+	_, err := adminClient.MintedTokenGet(body)
+	if err.Error() != "{Object:error Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestMintedTokenCreate(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := MintedTokenCreateParams{
+		Symbol:        "OMG",
+		Name:          "Omisego",
+		Description:   "desc",
+		SubunitToUnit: 100,
+	}
+	_, err := adminClient.MintedTokenCreate(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestMintedTokenMint(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := MintedTokenMintParams{
+		Id:     "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1",
+		Amount: 1000,
+	}
+	_, err := adminClient.MintedTokenMint(body)
+	if err.Error() != "{Object:error Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
 		t.Fatal(err)
 	}
 }

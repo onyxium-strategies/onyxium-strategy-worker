@@ -132,6 +132,150 @@ func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
 }
 
 /////////////////
+// Minted Token
+/////////////////
+type MintedToken struct {
+	Object        string `mapstructure:"object"`
+	Id            string `mapstructure:"id"`
+	Symbol        string `mapstructure:"symbol"`
+	SubunitToUnit int    `mapstructure:"subunit_to_unit"`
+	CreatedAt     string `mapstructure:"created_at"`
+	UpdatedAt     string `mapstructure:"updated_at"`
+}
+
+type MintedTokenAllParams struct {
+	Page       int    `json:"page"`
+	PerPage    int    `json:"per_page"`
+	SearchTerm string `json:"search_term"`
+	SortBy     string `json:"sort_by"`
+	SortDir    string `json:"sort_dir"`
+}
+
+type MintedTokenAllResponse struct {
+	Object     string                 `mapstructure:"object"`
+	Data       []MintedToken          `mapstructure:"data"`
+	Pagination map[string]interface{} `mapstructure:"pagination"`
+}
+
+func (a *AdminAPI) MintedTokenAll(reqBody MintedTokenAllParams) (*MintedTokenAllResponse, error) {
+	req, err := a.newRequest("POST", "/minted_token.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data MintedTokenAllResponse
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type MintedTokenGetParams struct {
+	Id string `json:"id"`
+}
+
+type MintedTokenGetResponse struct {
+	MintedToken
+}
+
+func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedTokenGetResponse, error) {
+	req, err := a.newRequest("POST", "/minted_token.get", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data MintedTokenGetResponse
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type MintedTokenCreateParams struct {
+	Name                 string                 `json:"name"`
+	Symbol               string                 `json:"symbol"`
+	Description          string                 `json:"description"`
+	SubunitToUnit        int                    `json:"subunit_to_unit"`
+	Amount               int                    `json:"amount"`
+	IsoCode              string                 `json:"iso_code"`
+	ShortSymbol          string                 `json:"short_symbol"`
+	Subunit              string                 `json:"subunit"`
+	SymbolFirst          bool                   `json:"symbol_first"`
+	HtmlEntity           string                 `json:"html_entity"`
+	IsoNumeric           string                 `json:"iso_numeric"`
+	SmallestDenomination int                    `json:"smallest_denomination"`
+	Metadata             map[string]interface{} `json:"id"`
+	EncryptedMetadata    map[string]interface{} `json:"id"`
+}
+
+type MintedTokenCreateResponse struct {
+	MintedToken
+}
+
+func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedTokenCreateResponse, error) {
+	req, err := a.newRequest("POST", "/minted_token.create", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data MintedTokenCreateResponse
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type MintedTokenMintParams struct {
+	Id     string `json:"id"`
+	Amount int    `json:"amount"`
+}
+
+type MintedTokenMintResponse struct {
+	MintedToken
+}
+
+func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedTokenMintResponse, error) {
+	req, err := a.newRequest("POST", "/minted_token.mint", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data MintedTokenMintResponse
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+/////////////////
 // API Access
 /////////////////
 type AccessKeyCreateResponse struct {
