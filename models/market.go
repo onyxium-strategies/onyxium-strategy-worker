@@ -28,7 +28,7 @@ type MarketRecord struct {
 	Market map[string]Market `bson:",inline"`
 }
 
-func (db *DB) GetLatestMarket() (map[string]Market, error) {
+func (db *MGO) GetLatestMarket() (map[string]Market, error) {
 	record := &MarketRecord{}
 	err := db.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(record)
 	if err != nil {
@@ -37,7 +37,7 @@ func (db *DB) GetLatestMarket() (map[string]Market, error) {
 	return record.Market, nil
 }
 
-func (db *DB) GetHistoryMarket(TimeframeInMS int) (map[string]Market, error) {
+func (db *MGO) GetHistoryMarket(TimeframeInMS int) (map[string]Market, error) {
 	toDate := bson.Now()
 	toId := bson.NewObjectIdWithTime(toDate)
 	fromDate := toDate.Add(-time.Duration(TimeframeInMS) * time.Millisecond)

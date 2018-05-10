@@ -22,12 +22,12 @@ func StartDispatcher(nworkers int) {
 			select {
 			case work := <-WorkQueue:
 				log.Info("Received work requeust")
-				go func() {
+				go func(work WorkRequest) {
 					worker := <-WorkerQueue
 
 					log.Info("Dispatching work request")
 					worker <- work
-				}()
+				}(work)
 			}
 		}
 	}()
