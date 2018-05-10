@@ -66,6 +66,71 @@ func (a *AdminAPI) Logout() error {
 	return err
 }
 
+type AuthTokenSwitchAccountParams struct {
+	AccountId string `json:"account_id"`
+}
+
+type AuthTokenSwitchAccountResponse struct {
+	Object              string                 `mapstructure:"object"`
+	AuthenticationToken string                 `mapstructure:"authentication_token"`
+	UserId              string                 `mapstructure:"user_id"`
+	User                map[string]interface{} `mapstructure:"user"`
+	AccountId           string                 `mapstructure:"account_id"`
+	Account             map[string]interface{} `mapstructure:"account"`
+}
+
+func (a *AdminAPI) AuthTokenSwitchAccount(reqBody AuthTokenSwitchAccountParams) (*AuthTokenSwitchAccountResponse, error) {
+	req, err := a.newRequest("POST", "/auth_token.switch_account", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AuthTokenSwitchAccountResponse
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type PasswordResetParams struct {
+	Email       string `json:"email"`
+	RedirectUrl string `json:"redirect_url"`
+}
+
+func (a *AdminAPI) PasswordReset(reqBody PasswordResetParams) error {
+	req, err := a.newRequest("POST", "/password.reset", reqBody)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.do(req)
+	return err
+}
+
+type PasswordUpdateParams struct {
+	Email                string `json:"email"`
+	Token                string `json:"token"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+}
+
+func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
+	req, err := a.newRequest("POST", "/password.update", reqBody)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.do(req)
+	return err
+}
+
 /////////////////
 // API Access
 /////////////////

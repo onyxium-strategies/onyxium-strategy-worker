@@ -1,10 +1,8 @@
 package omisego
 
 import (
-	// log "github.com/sirupsen/logrus"
-	// "net/http"
 	"net/url"
-	// "os"
+	"os"
 	"testing"
 )
 
@@ -59,6 +57,47 @@ func TestAccessKeyCreate(t *testing.T) {
 	adminClient.Login(loginBody)
 	_, err := adminClient.AccessKeyCreate()
 	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAuthTokenSwitchAccount(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := AuthTokenSwitchAccountParams{
+		AccountId: "the_account_id",
+	}
+	_, err := adminClient.AuthTokenSwitchAccount(body)
+	if err.Error() != "{Object:error Code:account:not_found Description:There is no user corresponding to the provided account id Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestPasswordReset(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	body := PasswordResetParams{
+		Email:       "test@example.com",
+		RedirectUrl: "https://example.com/admin/update_password?email={email}&token={token}",
+	}
+	err := adminClient.PasswordReset(body)
+	if err.Error() != "{Object:error Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestPasswordUpdate(t *testing.T) {
+	client, _ := NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := AdminAPI{client}
+	body := PasswordUpdateParams{
+		Email:                "test@example.com",
+		Token:                "26736ca1-43a0-442b-803e-76220cd3cb1d",
+		Password:             "nZi9Enc5$l#",
+		PasswordConfirmation: "nZi9Enc5$l#",
+	}
+	err := adminClient.PasswordUpdate(body)
+	if err.Error() != "{Object:error Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
 		t.Fatal(err)
 	}
 }

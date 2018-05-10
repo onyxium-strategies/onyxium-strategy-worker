@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	// log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httputil"
