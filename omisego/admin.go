@@ -18,17 +18,17 @@ type LoginParams struct {
 	Password string `json:"password"`
 }
 
-type LoginResponse struct {
-	UserId              string                 `mapstructure:"user_id"`
-	User                map[string]interface{} `mapstructure:"user"`
-	Object              string                 `mapstructure:"object"`
-	MasterAdmin         bool                   `mapstructure:"master_admin"`
-	AuthenticationToken string                 `mapstructure:"authentication_token"`
-	AccountId           string                 `mapstructure:"account_id"`
-	Account             map[string]interface{} `mapstructure:"account"`
-}
+// type LoginResponse struct {
+// 	UserId              string                 `mapstructure:"user_id"`
+// 	User                map[string]interface{} `mapstructure:"user"`
+// 	Object              string                 `mapstructure:"object"`
+// 	MasterAdmin         bool                   `mapstructure:"master_admin"`
+// 	AuthenticationToken string                 `mapstructure:"authentication_token"`
+// 	AccountId           string                 `mapstructure:"account_id"`
+// 	Account             map[string]interface{} `mapstructure:"account"`
+// }
 
-func (a *AdminAPI) Login(reqBody LoginParams) (*LoginResponse, error) {
+func (a *AdminAPI) Login(reqBody LoginParams) (*AuthenicationToken, error) {
 	req, err := a.newRequest("POST", "/login", reqBody)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (a *AdminAPI) Login(reqBody LoginParams) (*LoginResponse, error) {
 		return nil, err
 	}
 
-	var data LoginResponse
+	var data AuthenicationToken
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -70,16 +70,16 @@ type AuthTokenSwitchAccountParams struct {
 	AccountId string `json:"account_id"`
 }
 
-type AuthTokenSwitchAccountResponse struct {
-	Object              string                 `mapstructure:"object"`
-	AuthenticationToken string                 `mapstructure:"authentication_token"`
-	UserId              string                 `mapstructure:"user_id"`
-	User                map[string]interface{} `mapstructure:"user"`
-	AccountId           string                 `mapstructure:"account_id"`
-	Account             map[string]interface{} `mapstructure:"account"`
-}
+// type AuthTokenSwitchAccountResponse struct {
+// 	Object              string                 `mapstructure:"object"`
+// 	AuthenticationToken string                 `mapstructure:"authentication_token"`
+// 	UserId              string                 `mapstructure:"user_id"`
+// 	User                map[string]interface{} `mapstructure:"user"`
+// 	AccountId           string                 `mapstructure:"account_id"`
+// 	Account             map[string]interface{} `mapstructure:"account"`
+// }
 
-func (a *AdminAPI) AuthTokenSwitchAccount(reqBody AuthTokenSwitchAccountParams) (*AuthTokenSwitchAccountResponse, error) {
+func (a *AdminAPI) AuthTokenSwitchAccount(reqBody AuthTokenSwitchAccountParams) (*AuthenicationToken, error) {
 	req, err := a.newRequest("POST", "/auth_token.switch_account", reqBody)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (a *AdminAPI) AuthTokenSwitchAccount(reqBody AuthTokenSwitchAccountParams) 
 		return nil, err
 	}
 
-	var data AuthTokenSwitchAccountResponse
+	var data AuthenicationToken
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -134,21 +134,14 @@ func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
 /////////////////
 // Minted Token
 /////////////////
-type MintedTokenAllParams struct {
-	Page       int    `json:"page"`
-	PerPage    int    `json:"per_page"`
-	SearchTerm string `json:"search_term"`
-	SortBy     string `json:"sort_by"`
-	SortDir    string `json:"sort_dir"`
-}
 
-type MintedTokenAllResponse struct {
-	Object     string                 `mapstructure:"object"`
-	Data       []MintedToken          `mapstructure:"data"`
-	Pagination map[string]interface{} `mapstructure:"pagination"`
-}
+// type MintedTokenAllResponse struct {
+// 	Object     string                 `mapstructure:"object"`
+// 	Data       []MintedToken          `mapstructure:"data"`
+// 	Pagination map[string]interface{} `mapstructure:"pagination"`
+// }
 
-func (a *AdminAPI) MintedTokenAll(reqBody MintedTokenAllParams) (*MintedTokenAllResponse, error) {
+func (a *AdminAPI) MintedTokenAll(reqBody ListParams) (*MintedTokenList, error) {
 	req, err := a.newRequest("POST", "/minted_token.all", reqBody)
 	if err != nil {
 		return nil, err
@@ -159,7 +152,7 @@ func (a *AdminAPI) MintedTokenAll(reqBody MintedTokenAllParams) (*MintedTokenAll
 		return nil, err
 	}
 
-	var data MintedTokenAllResponse
+	var data MintedTokenList
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -172,11 +165,11 @@ type MintedTokenGetParams struct {
 	Id string `json:"id"`
 }
 
-type MintedTokenGetResponse struct {
-	MintedToken
-}
+// type MintedTokenGetResponse struct {
+// 	MintedToken
+// }
 
-func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedTokenGetResponse, error) {
+func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.get", reqBody)
 	if err != nil {
 		return nil, err
@@ -187,7 +180,7 @@ func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedTokenGet
 		return nil, err
 	}
 
-	var data MintedTokenGetResponse
+	var data MintedToken
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -200,24 +193,24 @@ type MintedTokenCreateParams struct {
 	Name                 string                 `json:"name"`
 	Symbol               string                 `json:"symbol"`
 	Description          string                 `json:"description"`
-	SubunitToUnit        int                    `json:"subunit_to_unit"`
-	Amount               int                    `json:"amount"`
-	IsoCode              string                 `json:"iso_code"`
-	ShortSymbol          string                 `json:"short_symbol"`
-	Subunit              string                 `json:"subunit"`
-	SymbolFirst          bool                   `json:"symbol_first"`
-	HtmlEntity           string                 `json:"html_entity"`
-	IsoNumeric           string                 `json:"iso_numeric"`
-	SmallestDenomination int                    `json:"smallest_denomination"`
-	Metadata             map[string]interface{} `json:"id"`
-	EncryptedMetadata    map[string]interface{} `json:"id"`
+	SubunitToUnit        int                    `json:"subunit_to_unit,omitempty"`
+	Amount               int                    `json:"amount,omitempty"`
+	IsoCode              string                 `json:"iso_code,omitempty"`
+	ShortSymbol          string                 `json:"short_symbol,omitempty"`
+	Subunit              string                 `json:"subunit,omitempty"`
+	SymbolFirst          bool                   `json:"symbol_first,omitempty"`
+	HtmlEntity           string                 `json:"html_entity,omitempty"`
+	IsoNumeric           string                 `json:"iso_numeric,omitempty"`
+	SmallestDenomination int                    `json:"smallest_denomination,omitempty"`
+	Metadata             map[string]interface{} `json:"id,omitempty"`
+	EncryptedMetadata    map[string]interface{} `json:"id,omitempty"`
 }
 
-type MintedTokenCreateResponse struct {
-	MintedToken
-}
+// type MintedTokenCreateResponse struct {
+// 	MintedToken
+// }
 
-func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedTokenCreateResponse, error) {
+func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.create", reqBody)
 	if err != nil {
 		return nil, err
@@ -228,7 +221,7 @@ func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedTo
 		return nil, err
 	}
 
-	var data MintedTokenCreateResponse
+	var data MintedToken
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -242,11 +235,11 @@ type MintedTokenMintParams struct {
 	Amount int    `json:"amount"`
 }
 
-type MintedTokenMintResponse struct {
-	MintedToken
-}
+// type MintedTokenMintResponse struct {
+// 	MintedToken
+// }
 
-func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedTokenMintResponse, error) {
+func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.mint", reqBody)
 	if err != nil {
 		return nil, err
@@ -257,7 +250,7 @@ func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedTokenM
 		return nil, err
 	}
 
-	var data MintedTokenMintResponse
+	var data MintedToken
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
@@ -267,8 +260,189 @@ func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedTokenM
 }
 
 /////////////////
-// Transaction
+// Account
 /////////////////
+func (a *AdminAPI) AccountAll(reqBody ListParams) (*AccountList, error) {
+	req, err := a.newRequest("POST", "/account.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AccountList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountGetParams struct {
+	Id string `json:"id"`
+}
+
+func (a *AdminAPI) AccountGet(reqBody AccountGetParams) (*Account, error) {
+	req, err := a.newRequest("POST", "/account.get", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Account
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountCreateParams struct {
+	Name              string                 `json:"name"`
+	Description       string                 `json:"description,omitempty"`
+	ParentId          string                 `json:"parent_id,omitempty"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	EncryptedMetadata map[string]interface{} `json:"encrypted_metadata,omitempty"`
+}
+
+func (a *AdminAPI) AccountCreate(reqBody AccountCreateParams) (*Account, error) {
+	req, err := a.newRequest("POST", "/account.create", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Account
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountUpdateParams struct {
+	Id                string                 `json:"id"`
+	Name              string                 `json:"name"`
+	Description       string                 `json:"description"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	EncryptedMetadata map[string]interface{} `json:"encrypted_metadata,omitempty"`
+}
+
+func (a *AdminAPI) AccountUpdate(reqBody AccountUpdateParams) (*Account, error) {
+	req, err := a.newRequest("POST", "/account.update", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Account
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountUploadAvatarParams struct {
+	Id     string `json:"id"`
+	Avatar string `json:"avatar"`
+}
+
+func (a *AdminAPI) AccountUploadAvatar(reqBody AccountUploadAvatarParams) (*Account, error) {
+	req, err := a.newRequest("POST", "/account.upload_avatar", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Account
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountListUsersParams struct {
+	AccountId string `json:"account_id"`
+}
+
+func (a *AdminAPI) AccountListUsers(reqBody AccountListUsersParams) (*UserList, error) {
+	req, err := a.newRequest("POST", "/account.list_users", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data UserList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AccountAssignUserParams struct {
+	UserId      string `json:"user_id,omitempty"`
+	AccountId   string `json:"account_id"`
+	RoleName    string `json:"role_name"`
+	RedirectUrl string `json:"redirect_url,omitempty"`
+	Email       string `json:"email,omitempty"`
+}
+
+func (a *AdminAPI) AccountAssignUser(reqBody AccountAssignUserParams) error {
+	req, err := a.newRequest("POST", "/account.assign_user", reqBody)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.do(req)
+	return err
+}
+
+type AccountUnassignUserParams struct {
+	UserId    string `json:"user_id"`
+	AccountId string `json:"account_id"`
+}
+
+func (a *AdminAPI) AccountUnassignUser(reqBody AccountUnassignUserParams) error {
+	req, err := a.newRequest("POST", "/account.unassign_user", reqBody)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.do(req)
+	return err
+}
 
 /////////////////
 // API Access

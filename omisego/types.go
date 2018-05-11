@@ -140,6 +140,17 @@ type (
 		Data       []APIKey `mapstructure:"data"`
 		Pagination `mapstructure:"pagination"`
 	}
+
+	////////////
+	// Request body parameters
+	////////////
+	type ListParams struct {
+	Page       int    `json:"page,omitempty"`
+	PerPage    int    `json:"per_page,omitempty"`
+	SearchTerm string `json:"search_term,omitempty"`
+	SortBy     string `json:"sort_by,omitempty"`
+	SortDir    string `json:"sort_dir,omitempty"`
+}
 )
 
 func (e *ErrorResponse) Error() string {
