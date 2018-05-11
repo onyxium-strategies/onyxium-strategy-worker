@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"flag"
+	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -38,14 +39,17 @@ func main() {
 	log.Infof("Starting the dispatcher with %d workers", *NWorkers)
 	StartDispatcher(*NWorkers)
 
+	router := mux.NewRouter()
 	// Register our collector as an HTTP handler function.
-	collectorUrl := "/api/work"
-	log.Infof("Registering the collector on %s", collectorUrl)
-	http.Handle(collectorUrl, &CollectorHandler{})
+	router.Handle("/api/work", &CollectorHandler{})
+	router.HandleFunc("/api/user", UserAll).Methods("GET")
+	router.HandleFunc("/api/user/{id}", UserGet).Methods("GET")
+	router.HandleFunc("/api/user", UserCreate).Methods("POST")
+	router.HandleFunc("/api/user/{id}", UserDelete).Methods("DELETE")
 
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
-	if err := http.ListenAndServe(*HTTPAddr, nil); err != nil {
+	if err := http.ListenAndServe(*HTTPAddr, router); err != nil {
 		log.Fatal(err)
 	}
 }
