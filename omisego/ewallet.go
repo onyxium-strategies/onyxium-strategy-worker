@@ -216,7 +216,6 @@ type TransferParams struct {
 	ToAddress         string                 `json:"to_address"`
 	TokenId           string                 `json:"token_id"`
 	Amount            int                    `json:"amount"`
-	Amount            int                    `json:"amount"`
 	Metadata          map[string]interface{} `json:"id,omitempty"`
 	EncryptedMetadata map[string]interface{} `json:"id,omitempty"`
 }
@@ -262,3 +261,59 @@ func (e *EWalletAPI) GetSettings() (*Settings, error) {
 	}
 	return &data, nil
 }
+
+/////////////////
+// Transaction
+/////////////////
+func (e *EWalletAPI) TransactionAll(reqBody ListParams) (*TransactionList, error) {
+	req, err := e.newRequest("POST", "/transaction.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data TransactionList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+type UserListTransactionsParams struct {
+	ProviderUserId string                 `json:"provider_user_id"`
+	Address        string                 `json:"address"`
+	Page           int                    `json:"page,omitempty"`
+	PerPage        int                    `json:"per_page,omitempty"`
+	SearchTerm     string                 `json:"search_term,omitempty"`
+	SearchTerms    map[string]interface{} `json:"search_terms,omitempty"`
+	SortBy         string                 `json:"sort_by,omitempty"`
+	SortDir        string                 `json:"sort_dir,omitempty"`
+}
+
+func (e *EWalletAPI) UserListTransactions(reqBody UserListTransactionsParams) (*TransactionList, error) {
+	req, err := e.newRequest("POST", "/user.list_transactions", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data TransactionList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+/////////////////
+// Transaction Request
+/////////////////

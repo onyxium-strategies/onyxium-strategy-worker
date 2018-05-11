@@ -90,3 +90,29 @@ func TestUserDebitBalance(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestTransactionAll(t *testing.T) {
+	body := omg.ListParams{
+		Page:    1,
+		PerPage: 10,
+	}
+
+	res, err := serverUser.TransactionAll(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", res)
+}
+
+func TestUserListTransactions(t *testing.T) {
+	body := omg.UserListTransactionsParams{
+		ProviderUserId: "7x1hsxeryf",
+		Page:           1,
+		PerPage:        10,
+	}
+
+	_, err := serverUser.UserListTransactions(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
