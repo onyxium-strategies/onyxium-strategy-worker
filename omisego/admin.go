@@ -605,7 +605,7 @@ type AdminUploadAvatarParams struct {
 }
 
 func (a *AdminAPI) AdminUploadAvatar(reqBody AdminUploadAvatarParams) (*User, error) {
-	req, err := a.newRequest("POST", "/Admin.upload_avatar", reqBody)
+	req, err := a.newRequest("POST", "/admin.upload_avatar", reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -616,6 +616,29 @@ func (a *AdminAPI) AdminUploadAvatar(reqBody AdminUploadAvatarParams) (*User, er
 	}
 
 	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+/////////////////
+// Transaction
+/////////////////
+func (a *AdminAPI) TransactionAll(reqBody ListParams) (*TransactionList, error) {
+	req, err := a.newRequest("POST", "/transaction.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data TransactionList
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
