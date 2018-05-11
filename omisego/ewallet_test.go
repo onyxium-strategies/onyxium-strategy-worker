@@ -27,8 +27,8 @@ var (
 	}
 )
 
-func TestCreateUser(t *testing.T) {
-	body := omg.UserCreateParams{
+func TestUserCreate(t *testing.T) {
+	body := omg.UserParams{
 		ProviderUserId: fake.CharactersN(10),
 		Username:       fake.UserName(),
 		Metadata: map[string]interface{}{
@@ -38,6 +38,54 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	_, err := serverUser.UserCreate(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserGet(t *testing.T) {
+	body := omg.ProviderUserIdParam{
+		PrividerUserId: "7x1hsxeryf",
+	}
+
+	_, err := serverUser.UserGet(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserListBalances(t *testing.T) {
+	body := omg.ProviderUserIdParam{
+		PrividerUserId: "7x1hsxeryf",
+	}
+
+	_, err := serverUser.UserListBalances(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserCreditBalance(t *testing.T) {
+	body := omg.BalanceAdjustmentParams{
+		PrividerUserId: "7x1hsxeryf",
+		TokenId:        "BTC",
+		Amount:         100,
+	}
+
+	_, err := serverUser.UserCreditBalance(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUserDebitBalance(t *testing.T) {
+	body := omg.BalanceAdjustmentParams{
+		PrividerUserId: "7x1hsxeryf",
+		TokenId:        "BTC",
+		Amount:         100,
+	}
+
+	_, err := serverUser.UserDebitBalance(body)
 	if err != nil {
 		t.Fatal(err)
 	}

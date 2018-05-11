@@ -141,6 +141,16 @@ type (
 		Pagination `mapstructure:"pagination"`
 	}
 
+	Address struct {
+		Address  string    `mapstructure:"address"`
+		Balances []Balance `mapstructure:"balances"`
+	}
+
+	Balance struct {
+		MintedToken `mapstructure:"minted_token"`
+		Amount      int `mapstructure:"amount"`
+	}
+
 	////////////
 	// Request body parameters
 	////////////

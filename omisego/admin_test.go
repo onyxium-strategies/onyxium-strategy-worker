@@ -43,14 +43,14 @@ var (
 )
 
 func TestStuff(t *testing.T) {
-	input := `{"object":"list","data":[{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"ABC","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}],"pagination":{"per_page":10,"current_page":1,"is_first_page":true,"is_last_page":true}}`
+	input := `{"object":"list","data":[{"object":"address","address":"XXX123","balances":[{"amount":100,"minted_token":{"object":"minted_token","id":"tok_BTC_01cbffybmtbbb449r05zgfct2h","symbol":"BTC","name":"Bitcoin","subunit_to_unit":100000000000000000}},{"amount":100,"minted_token":{"object":"minted_token","id":"tok_OMG_01cbffwvj6ma9a9gg1tb24880q","symbol":"OMG","name":"OmiseGO","subunit_to_unit":100000000000000000}}]},{"object":"address","address":"XXX456","balances":[]}]}`
 
 	data, ok := gjson.Parse(input).Value().(map[string]interface{})
 	log.Info(data)
 	if !ok {
 		t.Fatal("Json input is not a slice")
 	}
-	var i omg.MintedTokenList
+	var i omg.AddressList
 	err := mapstructure.Decode(data, &i)
 	log.Infof("%#v", i)
 	if err != nil {
@@ -188,6 +188,20 @@ func TestMintedTokenMint(t *testing.T) {
 	}
 	_, err := adminClient.MintedTokenMint(body)
 	if err.Error() != "{Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestUserAll(t *testing.T) {
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := omg.ListParams{
+		Page:    1,
+		PerPage: 10,
+	}
+	_, err := adminClient.UserAll(body)
+	if err != nil {
 		t.Fatal(err)
 	}
 }

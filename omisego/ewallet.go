@@ -3,6 +3,7 @@ package omisego
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
+	// log "github.com/sirupsen/logrus"
 )
 
 type EWalletAPI struct {
@@ -64,6 +65,9 @@ func (e *EWalletAPI) UserCreate(reqBody UserParams) (*User, error) {
 	}
 
 	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	var data User
 	err = mapstructure.Decode(res.Data, &data)
@@ -81,6 +85,9 @@ func (e *EWalletAPI) UserUpdate(reqBody UserParams) (*User, error) {
 	}
 
 	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	var data User
 	err = mapstructure.Decode(res.Data, &data)
@@ -97,6 +104,9 @@ func (e *EWalletAPI) UserGet(reqBody ProviderUserIdParam) (*User, error) {
 	}
 
 	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	var data User
 	err = mapstructure.Decode(res.Data, &data)
@@ -107,12 +117,15 @@ func (e *EWalletAPI) UserGet(reqBody ProviderUserIdParam) (*User, error) {
 }
 
 func (e *EWalletAPI) MeGet() (*User, error) {
-	req, err := e.newRequest("POST", "/user.get", nil)
+	req, err := e.newRequest("POST", "/me.get", nil)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	var data User
 	err = mapstructure.Decode(res.Data, &data)
@@ -121,3 +134,113 @@ func (e *EWalletAPI) MeGet() (*User, error) {
 	}
 	return &data, nil
 }
+
+/////////////////
+// Balance
+/////////////////
+type AddressList struct {
+	Data []Address `mapstructure:"data"`
+}
+
+func (e *EWalletAPI) UserListBalances(reqBody ProviderUserIdParam) (*AddressList, error) {
+	req, err := e.newRequest("POST", "/user.list_balances", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AddressList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+type BalanceAdjustmentParams struct {
+	PrividerUserId        string                 `json:"provider_user_id"`
+	TokenId               string                 `json:"token_id"`
+	Amount                int                    `json:"amount"`
+	AccountId             string                 `json:"account_id,omitempty"`
+	BurnBalanceIdentifier string                 `json:"burn_balance_identifier,omitempty"`
+	Metadata              map[string]interface{} `json:"id,omitempty"`
+	EncryptedMetadata     map[string]interface{} `json:"id,omitempty"`
+}
+
+func (e *EWalletAPI) UserCreditBalance(reqBody BalanceAdjustmentParams) (*AddressList, error) {
+	req, err := e.newRequest("POST", "/user.credit_balance", reqBody)
+	req.Header.Set("Idempotency-Token", NewIdempotencyToken())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AddressList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+func (e *EWalletAPI) UserDebitBalance(reqBody BalanceAdjustmentParams) (*AddressList, error) {
+	req, err := e.newRequest("POST", "/user.debit_balance", reqBody)
+	req.Header.Set("Idempotency-Token", NewIdempotencyToken())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AddressList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+type TransferParams struct {
+	FromAddress       string                 `json:"from_address"`
+	ToAddress         string                 `json:"to_address"`
+	TokenId           string                 `json:"token_id"`
+	Amount            int                    `json:"amount"`
+	Amount            int                    `json:"amount"`
+	Metadata          map[string]interface{} `json:"id,omitempty"`
+	EncryptedMetadata map[string]interface{} `json:"id,omitempty"`
+}
+
+func (e *EWalletAPI) Transfer(reqBody TransferParams) (*AddressList, error) {
+	req, err := e.newRequest("POST", "/transfer", reqBody)
+	req.Header.Set("Idempotency-Token", NewIdempotencyToken())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AddressList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+/////////////////
+// Settings
+/////////////////

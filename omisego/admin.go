@@ -621,6 +621,10 @@ func (a *AdminAPI) APIKeyCreate(reqBody APIKeyCreateParams) (*APIKey, error) {
 	}
 
 	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
 	var data APIKey
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
