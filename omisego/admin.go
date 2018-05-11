@@ -555,6 +555,74 @@ func (a *AdminAPI) InviteAccept() (*User, error) {
 /////////////////
 // Admin
 /////////////////
+func (a *AdminAPI) AdminAll(reqBody ListParams) (*UserList, error) {
+	req, err := a.newRequest("POST", "/admin.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data UserList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AdminGetParams struct {
+	Id string `json:"id"`
+}
+
+func (a *AdminAPI) AdminGet(reqBody AdminGetParams) (*User, error) {
+	req, err := a.newRequest("POST", "/admin.get", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type AdminUploadAvatarParams struct {
+	Id     string `json:"id"`
+	Avatar string `json:"avatar"`
+}
+
+func (a *AdminAPI) AdminUploadAvatar(reqBody AdminUploadAvatarParams) (*User, error) {
+	req, err := a.newRequest("POST", "/Admin.upload_avatar", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
 
 /////////////////
 // API Access
