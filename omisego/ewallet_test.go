@@ -45,7 +45,7 @@ func TestUserCreate(t *testing.T) {
 
 func TestUserGet(t *testing.T) {
 	body := omg.ProviderUserIdParam{
-		PrividerUserId: "7x1hsxeryf",
+		ProviderUserId: "7x1hsxeryf",
 	}
 
 	_, err := serverUser.UserGet(body)
@@ -56,7 +56,7 @@ func TestUserGet(t *testing.T) {
 
 func TestUserListBalances(t *testing.T) {
 	body := omg.ProviderUserIdParam{
-		PrividerUserId: "7x1hsxeryf",
+		ProviderUserId: "7x1hsxeryf",
 	}
 
 	_, err := serverUser.UserListBalances(body)
@@ -67,7 +67,7 @@ func TestUserListBalances(t *testing.T) {
 
 func TestUserCreditBalance(t *testing.T) {
 	body := omg.BalanceAdjustmentParams{
-		PrividerUserId: "7x1hsxeryf",
+		ProviderUserId: "7x1hsxeryf",
 		TokenId:        "BTC",
 		Amount:         100,
 	}
@@ -80,7 +80,7 @@ func TestUserCreditBalance(t *testing.T) {
 
 func TestUserDebitBalance(t *testing.T) {
 	body := omg.BalanceAdjustmentParams{
-		PrividerUserId: "7x1hsxeryf",
+		ProviderUserId: "7x1hsxeryf",
 		TokenId:        "BTC",
 		Amount:         100,
 	}
@@ -112,6 +112,48 @@ func TestUserListTransactions(t *testing.T) {
 	}
 
 	_, err := serverUser.UserListTransactions(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTransactionRequestCreate(t *testing.T) {
+	body := omg.ServerCreateTransactionRequestParams{
+		Type:          "send",
+		TokenId:       "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+		Amount:        100,
+		CorrelationId: "123",
+		Address:       "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a",
+	}
+
+	_, err := serverUser.TransactionRequestCreate(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTransactionRequestGet(t *testing.T) {
+	body := omg.ByIdParam{
+		Id: "txr_01cbfgc8cmmyzy1cfzpqwme3ey",
+	}
+
+	_, err := serverUser.TransactionRequestGet(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTransactionRequestConsume(t *testing.T) {
+	body := omg.ServerTransactionRequestConsumeParams{
+		TransactionRequestId: "txr_01cbfgcts5kqfgpqxcxn71rnbs",
+		CorrelationId:        "123",
+		TokenId:              "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+		Amount:               100,
+		Address:              "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a",
+		ProviderUserId:       "7x1hsxeryf",
+	}
+
+	_, err := serverUser.TransactionRequestConsume(body)
 	if err != nil {
 		t.Fatal(err)
 	}
