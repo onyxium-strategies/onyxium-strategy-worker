@@ -244,3 +244,21 @@ func (e *EWalletAPI) Transfer(reqBody TransferParams) (*AddressList, error) {
 /////////////////
 // Settings
 /////////////////
+func (e *EWalletAPI) GetSettings() (*Settings, error) {
+	req, err := e.newRequest("POST", "/get_settings", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Settings
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}

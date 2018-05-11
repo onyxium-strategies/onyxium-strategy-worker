@@ -151,6 +151,10 @@ type (
 		Amount      int `mapstructure:"amount"`
 	}
 
+	Settings struct {
+		MintedTokens []MintedToken `mapstructure:"minted_tokens"`
+	}
+
 	////////////
 	// Request body parameters
 	////////////
