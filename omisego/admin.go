@@ -134,13 +134,6 @@ func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
 /////////////////
 // Minted Token
 /////////////////
-
-// type MintedTokenAllResponse struct {
-// 	Object     string                 `mapstructure:"object"`
-// 	Data       []MintedToken          `mapstructure:"data"`
-// 	Pagination map[string]interface{} `mapstructure:"pagination"`
-// }
-
 func (a *AdminAPI) MintedTokenAll(reqBody ListParams) (*MintedTokenList, error) {
 	req, err := a.newRequest("POST", "/minted_token.all", reqBody)
 	if err != nil {
@@ -164,10 +157,6 @@ func (a *AdminAPI) MintedTokenAll(reqBody ListParams) (*MintedTokenList, error) 
 type MintedTokenGetParams struct {
 	Id string `json:"id"`
 }
-
-// type MintedTokenGetResponse struct {
-// 	MintedToken
-// }
 
 func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.get", reqBody)
@@ -206,10 +195,6 @@ type MintedTokenCreateParams struct {
 	EncryptedMetadata    map[string]interface{} `json:"id,omitempty"`
 }
 
-// type MintedTokenCreateResponse struct {
-// 	MintedToken
-// }
-
 func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.create", reqBody)
 	if err != nil {
@@ -234,10 +219,6 @@ type MintedTokenMintParams struct {
 	Id     string `json:"id"`
 	Amount int    `json:"amount"`
 }
-
-// type MintedTokenMintResponse struct {
-// 	MintedToken
-// }
 
 func (a *AdminAPI) MintedTokenMint(reqBody MintedTokenMintParams) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.mint", reqBody)
@@ -443,6 +424,137 @@ func (a *AdminAPI) AccountUnassignUser(reqBody AccountUnassignUserParams) error 
 	_, err = a.do(req)
 	return err
 }
+
+/////////////////
+// User
+/////////////////
+func (a *AdminAPI) UserAll(reqBody ListParams) (*UserList, error) {
+	req, err := a.newRequest("POST", "/user.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data UserList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type UserGetParams struct {
+	Id string `json:"id"`
+}
+
+func (a *AdminAPI) UserGet(reqBody UserGetParams) (*User, error) {
+	req, err := a.newRequest("POST", "/user.get", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+func (a *AdminAPI) MeGet() (*User, error) {
+	req, err := a.newRequest("POST", "/me.get", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+func (a *AdminAPI) MeGetAccount() (*Account, error) {
+	req, err := a.newRequest("POST", "/me.get_account", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Account
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+func (a *AdminAPI) MeGetAccounts() (*AccountList, error) {
+	req, err := a.newRequest("POST", "/me.get_accounts", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AccountList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+func (a *AdminAPI) InviteAccept() (*User, error) {
+	req, err := a.newRequest("POST", "/invite.accept", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data User
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+/////////////////
+// Admin
+/////////////////
 
 /////////////////
 // API Access
