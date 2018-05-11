@@ -158,3 +158,25 @@ func TestTransactionRequestConsume(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestTransactionConsumptionApprove(t *testing.T) {
+	body := omg.ByIdParam{
+		Id: "txn_01cbfg5m2ee06kzm8tbysfmmw5",
+	}
+
+	_, err := serverUser.TransactionConsumptionApprove(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTransactionConsumptionReject(t *testing.T) {
+	body := omg.ByIdParam{
+		Id: "txn_01cbfg5m2ee06kzm8tbysfmmw5",
+	}
+
+	_, err := serverUser.TransactionConsumptionReject(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

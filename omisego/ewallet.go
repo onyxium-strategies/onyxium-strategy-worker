@@ -467,3 +467,40 @@ func (e *EWalletAPI) TransactionRequestConsume(reqBody ServerTransactionRequestC
 /////////////////
 // Transaction Consumption
 /////////////////
+func (e *EWalletAPI) TransactionConsumptionApprove(reqBody ByIdParam) (*TransactionComsumption, error) {
+	req, err := e.newRequest("POST", "/transaction_consumption.approve", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data TransactionComsumption
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+func (e *EWalletAPI) TransactionConsumptionReject(reqBody ByIdParam) (*TransactionComsumption, error) {
+	req, err := e.newRequest("POST", "/transaction_consumption.reject", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := e.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data TransactionComsumption
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
