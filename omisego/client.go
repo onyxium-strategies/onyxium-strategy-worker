@@ -12,23 +12,6 @@ import (
 	"net/url"
 )
 
-type Response struct {
-	Version string                 `json:"version"`
-	Success bool                   `json:"success"`
-	Data    map[string]interface{} `json:"data"`
-}
-
-type ErrorResponse struct {
-	Object      string            `json:"object"`
-	Code        string            `json:"code"`
-	Description string            `json:"description"`
-	Messages    map[string]string `json:"messages"`
-}
-
-func (e *ErrorResponse) Error() string {
-	return fmt.Sprintf("%+v", *e)
-}
-
 type Client struct {
 	auth       Authorization
 	BaseURL    *url.URL
@@ -78,19 +61,19 @@ func (c *Client) newRequest(method string, path string, body interface{}) (*http
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (*Response, error) {
-	resp, err := c.httpClient.Do(req)
-	c.log(req, resp)
+func (c *Client) do(req *http.Request) (*BaseResponse, error) {
+	httpResp, err := c.httpClient.Do(req)
+	c.log(req, httpResp)
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 200 && resp.StatusCode != 500 {
-		return nil, errors.New(resp.Status)
+	if httpResp.StatusCode != 200 && httpResp.StatusCode != 500 {
+		return nil, errors.New(httpResp.Status)
 	}
 
-	defer resp.Body.Close()
-	r := &Response{}
-	err = json.NewDecoder(resp.Body).Decode(r)
+	defer httpResp.Body.Close()
+	r := &BaseResponse{}
+	err = json.NewDecoder(httpResp.Body).Decode(r)
 	if err != nil {
 		return nil, err
 	}

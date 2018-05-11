@@ -134,15 +134,6 @@ func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
 /////////////////
 // Minted Token
 /////////////////
-type MintedToken struct {
-	Object        string `mapstructure:"object"`
-	Id            string `mapstructure:"id"`
-	Symbol        string `mapstructure:"symbol"`
-	SubunitToUnit int    `mapstructure:"subunit_to_unit"`
-	CreatedAt     string `mapstructure:"created_at"`
-	UpdatedAt     string `mapstructure:"updated_at"`
-}
-
 type MintedTokenAllParams struct {
 	Page       int    `json:"page"`
 	PerPage    int    `json:"per_page"`
