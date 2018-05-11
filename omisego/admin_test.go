@@ -1,15 +1,17 @@
-package omisego
+package omisego_test
 
 import (
-	"net/url"
-	// "os"
+	omg "bitbucket.org/visa-startups/coinflow-strategy-worker/omisego"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	// "net/http"
+	"net/url"
 	"testing"
 )
 
-// Move this to a dotenv file https://github.com/joho/godotenv
+// Testing variables
+// Use a dotenv file during development https://github.com/joho/godotenv
 var (
 	apiKeyId = "api_01cd29gxqbk0a7c859t5v8g4bx"
 	apiKey   = "C-b0WYz2L6gvUB-HAwBlcANu0ktoMFTCxJkzKlo3FmU"
@@ -22,8 +24,19 @@ var (
 		Host:   "localhost:4000",
 		Path:   "/admin/api",
 	}
+	// aca = &omg.AdminClientAuth{
+	// 	ApiKey:   apiKey,
+	// 	ApiKeyId: apiKeyId,
+	// }
+	// adminClient = omg.AdminAPI{
+	// 	Client: &omg.Client{
+	// 		BaseURL:    adminURL,
+	// 		Auth:       aca,
+	// 		HttpClient: &http.Client{},
+	// 	},
+	// }
 
-	loginBody = LoginParams{
+	loginBody = omg.LoginParams{
 		Email:    email,
 		Password: pwd,
 	}
@@ -37,7 +50,7 @@ func TestStuff(t *testing.T) {
 	if !ok {
 		t.Fatal("Json input is not a slice")
 	}
-	var i MintedTokenList
+	var i omg.MintedTokenList
 	err := mapstructure.Decode(data, &i)
 	log.Infof("%#v", i)
 	if err != nil {
@@ -47,11 +60,11 @@ func TestStuff(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	c, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{
+	c, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{
 		Client: c,
 	}
-	body := LoginParams{
+	body := omg.LoginParams{
 		Email:    email,
 		Password: pwd,
 	}
@@ -62,8 +75,8 @@ func TestLogin(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
 	err := adminClient.Logout()
 	if err != nil {
@@ -72,8 +85,8 @@ func TestLogout(t *testing.T) {
 }
 
 func TestAccessKeyCreate(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
 	_, err := adminClient.AccessKeyCreate()
 	if err != nil {
@@ -82,51 +95,51 @@ func TestAccessKeyCreate(t *testing.T) {
 }
 
 func TestAuthTokenSwitchAccount(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
-	body := AuthTokenSwitchAccountParams{
+	body := omg.AuthTokenSwitchAccountParams{
 		AccountId: "the_account_id",
 	}
 	_, err := adminClient.AuthTokenSwitchAccount(body)
-	if err.Error() != "{Object:error Code:account:not_found Description:There is no user corresponding to the provided account id Messages:map[]}" {
+	if err.Error() != "{Code:account:not_found Description:There is no user corresponding to the provided account id Messages:map[]}" {
 		t.Fatal(err)
 	}
 }
 
 func TestPasswordReset(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
-	body := PasswordResetParams{
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
+	body := omg.PasswordResetParams{
 		Email:       "test@example.com",
 		RedirectUrl: "https://example.com/admin/update_password?email={email}&token={token}",
 	}
 	err := adminClient.PasswordReset(body)
-	if err.Error() != "{Object:error Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
+	if err.Error() != "{Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
 		t.Fatal(err)
 	}
 }
 
 func TestPasswordUpdate(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
-	body := PasswordUpdateParams{
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
+	body := omg.PasswordUpdateParams{
 		Email:                "test@example.com",
 		Token:                "26736ca1-43a0-442b-803e-76220cd3cb1d",
 		Password:             "nZi9Enc5$l#",
 		PasswordConfirmation: "nZi9Enc5$l#",
 	}
 	err := adminClient.PasswordUpdate(body)
-	if err.Error() != "{Object:error Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
+	if err.Error() != "{Code:user:email_not_found Description:There is no user corresponding to the provided email Messages:map[]}" {
 		t.Fatal(err)
 	}
 }
 
 func TestMintedTokenAll(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
-	body := MintedTokenAllParams{
+	body := omg.ListParams{
 		Page:    1,
 		PerPage: 10,
 	}
@@ -137,23 +150,23 @@ func TestMintedTokenAll(t *testing.T) {
 }
 
 func TestMintedTokenGet(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
-	body := MintedTokenGetParams{
+	body := omg.ByIdParam{
 		Id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3",
 	}
 	_, err := adminClient.MintedTokenGet(body)
-	if err.Error() != "{Object:error Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
+	if err.Error() != "{Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
 		t.Fatal(err)
 	}
 }
 
 func TestMintedTokenCreate(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
-	body := MintedTokenCreateParams{
+	body := omg.MintedTokenCreateParams{
 		Symbol:        "OMG",
 		Name:          "Omisego",
 		Description:   "desc",
@@ -166,15 +179,15 @@ func TestMintedTokenCreate(t *testing.T) {
 }
 
 func TestMintedTokenMint(t *testing.T) {
-	client, _ := NewClient(apiKeyId, apiKey, adminURL)
-	adminClient := AdminAPI{client}
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
 	adminClient.Login(loginBody)
-	body := MintedTokenMintParams{
+	body := omg.MintedTokenMintParams{
 		Id:     "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1",
 		Amount: 1000,
 	}
 	_, err := adminClient.MintedTokenMint(body)
-	if err.Error() != "{Object:error Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
+	if err.Error() != "{Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
 		t.Fatal(err)
 	}
 }

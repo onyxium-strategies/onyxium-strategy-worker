@@ -30,12 +30,12 @@ func (a *AdminAPI) Login(reqBody LoginParams) (*AuthenicationToken, error) {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
 	}
 
-	// Log the user in with new authentication
-	a.auth = &AdminUserAuth{
-		apiKey:        a.auth.(*AdminClientAuth).apiKey,
-		apiKeyId:      a.auth.(*AdminClientAuth).apiKeyId,
-		userId:        data.UserId,
-		userAuthToken: data.AuthenticationToken,
+	// Log the admin in with new authentication
+	a.Auth = &AdminUserAuth{
+		ApiKey:        a.Auth.(*AdminClientAuth).ApiKey,
+		ApiKeyId:      a.Auth.(*AdminClientAuth).ApiKeyId,
+		UserId:        data.UserId,
+		UserAuthToken: data.AuthenticationToken,
 	}
 
 	return &data, err
@@ -587,7 +587,7 @@ func (a *AdminAPI) AccessKeyCreate() (*AccessKey, error) {
 func (a *AdminAPI) AccessKeyDelete(reqBody AccessKeyDeleteParams) error {
 	req, err := a.newRequest("POST", "/access_key.delete", reqBody)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	_, err = a.do(req)
@@ -614,7 +614,7 @@ func (a *AdminAPI) APIKeyAll(reqBody ListParams) (*APIKeyList, error) {
 	return &data, err
 }
 
-func (a *AdminAPI) APIKeyCreate(reqBody) (*APIKey, error) {
+func (a *AdminAPI) APIKeyCreate(reqBody APIKeyCreateParams) (*APIKey, error) {
 	req, err := a.newRequest("POST", "/api_key.create", reqBody)
 	if err != nil {
 		return nil, err
@@ -632,7 +632,7 @@ func (a *AdminAPI) APIKeyCreate(reqBody) (*APIKey, error) {
 func (a *AdminAPI) APIKeyDelete(reqBody ByIdParam) error {
 	req, err := a.newRequest("POST", "/api_key.delete", reqBody)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	_, err = a.do(req)

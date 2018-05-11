@@ -13,9 +13,9 @@ import (
 )
 
 type Client struct {
-	auth       Authorization
+	Auth       Authorization
 	BaseURL    *url.URL
-	httpClient *http.Client
+	HttpClient *http.Client
 	Log        io.Writer // If user set log file name all requests will be logged there
 }
 
@@ -26,10 +26,10 @@ func NewClient(apiKeyId string, apiKey string, BaseURL *url.URL) (*Client, error
 	}
 
 	return &Client{
-		httpClient: &http.Client{},
-		auth: &AdminClientAuth{
-			apiKey:   apiKey,
-			apiKeyId: apiKeyId,
+		HttpClient: &http.Client{},
+		Auth: &AdminClientAuth{
+			ApiKey:   apiKey,
+			ApiKeyId: apiKeyId,
 		},
 		BaseURL: BaseURL,
 		Log:     nil,
@@ -55,14 +55,14 @@ func (c *Client) newRequest(method string, path string, body interface{}) (*http
 		req.Header.Set("Content-Type", "application/vnd.omisego.v1+json")
 	}
 
-	req.Header.Set("Authorization", c.auth.CreateAuthorizationHeader())
+	req.Header.Set("Authorization", c.Auth.CreateAuthorizationHeader())
 	req.Header.Set("accept", "application/vnd.omisego.v1+json")
 
 	return req, nil
 }
 
 func (c *Client) do(req *http.Request) (*BaseResponse, error) {
-	httpResp, err := c.httpClient.Do(req)
+	httpResp, err := c.HttpClient.Do(req)
 	c.log(req, httpResp)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (c *Client) do(req *http.Request) (*BaseResponse, error) {
 
 // SetHTTPClient sets *http.Client to current client
 func (c *Client) SetHTTPClient(client *http.Client) {
-	c.httpClient = client
+	c.HttpClient = client
 }
 
 // SetLog will set/change the output destination.

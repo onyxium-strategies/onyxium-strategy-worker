@@ -1,6 +1,7 @@
-package omisego
+package omisego_test
 
 import (
+	omg "bitbucket.org/visa-startups/coinflow-strategy-worker/omisego"
 	"github.com/icrowley/fake"
 	"net/http"
 	"net/url"
@@ -8,26 +9,26 @@ import (
 )
 
 var (
-	sa = &ServerAuth{
-		accessKey: "68HazVGtFNAw4rbSa7k2oz3UvSWOG6MCydXyuPmYoqg",
-		secretKey: "AVqnuxAlbOtpPIer89BjPCLTMQh_PY8g0wd_Dxd-pGU",
-	}
 	ewalletURL = &url.URL{
 		Scheme: "http",
 		Host:   "localhost:4000",
 		Path:   "/api",
 	}
-	serverUser = EWalletAPI{
-		Client: &Client{
-			auth:       sa,
-			httpClient: &http.Client{},
+	sa = &omg.ServerAuth{
+		AccessKey: "68HazVGtFNAw4rbSa7k2oz3UvSWOG6MCydXyuPmYoqg",
+		SecretKey: "AVqnuxAlbOtpPIer89BjPCLTMQh_PY8g0wd_Dxd-pGU",
+	}
+	serverUser = omg.EWalletAPI{
+		Client: &omg.Client{
+			Auth:       sa,
+			HttpClient: &http.Client{},
 			BaseURL:    ewalletURL,
 		},
 	}
 )
 
 func TestCreateUser(t *testing.T) {
-	body := UserCreateParams{
+	body := omg.UserCreateParams{
 		ProviderUserId: fake.CharactersN(10),
 		Username:       fake.UserName(),
 		Metadata: map[string]interface{}{
