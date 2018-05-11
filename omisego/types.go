@@ -155,6 +155,101 @@ type (
 	ByIdParam struct {
 		Id string `json:"id"`
 	}
+
+	LoginParams struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	AuthTokenSwitchAccountParams struct {
+		AccountId string `json:"account_id"`
+	}
+
+	PasswordResetParams struct {
+		Email       string `json:"email"`
+		RedirectUrl string `json:"redirect_url"`
+	}
+
+	PasswordUpdateParams struct {
+		Email                string `json:"email"`
+		Token                string `json:"token"`
+		Password             string `json:"password"`
+		PasswordConfirmation string `json:"password_confirmation"`
+	}
+
+	MintedTokenCreateParams struct {
+		Name                 string                 `json:"name"`
+		Symbol               string                 `json:"symbol"`
+		Description          string                 `json:"description"`
+		SubunitToUnit        int                    `json:"subunit_to_unit,omitempty"`
+		Amount               int                    `json:"amount,omitempty"`
+		IsoCode              string                 `json:"iso_code,omitempty"`
+		ShortSymbol          string                 `json:"short_symbol,omitempty"`
+		Subunit              string                 `json:"subunit,omitempty"`
+		SymbolFirst          bool                   `json:"symbol_first,omitempty"`
+		HtmlEntity           string                 `json:"html_entity,omitempty"`
+		IsoNumeric           string                 `json:"iso_numeric,omitempty"`
+		SmallestDenomination int                    `json:"smallest_denomination,omitempty"`
+		Metadata             map[string]interface{} `json:"id,omitempty"`
+		EncryptedMetadata    map[string]interface{} `json:"id,omitempty"`
+	}
+
+	MintedTokenMintParams struct {
+		Id     string `json:"id"`
+		Amount int    `json:"amount"`
+	}
+
+	AccountCreateParams struct {
+		Name              string                 `json:"name"`
+		Description       string                 `json:"description,omitempty"`
+		ParentId          string                 `json:"parent_id,omitempty"`
+		Metadata          map[string]interface{} `json:"metadata,omitempty"`
+		EncryptedMetadata map[string]interface{} `json:"encrypted_metadata,omitempty"`
+	}
+
+	AccountUpdateParams struct {
+		Id                string                 `json:"id"`
+		Name              string                 `json:"name"`
+		Description       string                 `json:"description"`
+		Metadata          map[string]interface{} `json:"metadata,omitempty"`
+		EncryptedMetadata map[string]interface{} `json:"encrypted_metadata,omitempty"`
+	}
+
+	AccountUploadAvatarParams struct {
+		Id     string `json:"id"`
+		Avatar string `json:"avatar"`
+	}
+
+	AccountListUsersParams struct {
+		AccountId string `json:"account_id"`
+	}
+
+	AccountAssignUserParams struct {
+		UserId      string `json:"user_id,omitempty"`
+		AccountId   string `json:"account_id"`
+		RoleName    string `json:"role_name"`
+		RedirectUrl string `json:"redirect_url,omitempty"`
+		Email       string `json:"email,omitempty"`
+	}
+
+	AccountUnassignUserParams struct {
+		UserId    string `json:"user_id"`
+		AccountId string `json:"account_id"`
+	}
+
+	AdminUploadAvatarParams struct {
+		Id     string `json:"id"`
+		Avatar string `json:"avatar"`
+	}
+
+	AccessKeyDeleteParams struct {
+		Id        string `json:"id,omitempty"`
+		AccessKey string `json:"access_key,omitempty"`
+	}
+
+	APIKeyCreateParams struct {
+		OwnerApp string `json:"owner_app"`
+	}
 )
 
 func (e *ErrorResponse) Error() string {
