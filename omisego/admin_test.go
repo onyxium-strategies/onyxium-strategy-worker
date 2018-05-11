@@ -2,10 +2,6 @@ package omisego_test
 
 import (
 	omg "bitbucket.org/visa-startups/coinflow-strategy-worker/omisego"
-	"github.com/mitchellh/mapstructure"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
-	// "net/http"
 	"net/url"
 	"testing"
 )
@@ -41,23 +37,6 @@ var (
 		Password: pwd,
 	}
 )
-
-func TestStuff(t *testing.T) {
-	input := `{"object":"list","data":[{"object":"address","address":"XXX123","balances":[{"amount":100,"minted_token":{"object":"minted_token","id":"tok_BTC_01cbffybmtbbb449r05zgfct2h","symbol":"BTC","name":"Bitcoin","subunit_to_unit":100000000000000000}},{"amount":100,"minted_token":{"object":"minted_token","id":"tok_OMG_01cbffwvj6ma9a9gg1tb24880q","symbol":"OMG","name":"OmiseGO","subunit_to_unit":100000000000000000}}]},{"object":"address","address":"XXX456","balances":[]}]}`
-
-	data, ok := gjson.Parse(input).Value().(map[string]interface{})
-	log.Info(data)
-	if !ok {
-		t.Fatal("Json input is not a slice")
-	}
-	var i omg.AddressList
-	err := mapstructure.Decode(data, &i)
-	log.Infof("%#v", i)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// log.Info(i.Data[1].(Transaction).Id)
-}
 
 func TestLogin(t *testing.T) {
 	c, _ := omg.NewClient(apiKeyId, apiKey, adminURL)

@@ -3,7 +3,6 @@ package omisego
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	// log "github.com/sirupsen/logrus"
 )
 
 type AdminAPI struct {
