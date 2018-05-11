@@ -152,7 +152,7 @@ type (
 		SortDir    string `json:"sort_dir,omitempty"`
 	}
 
-	GetByIdParam struct {
+	ByIdParam struct {
 		Id string `json:"id"`
 	}
 )

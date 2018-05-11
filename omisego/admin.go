@@ -154,11 +154,7 @@ func (a *AdminAPI) MintedTokenAll(reqBody ListParams) (*MintedTokenList, error) 
 	return &data, err
 }
 
-type MintedTokenGetParams struct {
-	Id string `json:"id"`
-}
-
-func (a *AdminAPI) MintedTokenGet(reqBody MintedTokenGetParams) (*MintedToken, error) {
+func (a *AdminAPI) MintedTokenGet(reqBody ByIdParam) (*MintedToken, error) {
 	req, err := a.newRequest("POST", "/minted_token.get", reqBody)
 	if err != nil {
 		return nil, err
@@ -263,11 +259,7 @@ func (a *AdminAPI) AccountAll(reqBody ListParams) (*AccountList, error) {
 	return &data, err
 }
 
-type AccountGetParams struct {
-	Id string `json:"id"`
-}
-
-func (a *AdminAPI) AccountGet(reqBody AccountGetParams) (*Account, error) {
+func (a *AdminAPI) AccountGet(reqBody ByIdParam) (*Account, error) {
 	req, err := a.newRequest("POST", "/account.get", reqBody)
 	if err != nil {
 		return nil, err
@@ -448,11 +440,7 @@ func (a *AdminAPI) UserAll(reqBody ListParams) (*UserList, error) {
 	return &data, err
 }
 
-type UserGetParams struct {
-	Id string `json:"id"`
-}
-
-func (a *AdminAPI) UserGet(reqBody UserGetParams) (*User, error) {
+func (a *AdminAPI) UserGet(reqBody ByIdParam) (*User, error) {
 	req, err := a.newRequest("POST", "/user.get", reqBody)
 	if err != nil {
 		return nil, err
@@ -575,11 +563,7 @@ func (a *AdminAPI) AdminAll(reqBody ListParams) (*UserList, error) {
 	return &data, err
 }
 
-type AdminGetParams struct {
-	Id string `json:"id"`
-}
-
-func (a *AdminAPI) AdminGet(reqBody AdminGetParams) (*User, error) {
+func (a *AdminAPI) AdminGet(reqBody ByIdParam) (*User, error) {
 	req, err := a.newRequest("POST", "/admin.get", reqBody)
 	if err != nil {
 		return nil, err
@@ -647,31 +631,124 @@ func (a *AdminAPI) TransactionAll(reqBody ListParams) (*TransactionList, error) 
 	return &data, err
 }
 
+func (a *AdminAPI) TransactionGet(reqBody ByIdParam) (*Transaction, error) {
+	req, err := a.newRequest("POST", "/transaction.get", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data Transaction
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
 /////////////////
 // API Access
 /////////////////
-type AccessKeyCreateResponse struct {
-	Object    string `mapstructure:"object"`
-	Id        string `mapstructure:"id"`
-	AccessKey string `mapstructure:"access_key"`
-	SecretKey string `mapstructure:"secret_key"`
-	AccountId string `mapstructure:"account_id"`
-	CreatedAt string `mapstructure:"created_at"`
-	UpdatedAt string `mapstructure:"updated_at"`
-	DeletedAt string `mapstructure:"deleted_at"`
+func (a *AdminAPI) AccessKeyAll(reqBody ListParams) (*AccessKeyList, error) {
+	req, err := a.newRequest("POST", "/access_key.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data AccessKeyList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
 }
 
-func (a *AdminAPI) AccessKeyCreate() (*AccessKeyCreateResponse, error) {
+func (a *AdminAPI) AccessKeyCreate() (*AccessKey, error) {
 	req, err := a.newRequest("POST", "/access_key.create", nil)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := a.do(req)
-	var data AccessKeyCreateResponse
+	var data AccessKey
 	err = mapstructure.Decode(res.Data, &data)
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
 	}
 	return &data, nil
+}
+
+type AccessKeyDeleteParams struct {
+	Id        string `json:"id,omitempty"`
+	AccessKey string `json:"access_key,omitempty"`
+}
+
+func (a *AdminAPI) AccessKeyDelete(reqBody AccessKeyDeleteParams) error {
+	req, err := a.newRequest("POST", "/access_key.delete", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = a.do(req)
+	return err
+}
+
+func (a *AdminAPI) APIKeyAll(reqBody ListParams) (*APIKeyList, error) {
+	req, err := a.newRequest("POST", "/api_key.all", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data APIKeyList
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+
+	return &data, err
+}
+
+type APIKeyCreateParams struct {
+	OwnerApp string `json:"owner_app"`
+}
+
+func (a *AdminAPI) APIKeyCreate(reqBody) (*APIKey, error) {
+	req, err := a.newRequest("POST", "/api_key.create", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := a.do(req)
+	var data APIKey
+	err = mapstructure.Decode(res.Data, &data)
+	if err != nil {
+		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
+	}
+	return &data, nil
+}
+
+func (a *AdminAPI) APIKeyDelete(reqBody ByIdParam) error {
+	req, err := a.newRequest("POST", "/api_key.delete", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = a.do(req)
+	return err
 }
