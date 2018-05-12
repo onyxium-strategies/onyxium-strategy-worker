@@ -23,11 +23,6 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 func UserAll(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		w.Header().Set("Allow", "GET")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	users, err := env.DataStore.UserAll()
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
@@ -37,12 +32,6 @@ func UserAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserGet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		w.Header().Set("Allow", "GET")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	params := mux.Vars(r)
 	user, err := env.DataStore.UserGet(params["id"])
 	if err != nil {
@@ -53,12 +42,6 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allow", "POST")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -88,12 +71,6 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserDelete(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "DELETE" {
-		w.Header().Set("Allow", "DELETE")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	params := mux.Vars(r)
 	err := env.DataStore.UserDelete(params["id"])
 	if err != nil {
@@ -107,12 +84,6 @@ func UserDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserUpdate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "PUT" {
-		w.Header().Set("Allow", "PUT")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	params := mux.Vars(r)
 	user, err := env.DataStore.UserGet(params["id"])
 	if err != nil {

@@ -11,17 +11,8 @@ var WorkQueue = make(chan WorkRequest, 100)
 
 var id int
 
-type CollectorHandler struct{}
-
 // Collects requests from the frontend, and place workrequest in workQueue
-func (c *CollectorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Make sure we can only be called with an HTTP POST request.
-	if r.Method != "POST" {
-		w.Header().Set("Allow", "POST")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
+func Collector(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Error(err)
