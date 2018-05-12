@@ -35,16 +35,13 @@ func (db *MGO) UserActivate(id string, token string) error {
 	if user.IsActivated {
 		return fmt.Errorf("User is already activated")
 	}
-	if ok, err := comparePasswords(token, []byte(user.Email)); ok && err == nil {
+	if ok, err := ComparePasswords(token, []byte(user.Email)); ok && err == nil {
 		user.IsActivated = true
 		user.ActivatedAt = time.Now()
 		err = c.UpdateId(objectId, user)
 		return err
 	} else {
-		if err != nil {
-			return err
-		}
-		return fmt.Errorf("Incorrect token")
+		return err
 	}
 }
 
@@ -90,11 +87,14 @@ func (db *MGO) UserGet(id string) (*User, error) {
 	return user, nil
 }
 
-func (db *MGO) UserUpdate(user *User) error {
+func (db *MGO) UserUpdate(user *User) (*User, error) {
 	user.UpdatedAt = time.Now()
 	c := db.DB("coinflow").C("user")
 	err := c.UpdateId(user.Id, user)
-	return err
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (db *MGO) UserDelete(id string) error {
@@ -117,7 +117,7 @@ func hashAndSalt(pwd string) (string, error) {
 	return string(hash), nil
 }
 
-func comparePasswords(hashedPwd string, plainPwd []byte) (bool, error) {
+func ComparePasswords(hashedPwd string, plainPwd []byte) (bool, error) {
 	// Since we'll be getting the hashed password from the DB it
 	// will be a string so we'll need to convert it to a byte slice
 	byteHash := []byte(hashedPwd)

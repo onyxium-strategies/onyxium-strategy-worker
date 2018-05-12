@@ -12,7 +12,7 @@ type DataStore interface {
 	UserAll() ([]User, error)
 	UserCreate(user *User) (*User, error)
 	UserGet(id string) (*User, error)
-	UserUpdate(user *User) error
+	UserUpdate(user *User) (*User, error)
 	UserDelete(id string) error
 }
 

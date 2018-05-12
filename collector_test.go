@@ -2,18 +2,17 @@ package main
 
 import (
 	"bytes"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestCollectorHandler_ServeHTTP(t *testing.T) {
+func TestCollector(t *testing.T) {
 	// golden file test
 	content, err := ioutil.ReadFile("tree-example.json")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	req, err := http.NewRequest("POST", "/api/work", bytes.NewBuffer(content))
@@ -23,8 +22,7 @@ func TestCollectorHandler_ServeHTTP(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rec := httptest.NewRecorder()
-	handler := CollectorHandler{}
-
+	handler := http.HandlerFunc(Collector)
 	handler.ServeHTTP(rec, req)
 
 	// Check the status code is what we expect.
@@ -32,5 +30,4 @@ func TestCollectorHandler_ServeHTTP(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusCreated)
 	}
-
 }

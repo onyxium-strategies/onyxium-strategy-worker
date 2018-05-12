@@ -2,13 +2,18 @@ package main
 
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"fmt"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"gopkg.in/mgo.v2/bson"
+	// "io/ioutil"
 	"os"
 	"testing"
+	"time"
 )
 
-type FakeDataStore struct{}
+type FakeDataStore struct {
+	models.DataStore // This way we only have to implement the methods we want to test.
+}
 
 func (FakeDataStore) GetLatestMarket() (map[string]models.Market, error) {
 	record := map[string]models.Market{
@@ -45,9 +50,26 @@ func (FakeDataStore) GetHistoryMarket(TimeframeInMS int) (map[string]models.Mark
 	return record, nil
 }
 
+func (FakeDataStore) UserActivate(id string, token string) error {
+	ok := bson.IsObjectIdHex(id)
+	if !ok {
+		return fmt.Errorf("Incorrect id hex received: %s", id)
+	}
+	user := models.User{
+		Email: "example@gmail.com",
+	}
+	if ok, err := models.ComparePasswords(token, []byte(user.Email)); ok && err == nil {
+		user.IsActivated = true
+		user.ActivatedAt = time.Now()
+		return nil
+	} else {
+		return err
+	}
+}
+
 func TestMain(m *testing.M) {
-	// log.SetLevel(log.DebugLevel)
-	log.SetOutput(ioutil.Discard)
+	log.SetLevel(log.DebugLevel)
+	// log.SetOutput(ioutil.Discard)
 	env.DataStore = FakeDataStore{}
 	os.Exit(m.Run())
 }

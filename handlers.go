@@ -54,13 +54,14 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, "email: "+err.Error())
 		return
 	}
-	hashed, err := hashAndSalt(user.Email)
+	byteEmail := []byte(user.Email)
+	hash, err := bcrypt.GenerateFromPassword(byteEmail, bcrypt.MinCost)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
 	// TODO replace with smtp
-	fmt.Println(hashed)
+	fmt.Println(string(hash))
 
 	newUser, err := env.DataStore.UserCreate(&user)
 	if err != nil {
@@ -91,7 +92,7 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewDecoder(r.Body).Decode(user)
-	err = env.DataStore.UserUpdate(user)
+	user, err = env.DataStore.UserUpdate(user)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
@@ -112,13 +113,4 @@ func EmailConfirm(w http.ResponseWriter, r *http.Request) {
 		"success": true,
 	}
 	respondWithJSON(w, http.StatusOK, response)
-}
-
-func hashAndSalt(pwd string) (string, error) {
-	bytePwd := []byte(pwd)
-	hash, err := bcrypt.GenerateFromPassword(bytePwd, bcrypt.MinCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
 }
