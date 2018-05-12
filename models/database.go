@@ -8,7 +8,7 @@ import (
 type DataStore interface {
 	GetLatestMarket() (map[string]Market, error)
 	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
-	UserActivate(id string) error
+	UserActivate(id string, token string) error
 	UserAll() ([]User, error)
 	UserCreate(user *User) (*User, error)
 	UserGet(id string) (*User, error)

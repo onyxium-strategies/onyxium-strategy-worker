@@ -98,7 +98,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"test@email.com\",\n\t\"password\": \"goedpassword\"\n}"
+					"raw": "{\n\t\"email\": \"example@gmail.com\",\n\t\"password\": \"goedpassword\"\n}"
 				},
 				"url": {
 					"raw": "127.0.0.1:8000/api/user",
@@ -168,6 +168,39 @@
 						"api",
 						"user",
 						"5af68382249790de9ddba7c1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/confirm-email?id={id}?token={token}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8000/api/confirm-email?id=5af69201249790e8098bf5ab&token=$2a$04$8um9A6/aJearYEdWDBZyCe52sB5C9Vdgy6NFU9V95.BJ7QLQYJbo2",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"confirm-email"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "5af69201249790e8098bf5ab"
+						},
+						{
+							"key": "token",
+							"value": "$2a$04$8um9A6/aJearYEdWDBZyCe52sB5C9Vdgy6NFU9V95.BJ7QLQYJbo2"
+						}
 					]
 				}
 			},

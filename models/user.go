@@ -20,10 +20,10 @@ type User struct {
 	StrategyIds []int             `json:"strategyIds" bson:"strategyIds"`
 }
 
-func (db *MGO) UserActivate(id string) error {
+func (db *MGO) UserActivate(id string, token string) error {
 	ok := bson.IsObjectIdHex(id)
 	if !ok {
-		return fmt.Errorf("Incorrect IdHex received: %s", id)
+		return fmt.Errorf("Incorrect id hex received: %s", id)
 	}
 	c := db.DB("coinflow").C("user")
 	user := &User{}
@@ -32,10 +32,20 @@ func (db *MGO) UserActivate(id string) error {
 	if err != nil {
 		return fmt.Errorf("Error getting user with message: %s", err)
 	}
-	user.IsActivated = true
-	user.ActivatedAt = time.Now()
-	err = c.UpdateId(objectId, user)
-	return err
+	if user.IsActivated {
+		return fmt.Errorf("User is already activated")
+	}
+	if ok, err := comparePasswords(token, []byte(user.Email)); ok && err == nil {
+		user.IsActivated = true
+		user.ActivatedAt = time.Now()
+		err = c.UpdateId(objectId, user)
+		return err
+	} else {
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("Incorrect token")
+	}
 }
 
 func (db *MGO) UserAll() ([]User, error) {
@@ -90,7 +100,7 @@ func (db *MGO) UserUpdate(user *User) error {
 func (db *MGO) UserDelete(id string) error {
 	ok := bson.IsObjectIdHex(id)
 	if !ok {
-		return fmt.Errorf("Incorrect IdHex received: %s", id)
+		return fmt.Errorf("Incorrect id hex received: %s", id)
 	}
 	c := db.DB("coinflow").C("user")
 	objectId := bson.ObjectIdHex(id)

@@ -3,7 +3,10 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/goware/emailx"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
@@ -62,7 +65,25 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	newUser, _ := env.DataStore.UserCreate(&user)
+
+	err = emailx.Validate(user.Email)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "email: "+err.Error())
+		return
+	}
+	hashed, err := hashAndSalt(user.Email)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	// TODO replace with smtp
+	fmt.Println(hashed)
+
+	newUser, err := env.DataStore.UserCreate(&user)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
 	respondWithJSON(w, http.StatusOK, newUser)
 }
 
@@ -105,4 +126,28 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithJSON(w, http.StatusOK, user)
+}
+
+func EmailConfirm(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	token := vars["token"]
+	id := vars["id"]
+	err := env.DataStore.UserActivate(id, token)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response := map[string]bool{
+		"success": true,
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
+
+func hashAndSalt(pwd string) (string, error) {
+	bytePwd := []byte(pwd)
+	hash, err := bcrypt.GenerateFromPassword(bytePwd, bcrypt.MinCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }

@@ -40,13 +40,15 @@ func main() {
 	StartDispatcher(*NWorkers)
 
 	router := mux.NewRouter()
+	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
-	router.Handle("/api/work", &CollectorHandler{})
-	router.HandleFunc("/api/user", UserAll).Methods("GET")
-	router.HandleFunc("/api/user/{id}", UserGet).Methods("GET")
-	router.HandleFunc("/api/user/{id}", UserUpdate).Methods("PUT")
-	router.HandleFunc("/api/user", UserCreate).Methods("POST")
-	router.HandleFunc("/api/user/{id}", UserDelete).Methods("DELETE")
+	s.Handle("/work", &CollectorHandler{})
+	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
+	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
+	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
+	s.Path("/user").HandlerFunc(UserCreate).Methods("POST")
+	s.Path("/user/{id}").HandlerFunc(UserDelete).Methods("DELETE")
+	s.Path("/confirm-email").Queries("token", "{token}").Queries("id", "{id}").HandlerFunc(EmailConfirm).Methods("GET")
 
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
