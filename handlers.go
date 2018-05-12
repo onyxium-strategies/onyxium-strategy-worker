@@ -23,12 +23,6 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 func UserAll(w http.ResponseWriter, r *http.Request) {
-	// Make sure we can only be called with an HTTP GET request.
-	if r.Method != "GET" {
-		w.Header().Set("Allow", "GET")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	users, err := env.DataStore.UserAll()
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
