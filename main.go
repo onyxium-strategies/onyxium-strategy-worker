@@ -42,7 +42,7 @@ func main() {
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
-	s.Handle("/work", &CollectorHandler{})
+	s.Path("/work").HandlerFunc(Collector).Methods("POST")
 	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
