@@ -1,6 +1,7 @@
 package models
 
 import (
+	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -30,6 +31,27 @@ type Condition struct {
 	Value         float64 `validate:"required,gte=0"`
 }
 
+func (c *Condition) Validate() error {
+	validate := validator.New()
+	validate.RegisterStructValidation(customConditionValidation, Condition{})
+	err := validate.Struct(c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Helper for condition Validate()
+func customConditionValidation(sl validator.StructLevel) {
+
+	condition := sl.Current().Interface().(Condition)
+	if (condition.ConditionType == "percentage-decrease") || (condition.ConditionType == "percentage-increase") {
+		if condition.TimeframeInMS == 0 {
+			sl.ReportError(condition.TimeframeInMS, "TimeframeInMS", "TimeframeInMS", "timeframerequired", "")
+		}
+	}
+}
+
 type Action struct {
 	OrderType        string  `validate:"required,oneof=limit-buy limit-sell"`
 	ValueType        string  `validate:"required,oneof=absolute relative-above relative-below percentage-above percentage-below"`
@@ -38,6 +60,27 @@ type Action struct {
 	QuoteCurrency    string  `validate:"required,nefield=BaseCurrency"`
 	Quantity         float64 `validate:"required,gt=0"`
 	Value            float64 `validate:"required"gt=0`
+}
+
+func (a *Action) Validate() error {
+	validate := validator.New()
+	validate.RegisterStructValidation(customActionValidation, Action{})
+	err := validate.Struct(a)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Helper for condition Validate()
+func customActionValidation(sl validator.StructLevel) {
+
+	action := sl.Current().Interface().(Action)
+	if action.ValueType != "absolute" {
+		if len(action.ValueQuoteMetric) == 0 {
+			sl.ReportError(action.ValueQuoteMetric, "ValueQuoteMetric", "ValueQuoteMetric", "valuequotemetricrequired", "")
+		}
+	}
 }
 
 func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) error {

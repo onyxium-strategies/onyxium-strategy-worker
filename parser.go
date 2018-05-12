@@ -107,25 +107,9 @@ func createConditionFromMap(m map[string]interface{}) (models.Condition, error) 
 		return models.Condition{}, err
 	}
 
-	validate = validator.New()
-	validate.RegisterStructValidation(customConditionValidation, models.Condition{})
-	err = validate.Struct(result)
-	if err != nil {
-		log.Info(err)
-		return models.Condition{}, err
-	}
+	result.Validate()
 
 	return result, nil
-}
-
-func customConditionValidation(sl validator.StructLevel) {
-
-	condition := sl.Current().Interface().(models.Condition)
-	if (condition.ConditionType == "percentage-decrease") || (condition.ConditionType == "percentage-increase") {
-		if condition.TimeframeInMS == 0 {
-			sl.ReportError(condition.TimeframeInMS, "TimeframeInMS", "TimeframeInMS", "timeframerequired", "")
-		}
-	}
 }
 
 // Decode json to Action struct
@@ -137,22 +121,7 @@ func createActionFromMap(m map[string]interface{}) (models.Action, error) {
 		return models.Action{}, err
 	}
 
-	validate = validator.New()
-	validate.RegisterStructValidation(customActionValidation, models.Action{})
-	err = validate.Struct(result)
-	if err != nil {
-		log.Info(err)
-		return models.Action{}, err
-	}
+	result.Validate()
+
 	return result, nil
-}
-
-func customActionValidation(sl validator.StructLevel) {
-
-	action := sl.Current().Interface().(models.Action)
-	if action.ValueType != "absolute" {
-		if len(action.ValueQuoteMetric) == 0 {
-			sl.ReportError(action.ValueQuoteMetric, "ValueQuoteMetric", "ValueQuoteMetric", "valuequotemetricrequired", "")
-		}
-	}
 }
