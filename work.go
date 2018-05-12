@@ -5,6 +5,6 @@ import (
 )
 
 type WorkRequest struct {
-	ID   int
-	Tree *models.Tree
+	ID       int
+	Strategy *models.Strategy
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
-	// "io/ioutil"
+	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -102,8 +102,8 @@ func (FakeDataStore) StrategyCreate(name string, jsonTree string, bsonTree *mode
 // }
 
 func TestMain(m *testing.M) {
-	log.SetLevel(log.DebugLevel)
-	// log.SetOutput(ioutil.Discard)
+	// log.SetLevel(log.DebugLevel)
+	log.SetOutput(ioutil.Discard)
 	env.DataStore = FakeDataStore{}
 	os.Exit(m.Run())
 }

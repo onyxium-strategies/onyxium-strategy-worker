@@ -34,12 +34,13 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	work := WorkRequest{ID: id, Tree: &binaryTree}
-	_, err = env.DataStore.StrategyCreate("teststrategy", jsonString, &binaryTree)
+	strategy, err := env.DataStore.StrategyCreate("teststrategy", jsonString, &binaryTree)
 	if err != nil {
 		respondWithError(w, 400, err.Error())
 		log.Info("Bad request StrategyCreate, responded with error")
 	}
+
+	work := WorkRequest{ID: id, Strategy: &strategy}
 
 	log.Info("Workrequest created")
 
