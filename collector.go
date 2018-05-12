@@ -17,16 +17,23 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 	}
-	myJson := string(body)
-	// log.Debugf("Received json string: %s", myJson)
+	jsonString := string(body)
 
-	tree, err := parseJsonArray(myJson)
+	jsonTree, err := parseJsonArray(jsonString)
 	if err != nil {
-		log.Error(err)
+		respondWithError(w, 400, err.Error())
+		log.Info("Bad request, responded with error")
+		return
 	}
 
-	root := parseBinaryTree(tree)
-	work := WorkRequest{ID: id, Tree: &root}
+	binaryTree, err := parseBinaryTree(jsonTree)
+	if err != nil {
+		respondWithError(w, 400, err.Error())
+		log.Info("Bad request, responded with error")
+		return
+	}
+
+	work := WorkRequest{ID: id, Tree: &binaryTree}
 	log.Info("Workrequest created")
 
 	// TODO: get last ID from database, use that one + 1

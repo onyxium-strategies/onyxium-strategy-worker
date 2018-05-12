@@ -5,7 +5,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"gopkg.in/go-playground/validator.v9"
 )
+
+var validate *validator.Validate
 
 // Parse nested array json string to json object
 func parseJsonArray(jsonInput string) ([]interface{}, error) {
@@ -21,15 +24,20 @@ func parseJsonArray(jsonInput string) ([]interface{}, error) {
 }
 
 // Parse json tree from frontend to a binary tree for backend
-func parseBinaryTree(tree []interface{}) Tree {
+func parseBinaryTree(tree []interface{}) (Tree, error) {
 	// TODO can we exclude this root node from the tree?
 	root := Tree{Left: nil, Right: nil, Conditions: []Condition{}, Action: Action{}}
-	root.Left = _parseBinaryTree(tree, root.Left, 0)
-	return root
+	left, err := _parseBinaryTree(tree, root.Left, 0)
+	if err != nil {
+		return Tree{}, err
+	}
+	root.Left = left
+
+	return root, nil
 }
 
 // Recursive version of parseBinaryTree
-func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
+func _parseBinaryTree(siblings []interface{}, root *Tree, i int) (*Tree, error) {
 	if i < len(siblings) {
 		conditions, ok := siblings[i].(map[string]interface{})["conditions"]
 		if !ok {
@@ -39,46 +47,89 @@ func _parseBinaryTree(siblings []interface{}, root *Tree, i int) *Tree {
 		if !ok {
 			action = make(map[string]interface{})
 		}
-		root = &Tree{Left: nil, Right: nil, Conditions: createConditionsFromSlice(conditions.([]interface{})), Action: createActionFromMap(action.(map[string]interface{}))}
+
+		conditionsInstance, err := createConditionsFromSlice(conditions.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		actionInstance, err := createActionFromMap(action.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		root = &Tree{Left: nil, Right: nil, Conditions: conditionsInstance, Action: actionInstance}
 
 		if then, ok := siblings[i].(map[string]interface{})["then"]; ok {
-			root.Left = _parseBinaryTree(then.([]interface{}), root.Left, 0)
+			left, err := _parseBinaryTree(then.([]interface{}), root.Left, 0)
+			if err != nil {
+				return nil, err
+			}
+			root.Left = left
 		} else {
 			empty := make([]interface{}, 0)
-			root.Left = _parseBinaryTree(empty, root.Left, 0)
+			left, err := _parseBinaryTree(empty, root.Left, 0)
+			if err != nil {
+				return nil, err
+			}
+			root.Left = left
 		}
 
 		i += 1
-		root.Right = _parseBinaryTree(siblings, root.Right, i)
+
+		right, err := _parseBinaryTree(siblings, root.Right, i)
+		if err != nil {
+			return nil, err
+		}
+		root.Right = right
 	}
-	return root
+	return root, nil
 }
 
 // Decode json array of Condition structs
-func createConditionsFromSlice(conditionsSlice []interface{}) []Condition {
+func createConditionsFromSlice(conditionsSlice []interface{}) ([]Condition, error) {
 	conditions := []Condition{}
 	for _, condition := range conditionsSlice {
-		conditions = append(conditions, createConditionFromMap(condition.(map[string]interface{})))
+		conditionInstance, err := createConditionFromMap(condition.(map[string]interface{}))
+		if err != nil {
+			return []Condition{}, err
+		}
+		conditions = append(conditions, conditionInstance)
 	}
-	return conditions
+	return conditions, nil
 }
 
 // Decode json to Condition struct
-func createConditionFromMap(m map[string]interface{}) Condition {
+func createConditionFromMap(m map[string]interface{}) (Condition, error) {
 	var result Condition
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
-		log.Error(err)
+		log.Info(err)
+		return Condition{}, err
 	}
-	return result
+
+	validate = validator.New()
+	err = validate.Struct(result)
+	if err != nil {
+		log.Info(err)
+		return Condition{}, err
+	}
+
+	return result, nil
 }
 
 // Decode json to Action struct
-func createActionFromMap(m map[string]interface{}) Action {
+func createActionFromMap(m map[string]interface{}) (Action, error) {
 	var result Action
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
 		log.Error(err)
+		return Action{}, err
 	}
-	return result
+
+	validate = validator.New()
+	err = validate.Struct(result)
+	if err != nil {
+		log.Info(err)
+		return Action{}, err
+	}
+	return result, nil
 }
