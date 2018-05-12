@@ -26,16 +26,16 @@ func (c *CollectorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 	}
-	myJson := string(body)
-	// log.Debugf("Received json string: %s", myJson)
+	jsonString := string(body)
 
-	tree, err := parseJsonArray(myJson)
+	jsonTree, err := parseJsonArray(myJson)
 	if err != nil {
 		log.Error(err)
 	}
 
-	root := parseBinaryTree(tree)
-	work := WorkRequest{ID: id, Tree: &root}
+	binaryTree := parseBinaryTree(jsonTree)
+
+	work := WorkRequest{ID: id, Tree: &binaryTree}
 	log.Info("Workrequest created")
 
 	// TODO: get last ID from database, use that one + 1
