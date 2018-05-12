@@ -8,6 +8,12 @@ import (
 type DataStore interface {
 	GetLatestMarket() (map[string]Market, error)
 	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
+	UserActivate(id string, token string) error
+	UserAll() ([]User, error)
+	UserCreate(user *User) (*User, error)
+	UserGet(id string) (*User, error)
+	UserUpdate(user *User) error
+	UserDelete(id string) error
 }
 
 type MGO struct {
@@ -22,7 +28,6 @@ func InitDB(dataSourceName string) (*MGO, error) {
 	if err != nil {
 		return nil, err
 	}
-	// defer DBCon.Close()
 	DBCon.SetMode(mgo.Monotonic, true)
 
 	if err = DBCon.Ping(); err != nil {

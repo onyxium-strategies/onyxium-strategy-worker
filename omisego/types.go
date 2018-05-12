@@ -12,9 +12,9 @@ type (
 	}
 
 	ErrorResponse struct {
-		Code        string            `json:"code"`
-		Description string            `json:"description"`
-		Messages    map[string]string `json:"messages"`
+		Code        string            `mapstructure:"code"`
+		Description string            `mapstructure:"description"`
+		Messages    map[string]string `mapstructure:"messages"`
 	}
 
 	AuthenicationToken struct {
@@ -141,6 +141,84 @@ type (
 		Pagination `mapstructure:"pagination"`
 	}
 
+	Address struct {
+		Address  string    `mapstructure:"address"`
+		Balances []Balance `mapstructure:"balances"`
+	}
+
+	AddressList struct {
+		Data []Address `mapstructure:"data"`
+	}
+
+	Balance struct {
+		MintedToken `mapstructure:"minted_token"`
+		Amount      int `mapstructure:"amount"`
+	}
+
+	Settings struct {
+		MintedTokens []MintedToken `mapstructure:"minted_tokens"`
+	}
+
+	TransactionRequest struct {
+		Version             string                 `mapstructure:"version"`
+		Success             bool                   `mapstructure:"success"`
+		Data                map[string]interface{} `mapstructure:"data"`
+		Id                  string                 `mapstructure:"id"`
+		SocketTopic         string                 `mapstructure:"socket_topic"`
+		Type                string                 `mapstructure:"type"`
+		Amount              string                 `mapstructure:"amount"`
+		Status              string                 `mapstructure:"status"`
+		CorrelationId       string                 `mapstructure:"correlation_id"`
+		MintedTokenId       string                 `mapstructure:"minted_token_id"`
+		MintedToken         map[string]interface{} `mapstructure:"minted_token"`
+		AccountId           string                 `mapstructure:"account_id"`
+		UserId              string                 `mapstructure:"user_id"`
+		Address             string                 `mapstructure:"address"`
+		RequireConfirmation bool                   `mapstructure:"require_confirmation"`
+		MaxConsumptions     int                    `mapstructure:"max_consumptions"`
+		ConsumptionLifetime int                    `mapstructure:"consumption_lifetime"`
+		ExpirationReason    string                 `mapstructure:"expiration_reason"`
+		ExpirationDate      string                 `mapstructure:"expiration_date"`
+		AllowAmountOverride bool                   `mapstructure:"allow_amount_override"`
+		Metadata            map[string]interface{} `mapstructure:"id"`
+		EncryptedMetadata   map[string]interface{} `mapstructure:"id"`
+		CreatedAt           string                 `mapstructure:"created_at"`
+		UpdatedAt           string                 `mapstructure:"updated_at"`
+		ExpiredAt           string                 `mapstructure:"expired_at"`
+	}
+
+	TransactionComsumption struct {
+		Version              string                 `mapstructure:"version"`
+		Success              bool                   `mapstructure:"success"`
+		Data                 map[string]interface{} `mapstructure:"data"`
+		Id                   string                 `mapstructure:"id"`
+		SocketTopic          string                 `mapstructure:"socket_topic"`
+		Amount               string                 `mapstructure:"amount"`
+		Status               string                 `mapstructure:"status"`
+		CorrelationId        string                 `mapstructure:"correlation_id"`
+		MintedTokenId        string                 `mapstructure:"minted_token_id"`
+		MintedToken          map[string]interface{} `mapstructure:"minted_token"`
+		IdempotencyToken     string                 `mapstructure:"idempotency_token"`
+		TransactionId        string                 `mapstructure:"transaction_id"`
+		Transaction          map[string]interface{} `mapstructure:"transaction"`
+		UserId               string                 `mapstructure:"user_id"`
+		User                 map[string]interface{} `mapstructure:"user"`
+		AccountId            string                 `mapstructure:"account_id"`
+		Account              map[string]interface{} `mapstructure:"account"`
+		TransactionRequestId string                 `mapstructure:"transaction_request_id"`
+		TransactionRequest   map[string]interface{} `mapstructure:"transaction_request"`
+		Address              string                 `mapstructure:"address"`
+		Metadata             map[string]interface{} `mapstructure:"metadata"`
+		EncryptedMetadata    map[string]interface{} `mapstructure:"encrypted_metadata"`
+		CreatedAt            string                 `mapstructure:"created_at"`
+		UpdatedAt            string                 `mapstructure:"updated_at"`
+		ExpiredAt            string                 `mapstructure:"expired_at"`
+		ApprovedAt           string                 `mapstructure:"approved_at"`
+		RejectedAt           string                 `mapstructure:"rejected_at"`
+		ConfirmedAt          string                 `mapstructure:"confirmed_at"`
+		FailedAt             string                 `mapstructure:"failed_at"`
+	}
+
 	////////////
 	// Request body parameters
 	////////////
@@ -154,6 +232,16 @@ type (
 
 	ByIdParam struct {
 		Id string `json:"id"`
+	}
+
+	ProviderUserIdParam struct {
+		ProviderUserId string `json:"provider_user_id"`
+	}
+	UserParams struct {
+		ProviderUserId    string                 `json:"provider_user_id"`
+		Username          string                 `json:"username"`
+		Metadata          map[string]interface{} `json:"metadata,omitempty"`
+		EncryptedMetadata map[string]interface{} `json:"encrypted_metadata,omitempty"`
 	}
 
 	LoginParams struct {
@@ -249,6 +337,65 @@ type (
 
 	APIKeyCreateParams struct {
 		OwnerApp string `json:"owner_app"`
+	}
+
+	BalanceAdjustmentParams struct {
+		ProviderUserId        string                 `json:"provider_user_id"`
+		TokenId               string                 `json:"token_id"`
+		Amount                int                    `json:"amount"`
+		AccountId             string                 `json:"account_id,omitempty"`
+		BurnBalanceIdentifier string                 `json:"burn_balance_identifier,omitempty"`
+		Metadata              map[string]interface{} `json:"id,omitempty"`
+		EncryptedMetadata     map[string]interface{} `json:"id,omitempty"`
+	}
+
+	TransferParams struct {
+		FromAddress       string                 `json:"from_address"`
+		ToAddress         string                 `json:"to_address"`
+		TokenId           string                 `json:"token_id"`
+		Amount            int                    `json:"amount"`
+		Metadata          map[string]interface{} `json:"id,omitempty"`
+		EncryptedMetadata map[string]interface{} `json:"id,omitempty"`
+	}
+
+	UserListTransactionsParams struct {
+		ProviderUserId string                 `json:"provider_user_id"`
+		Address        string                 `json:"address"`
+		Page           int                    `json:"page,omitempty"`
+		PerPage        int                    `json:"per_page,omitempty"`
+		SearchTerm     string                 `json:"search_term,omitempty"`
+		SearchTerms    map[string]interface{} `json:"search_terms,omitempty"`
+		SortBy         string                 `json:"sort_by,omitempty"`
+		SortDir        string                 `json:"sort_dir,omitempty"`
+	}
+
+	ServerCreateTransactionRequestParams struct {
+		Type                string                 `json:"type"`
+		TokenId             string                 `json:"token_id"`
+		Amount              int                    `json:"amount,omitempty"`
+		CorrelationId       string                 `json:"correlation_id,omitempty"`
+		AccountId           string                 `json:"account_id,omitempty"`
+		ProviderUserId      string                 `json:"provider_user_id,omitempty"`
+		Address             string                 `json:"address,omitempty"`
+		RequireConfirmation bool                   `json:"require_confirmation,omitempty"`
+		MaxConsumptions     int                    `json:"max_consumptions,omitempty"`
+		ConsumptionLifetime int                    `json:"consumption_lifetime,omitempty"`
+		ExpirationDate      string                 `json:"expiration_date,omitempty"`
+		AllowAmountOverride bool                   `json:"allow_amount_override,omitempty"`
+		Metadata            map[string]interface{} `json:"id,omitempty"`
+		EncryptedMetadata   map[string]interface{} `json:"id,omitempty"`
+	}
+
+	ServerTransactionRequestConsumeParams struct {
+		TransactionRequestId string                 `json:"transaction_request_id"`
+		TokenId              string                 `json:"token_id,omitempty"`
+		Amount               int                    `json:"amount,omitempty"`
+		CorrelationId        string                 `json:"correlation_id,omitempty"`
+		AccountId            string                 `json:"account_id,omitempty"`
+		ProviderUserId       string                 `json:"provider_user_id,omitempty"`
+		Address              string                 `json:"address,omitempty"`
+		Metadata             map[string]interface{} `json:"metadata,omitempty"`
+		EncryptedMetadata    map[string]interface{} `json:"encrypted_metadata,omitempty"`
 	}
 )
 

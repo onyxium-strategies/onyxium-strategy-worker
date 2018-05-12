@@ -2,10 +2,6 @@ package omisego_test
 
 import (
 	omg "bitbucket.org/visa-startups/coinflow-strategy-worker/omisego"
-	"github.com/mitchellh/mapstructure"
-	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
-	// "net/http"
 	"net/url"
 	"testing"
 )
@@ -41,23 +37,6 @@ var (
 		Password: pwd,
 	}
 )
-
-func TestStuff(t *testing.T) {
-	input := `{"object":"list","data":[{"object":"minted_token","id":"tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3","symbol":"ABC","name":"ABC Point","subunit_to_unit":100,"created_at":"2018-01-01T00:00:00Z","updated_at":"2018-01-01T10:00:00Z"}],"pagination":{"per_page":10,"current_page":1,"is_first_page":true,"is_last_page":true}}`
-
-	data, ok := gjson.Parse(input).Value().(map[string]interface{})
-	log.Info(data)
-	if !ok {
-		t.Fatal("Json input is not a slice")
-	}
-	var i omg.MintedTokenList
-	err := mapstructure.Decode(data, &i)
-	log.Infof("%#v", i)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// log.Info(i.Data[1].(Transaction).Id)
-}
 
 func TestLogin(t *testing.T) {
 	c, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
@@ -188,6 +167,20 @@ func TestMintedTokenMint(t *testing.T) {
 	}
 	_, err := adminClient.MintedTokenMint(body)
 	if err.Error() != "{Code:minted_token:id_not_found Description:There is no minted token corresponding to the provided id Messages:map[]}" {
+		t.Fatal(err)
+	}
+}
+
+func TestUserAll(t *testing.T) {
+	client, _ := omg.NewClient(apiKeyId, apiKey, adminURL)
+	adminClient := omg.AdminAPI{client}
+	adminClient.Login(loginBody)
+	body := omg.ListParams{
+		Page:    1,
+		PerPage: 10,
+	}
+	_, err := adminClient.UserAll(body)
+	if err != nil {
 		t.Fatal(err)
 	}
 }

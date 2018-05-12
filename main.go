@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"flag"
+	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/go-playground/validator.v9"
@@ -39,14 +40,20 @@ func main() {
 	log.Infof("Starting the dispatcher with %d workers", *NWorkers)
 	StartDispatcher(*NWorkers)
 
+	router := mux.NewRouter()
+	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
-	collectorUrl := "/api/work"
-	log.Infof("Registering the collector on %s", collectorUrl)
-	http.Handle(collectorUrl, &CollectorHandler{})
+	s.Handle("/work", &CollectorHandler{})
+	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
+	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
+	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
+	s.Path("/user").HandlerFunc(UserCreate).Methods("POST")
+	s.Path("/user/{id}").HandlerFunc(UserDelete).Methods("DELETE")
+	s.Path("/confirm-email").Queries("token", "{token}").Queries("id", "{id}").HandlerFunc(EmailConfirm).Methods("GET")
 
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
-	if err := http.ListenAndServe(*HTTPAddr, nil); err != nil {
+	if err := http.ListenAndServe(*HTTPAddr, router); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "da8d00a6-be73-485d-bd20-5036180bda27",
+		"name": "onyxium",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/api/work",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"greater-than-or-equal-to\",\n            \"baseCurrency\":\"BTC\",\n            \"quoteCurrency\":\"LTC\",\n            \"baseMetric\":\"price-last\",\n            \"value\": 0.01990991\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-buy\",\n         \"valueType\":\"absolute\",\n         \"baseCurrency\":\"BTC\",\n         \"quoteCurrency\":\"LTC\",\n         \"quantity\":100,\n         \"value\":0.02\n      },\n      \"then\":[\n         {\n            \"conditions\":[\n               {\n                  \"conditionType\":\"greater-than-or-equal-to\",\n                  \"baseCurrency\":\"BTC\",\n                  \"quoteCurrency\":\"LTC\",\n                  \"baseMetric\":\"price-last\",\n                  \"value\": 0.02\n               }\n            ],\n            \"action\":{\n               \"orderType\":\"limit-buy\",\n               \"valueType\":\"absolute\",\n               \"baseCurrency\":\"BTC\",\n               \"quoteCurrency\":\"LTC\",\n               \"quantity\":10,\n               \"value\":0.02\n            }\n         },\n         {\n            \"conditions\":[\n               {\n                  \"conditionType\":\"greater-than-or-equal-to\",\n                  \"baseCurrency\":\"BTC\",\n                  \"quoteCurrency\":\"LTC\",\n                  \"baseMetric\":\"price-last\",\n                  \"value\": 0.01990991\n               }\n            ],\n            \"action\":{\n               \"orderType\":\"limit-buy\",\n               \"valueType\":\"absolute\",\n               \"baseCurrency\":\"BTC\",\n               \"quoteCurrency\":\"LTC\",\n               \"quantity\":200,\n               \"value\":0.02\n            },\n            \"then\": [\n               {\n                  \"conditions\": [\n                     {\n                        \"conditionType\":\"greater-than-or-equal-to\",\n                        \"baseCurrency\":\"BTC\",\n                        \"quoteCurrency\":\"LTC\",\n                        \"baseMetric\":\"price-last\",\n                        \"value\": 0.01990991\n                     },\n                     {\n                        \"conditionType\":\"less-than-or-equal-to\",\n                        \"baseCurrency\":\"BTC\",\n                        \"quoteCurrency\":\"LTC\",\n                        \"baseMetric\":\"price-last\",\n                        \"value\": 0.02\n                     }\n                  ],\n                  \"action\":{\n                     \"orderType\":\"limit-buy\",\n                     \"valueType\":\"absolute\",\n                     \"baseCurrency\":\"BTC\",\n                     \"quoteCurrency\":\"LTC\",\n                     \"quantity\":300,\n                     \"value\":0.02\n                  },\n                  \"then\":[\n                     {\n                        \"conditions\":[\n                           {\n                              \"conditionType\":\"greater-than-or-equal-to\",\n                              \"baseCurrency\":\"BTC\",\n                              \"quoteCurrency\":\"LTC\",\n                              \"baseMetric\":\"price-last\",\n                              \"value\": 1\n                           }\n                        ],\n                        \"action\":{\n                           \"orderType\":\"limit-buy\",\n                           \"valueType\":\"absolute\",\n                           \"baseCurrency\":\"BTC\",\n                           \"quoteCurrency\":\"LTC\",\n                           \"quantity\":10,\n                           \"value\":0.02\n                        }\n                     },\n                     {\n                        \"conditions\":[\n                           {\n                              \"conditionType\":\"greater-than-or-equal-to\",\n                              \"baseCurrency\":\"BTC\",\n                              \"quoteCurrency\":\"LTC\",\n                              \"baseMetric\":\"price-last\",\n                              \"value\": 0.1\n                           }\n                        ],\n                        \"action\":{\n                           \"orderType\":\"limit-buy\",\n                           \"valueType\":\"absolute\",\n                           \"baseCurrency\":\"BTC\",\n                           \"quoteCurrency\":\"LTC\",\n                           \"quantity\":10,\n                           \"value\":0.02\n                        }\n                     },\n                     {\n                        \"conditions\":[\n                           {\n                              \"conditionType\":\"greater-than-or-equal-to\",\n                              \"baseCurrency\":\"BTC\",\n                              \"quoteCurrency\":\"LTC\",\n                              \"baseMetric\":\"price-last\",\n                              \"value\": 0.1\n                           }\n                        ],\n                        \"action\":{\n                           \"orderType\":\"limit-buy\",\n                           \"valueType\":\"absolute\",\n                           \"baseCurrency\":\"BTC\",\n                           \"quoteCurrency\":\"LTC\",\n                           \"quantity\":10,\n                           \"value\":0.02\n                        }\n                     }\n                  ]\n\n               }\n            ]\n         }\n      ]\n   },\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"percentage-increase\",\n            \"baseCurrency\":\"BTC\",\n            \"quoteCurrency\":\"LTC\",\n            \"timeframeInMS\":7200000,\n            \"baseMetric\":\"price-last\",\n            \"value\": 0.07\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-buy\",\n         \"valueType\":\"absolute\",\n         \"baseCurrency\":\"BTC\",\n         \"quoteCurrency\":\"LTC\",\n         \"quantity\":10,\n         \"value\":0.02\n      }\n   },\n   {\n      \"conditions\":[\n         {\n            \"conditionType\":\"percentage-decrease\",\n            \"baseCurrency\":\"BTC\",\n            \"quoteCurrency\":\"LTC\",\n            \"timeframeInMS\":7200000,\n            \"baseMetric\":\"price-last\",\n            \"value\":0.09\n         }\n      ],\n      \"action\":{\n         \"orderType\":\"limit-buy\",\n         \"valueType\":\"percentage-above\",\n         \"valueQuoteMetric\":\"price-ask\",\n         \"baseCurrency\":\"BTC\",\n         \"quoteCurrency\":\"LTC\",\n         \"quantity\":10,\n         \"value\":0.02\n      }\n   }\n]\n"
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/api/work",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"work"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8000/api/user",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/user/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8000/api/user/5af68382249790de9ddba7c1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user",
+						"5af68382249790de9ddba7c1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"example@gmail.com\",\n\t\"password\": \"goedpassword\"\n}"
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/api/user",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/user/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8000/api/user/5af68382249790de9ddba7c1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user",
+						"5af68382249790de9ddba7c1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/user/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"apikeys\": {\n\t\t\"bittrex\": \"hoiditismijnkeyy\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/api/user/5af68382249790de9ddba7c1",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user",
+						"5af68382249790de9ddba7c1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/confirm-email?id={id}?token={token}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "127.0.0.1:8000/api/confirm-email?id=5af69201249790e8098bf5ab&token=$2a$04$8um9A6/aJearYEdWDBZyCe52sB5C9Vdgy6NFU9V95.BJ7QLQYJbo2",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"confirm-email"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "5af69201249790e8098bf5ab"
+						},
+						{
+							"key": "token",
+							"value": "$2a$04$8um9A6/aJearYEdWDBZyCe52sB5C9Vdgy6NFU9V95.BJ7QLQYJbo2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
