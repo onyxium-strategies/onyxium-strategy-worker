@@ -83,7 +83,7 @@ func customActionValidation(sl validator.StructLevel) {
 	}
 }
 
-func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) error {
+func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) (Strategy, error) {
 	strategy := Strategy{
 		Id:       bson.NewObjectId(),
 		Name:     name,
@@ -94,7 +94,10 @@ func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) erro
 	}
 	c := db.DB("coinflow").C("strategy")
 	err := c.Insert(strategy)
-	return err
+	if err != nil {
+		return Strategy{}, err
+	}
+	return strategy, nil
 }
 
 func (db *MGO) GetPausedStrategies() ([]Strategy, error) {

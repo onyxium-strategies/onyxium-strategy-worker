@@ -84,6 +84,23 @@ func (FakeDataStore) UserCreate(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
+func (FakeDataStore) StrategyCreate(name string, jsonTree string, bsonTree *models.Tree) (models.Strategy, error) {
+	strategy := models.Strategy{
+		Id:       bson.NewObjectId(),
+		Name:     name,
+		JsonTree: jsonTree,
+		BsonTree: bsonTree,
+		Status:   "paused",
+		State:    bsonTree.Id,
+	}
+	return strategy, nil
+}
+
+// func (FakeDataStore) GetPausedStrategies() ([]models.Strategy, error) {
+// 	var strategies []models.Strategy
+// 	return strategies, nil
+// }
+
 func TestMain(m *testing.M) {
 	log.SetLevel(log.DebugLevel)
 	// log.SetOutput(ioutil.Discard)

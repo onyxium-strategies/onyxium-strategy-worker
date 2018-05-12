@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
@@ -22,18 +23,24 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 	jsonTree, err := parseJsonArray(jsonString)
 	if err != nil {
 		respondWithError(w, 400, err.Error())
-		log.Info("Bad request, responded with error")
+		log.Info("Bad request parseJsonArray, responded with error")
 		return
 	}
 
 	binaryTree, err := parseBinaryTree(jsonTree)
 	if err != nil {
 		respondWithError(w, 400, err.Error())
-		log.Info("Bad request, responded with error")
+		log.Info("Bad request parseBinaryTree, responded with error")
 		return
 	}
 
 	work := WorkRequest{ID: id, Tree: &binaryTree}
+	_, err = env.DataStore.StrategyCreate("teststrategy", jsonString, &binaryTree)
+	if err != nil {
+		respondWithError(w, 400, err.Error())
+		log.Info("Bad request StrategyCreate, responded with error")
+	}
+
 	log.Info("Workrequest created")
 
 	// TODO: get last ID from database, use that one + 1
