@@ -2,6 +2,7 @@ package main
 
 import (
 	// "github.com/stretchr/testify/assert"
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"github.com/tidwall/gjson"
 	"reflect"
 	"testing"
@@ -27,7 +28,7 @@ func TestCreateConditionsFromSlice(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expectedConditions := []Condition{{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991}, {ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.02}}
+	expectedConditions := []models.Condition{{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991}, {ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.02}}
 
 	if !reflect.DeepEqual(conditions, expectedConditions) {
 		t.Errorf("Expected conditions to be %+v but it was %+v", expectedConditions, conditions)
@@ -46,7 +47,7 @@ func TestCreateConditionFromMap(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expectedCondition := Condition{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991, TimeframeInMS: 3600000}
+	expectedCondition := models.Condition{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991, TimeframeInMS: 3600000}
 
 	if !reflect.DeepEqual(condition, expectedCondition) {
 		t.Errorf("Expected condition to be %+v but it was %+v", expectedCondition, condition)
@@ -65,7 +66,7 @@ func TestCreateActionFromMap(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expectedAction := Action{OrderType: "limit-buy", ValueType: "percentage-above", ValueQuoteMetric: "price-ask", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 10, Value: 0.02}
+	expectedAction := models.Action{OrderType: "limit-buy", ValueType: "percentage-above", ValueQuoteMetric: "price-ask", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 10, Value: 0.02}
 
 	if !reflect.DeepEqual(action, expectedAction) {
 		t.Errorf("Expected condition to be %+v but it was %+v", expectedAction, action)
@@ -108,7 +109,7 @@ func TestParseBinaryTree(t *testing.T) {
 	}
 }
 
-func inOrderTraverse(t *testing.T, node *Tree, ch chan string) {
+func inOrderTraverse(t *testing.T, node *models.Tree, ch chan string) {
 	if node != nil {
 		ch <- node.Action.OrderType
 		inOrderTraverse(t, node.Left, ch)

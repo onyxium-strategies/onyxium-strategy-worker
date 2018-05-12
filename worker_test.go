@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"testing"
 	"time"
 )
@@ -11,35 +12,35 @@ func TestWalkDeadlock(t *testing.T) {
 	testCases := []struct {
 		name         string
 		w            Worker
-		t            *Tree
+		t            *models.Tree
 		expectedPath []int //Action.Quantity
 	}{
 		{
 			name: "greater-than-or-equal-to",
 			w:    NewWorker(0, WorkerQueue),
-			t: &Tree{
-				Conditions: []Condition{
+			t: &models.Tree{
+				Conditions: []models.Condition{
 					{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.072},
 					{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.066},
 				},
-				Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.08},
+				Action: models.Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.08},
 				Left:   nil,
-				Right: &Tree{
-					Conditions: []Condition{
+				Right: &models.Tree{
+					Conditions: []models.Condition{
 						{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.075},
 					},
-					Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.08},
+					Action: models.Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.08},
 					Left:   nil,
-					Right: &Tree{
-						Conditions: []Condition{
+					Right: &models.Tree{
+						Conditions: []models.Condition{
 							{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 8000},
 						},
-						Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.08},
-						Left: &Tree{
-							Conditions: []Condition{
+						Action: models.Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.08},
+						Left: &models.Tree{
+							Conditions: []models.Condition{
 								{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.065},
 							},
-							Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.08},
+							Action: models.Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.08},
 							Left:   nil,
 							Right:  nil,
 						},
@@ -52,34 +53,34 @@ func TestWalkDeadlock(t *testing.T) {
 		{
 			name: "less-than-or-equal-to",
 			w:    NewWorker(0, WorkerQueue),
-			t: &Tree{
-				Conditions: []Condition{
+			t: &models.Tree{
+				Conditions: []models.Condition{
 					{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 9000},
 				},
-				Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.088},
+				Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.088},
 				Left:   nil,
-				Right: &Tree{
-					Conditions: []Condition{
+				Right: &models.Tree{
+					Conditions: []models.Condition{
 						{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.069},
 						{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.07},
 					},
-					Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.088},
+					Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.088},
 					Left:   nil,
-					Right: &Tree{
-						Conditions: []Condition{
+					Right: &models.Tree{
+						Conditions: []models.Condition{
 							{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.071},
 						},
-						Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.088},
-						Left: &Tree{
-							Conditions: []Condition{
+						Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.088},
+						Left: &models.Tree{
+							Conditions: []models.Condition{
 								{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.072},
 							},
-							Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.088},
-							Left: &Tree{
-								Conditions: []Condition{
+							Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.088},
+							Left: &models.Tree{
+								Conditions: []models.Condition{
 									{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.075},
 								},
-								Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 5, Value: 0.088},
+								Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 5, Value: 0.088},
 								Left:   nil,
 								Right:  nil,
 							},
@@ -94,31 +95,31 @@ func TestWalkDeadlock(t *testing.T) {
 		{
 			name: "percentage-increase",
 			w:    NewWorker(0, WorkerQueue),
-			t: &Tree{
-				Conditions: []Condition{
+			t: &models.Tree{
+				Conditions: []models.Condition{
 					{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.1, TimeframeInMS: 1},
 				},
-				Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.079},
+				Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.079},
 				Left:   nil,
-				Right: &Tree{
-					Conditions: []Condition{
+				Right: &models.Tree{
+					Conditions: []models.Condition{
 						{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.07, TimeframeInMS: 1},
 					},
-					Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.079},
-					Left: &Tree{
-						Conditions: []Condition{
+					Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.079},
+					Left: &models.Tree{
+						Conditions: []models.Condition{
 							{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.065, TimeframeInMS: 1},
 							{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 0.3, TimeframeInMS: 1},
 						},
-						Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.079},
+						Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.079},
 						Left:   nil,
 						Right:  nil,
 					},
-					Right: &Tree{
-						Conditions: []Condition{
+					Right: &models.Tree{
+						Conditions: []models.Condition{
 							{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.07, TimeframeInMS: 1},
 						},
-						Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.079},
+						Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.079},
 						Left:   nil,
 						Right:  nil,
 					},
@@ -129,26 +130,26 @@ func TestWalkDeadlock(t *testing.T) {
 		{
 			name: "percentage-decrease",
 			w:    NewWorker(0, WorkerQueue),
-			t: &Tree{
-				Conditions: []Condition{
+			t: &models.Tree{
+				Conditions: []models.Condition{
 					{ConditionType: "percentage-decrease", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.045, TimeframeInMS: 0},
 				},
-				Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.079},
-				Left: &Tree{
-					Conditions: []Condition{
+				Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.079},
+				Left: &models.Tree{
+					Conditions: []models.Condition{
 						{ConditionType: "percentage-decrease", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.065, TimeframeInMS: 0},
 					},
-					Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.079},
-					Left: &Tree{
-						Conditions: []Condition{
+					Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.079},
+					Left: &models.Tree{
+						Conditions: []models.Condition{
 							{ConditionType: "percentage-decrease", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.058, TimeframeInMS: 0},
 						},
-						Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.079},
-						Left: &Tree{
-							Conditions: []Condition{
+						Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.079},
+						Left: &models.Tree{
+							Conditions: []models.Condition{
 								{ConditionType: "percentage-decrease", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 0.1, TimeframeInMS: 0},
 							},
-							Action: Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.079},
+							Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.079},
 							Left:   nil,
 							Right:  nil,
 						},

@@ -59,7 +59,7 @@ func (db *MGO) UserCreate(user *User) (*User, error) {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 	user.Id = bson.NewObjectId()
-	pwd, err := hashAndSalt(user.Password)
+	pwd, err := HashAndSalt(user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (db *MGO) UserDelete(id string) error {
 	return err
 }
 
-func hashAndSalt(pwd string) (string, error) {
+func HashAndSalt(pwd string) (string, error) {
 	bytePwd := []byte(pwd)
 	hash, err := bcrypt.GenerateFromPassword(bytePwd, bcrypt.MinCost)
 	if err != nil {

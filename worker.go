@@ -61,7 +61,7 @@ func (w *Worker) Stop() {
 }
 
 // The worker will walk over the strategy tree till it reaches a leaf.
-func (w *Worker) Walk(tree *Tree, root *Tree) {
+func (w *Worker) Walk(tree *models.Tree, root *models.Tree) {
 	i := 0
 	for tree != nil {
 
@@ -73,7 +73,7 @@ func (w *Worker) Walk(tree *Tree, root *Tree) {
 
 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
 
-		// If all conditions true do action then Tree.Left else go to next sibling Tree.Right
+		// If all conditions true do action then models.Tree.Left else go to next sibling models.Tree.Right
 		// If order to check if all conditions are true we check if not any is false
 		// All true == not any False
 		doAction := true
@@ -191,7 +191,7 @@ func getMetricValue(baseMetric string, market models.Market) float64 {
 		currentValue = market.Volume
 	default: // This could be dangerous because now the value 0 is returned
 		// TODO Need to find a solution that doesn't cause a run-time panic but does stop this worker
-		log.Errorf("Condition BaseMetric %s does not exist", baseMetric)
+		log.Errorf("models.Condition BaseMetric %s does not exist", baseMetric)
 	}
 
 	return currentValue
