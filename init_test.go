@@ -67,6 +67,23 @@ func (FakeDataStore) UserActivate(id string, token string) error {
 	}
 }
 
+func (FakeDataStore) UserAll() ([]models.User, error) {
+	users := []models.User{
+		{Email: "test@gmail.com", Password: "pwd"},
+		{Email: "test2@gmail.com", Password: "pwd2"},
+	}
+	return users, nil
+}
+
+func (FakeDataStore) UserCreate(user *models.User) (*models.User, error) {
+	pwd, err := models.HashAndSalt(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = pwd
+	return user, nil
+}
+
 func TestMain(m *testing.M) {
 	log.SetLevel(log.DebugLevel)
 	// log.SetOutput(ioutil.Discard)
