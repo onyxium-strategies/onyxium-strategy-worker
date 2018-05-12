@@ -11,13 +11,13 @@ type User struct {
 	Id          bson.ObjectId     `json:"id" bson:"_id,omitempty"`
 	Email       string            `json:"email" bson:"email"`
 	Password    string            `json:"password" bson:"password"`
-	IsActivated bool              `bson:"isActivated"`
-	ActivatedAt time.Time         `bson:"activatedAt"`
-	LastLogin   time.Time         `bson:"lastLogin"`
-	CreatedAt   time.Time         `bson:"createdAt"`
-	UpdatedAt   time.Time         `bson:"updatedAt"`
-	ApiKeys     map[string]string `bson:"apiKeys"`
-	StrategyIds []int             `bson:"strategyIds"`
+	IsActivated bool              `json:"isActivated" bson:"isActivated"`
+	ActivatedAt time.Time         `json:"activatedAt" bson:"activatedAt"`
+	LastLogin   time.Time         `json:"lastLogin" bson:"lastLogin"`
+	CreatedAt   time.Time         `json:"createdAt" bson:"createdAt"`
+	UpdatedAt   time.Time         `json:"updatedAt" bson:"updatedAt"`
+	ApiKeys     map[string]string `json:"apiKeys" bson:"apiKeys"`
+	StrategyIds []int             `json:"strategyIds" bson:"strategyIds"`
 }
 
 func (db *MGO) UserActivate(id string) error {

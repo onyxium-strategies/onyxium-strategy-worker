@@ -44,6 +44,7 @@ func main() {
 	router.Handle("/api/work", &CollectorHandler{})
 	router.HandleFunc("/api/user", UserAll).Methods("GET")
 	router.HandleFunc("/api/user/{id}", UserGet).Methods("GET")
+	router.HandleFunc("/api/user/{id}", UserUpdate).Methods("PUT")
 	router.HandleFunc("/api/user", UserCreate).Methods("POST")
 	router.HandleFunc("/api/user/{id}", UserDelete).Methods("DELETE")
 

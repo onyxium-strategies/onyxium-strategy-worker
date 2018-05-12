@@ -7,15 +7,30 @@ import (
 	"net/http"
 )
 
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
+}
+
 func UserAll(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.Header().Set("Allow", "GET")
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	users, _ := env.DataStore.UserAll()
-
-	json.NewEncoder(w).Encode(users)
+	users, err := env.DataStore.UserAll()
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, users)
 }
 
 func UserGet(w http.ResponseWriter, r *http.Request) {
@@ -26,8 +41,12 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	params := mux.Vars(r)
-	user, _ := env.DataStore.UserGet(params["id"])
-	json.NewEncoder(w).Encode(user)
+	user, err := env.DataStore.UserGet(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, user)
 }
 
 func UserCreate(w http.ResponseWriter, r *http.Request) {
@@ -38,9 +57,13 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.User
-	_ = json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
 	newUser, _ := env.DataStore.UserCreate(&user)
-	json.NewEncoder(w).Encode(newUser)
+	respondWithJSON(w, http.StatusOK, newUser)
 }
 
 func UserDelete(w http.ResponseWriter, r *http.Request) {
@@ -51,9 +74,35 @@ func UserDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	params := mux.Vars(r)
-	_ = env.DataStore.UserDelete(params["id"])
-	response := map[string]string{
-		"status": "deleted",
+	err := env.DataStore.UserDelete(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
 	}
-	json.NewEncoder(w).Encode(response)
+	response := map[string]bool{
+		"success": true,
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
+
+func UserUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		w.Header().Set("Allow", "PUT")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	params := mux.Vars(r)
+	user, err := env.DataStore.UserGet(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	json.NewDecoder(r.Body).Decode(user)
+	err = env.DataStore.UserUpdate(user)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, user)
 }
