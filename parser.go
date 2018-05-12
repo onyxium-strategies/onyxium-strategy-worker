@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	"errors"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
@@ -24,12 +25,12 @@ func parseJsonArray(jsonInput string) ([]interface{}, error) {
 }
 
 // Parse json tree from frontend to a binary tree for backend
-func parseBinaryTree(tree []interface{}) (Tree, error) {
+func parseBinaryTree(tree []interface{}) (models.Tree, error) {
 	// TODO can we exclude this root node from the tree?
-	root := Tree{Left: nil, Right: nil, Conditions: []Condition{}, Action: Action{}}
+	root := models.Tree{Left: nil, Right: nil, Conditions: []models.Condition{}, Action: models.Action{}}
 	left, err := _parseBinaryTree(tree, root.Left, 0)
 	if err != nil {
-		return Tree{}, err
+		return models.Tree{}, err
 	}
 	root.Left = left
 
@@ -37,7 +38,7 @@ func parseBinaryTree(tree []interface{}) (Tree, error) {
 }
 
 // Recursive version of parseBinaryTree
-func _parseBinaryTree(siblings []interface{}, root *Tree, i int) (*Tree, error) {
+func _parseBinaryTree(siblings []interface{}, root *models.Tree, i int) (*models.Tree, error) {
 	if i < len(siblings) {
 		conditions, ok := siblings[i].(map[string]interface{})["conditions"]
 		if !ok {
@@ -56,7 +57,7 @@ func _parseBinaryTree(siblings []interface{}, root *Tree, i int) (*Tree, error) 
 		if err != nil {
 			return nil, err
 		}
-		root = &Tree{Left: nil, Right: nil, Conditions: conditionsInstance, Action: actionInstance}
+		root = &models.Tree{Left: nil, Right: nil, Conditions: conditionsInstance, Action: actionInstance}
 
 		if then, ok := siblings[i].(map[string]interface{})["then"]; ok {
 			left, err := _parseBinaryTree(then.([]interface{}), root.Left, 0)
@@ -84,52 +85,52 @@ func _parseBinaryTree(siblings []interface{}, root *Tree, i int) (*Tree, error) 
 	return root, nil
 }
 
-// Decode json array of Condition structs
-func createConditionsFromSlice(conditionsSlice []interface{}) ([]Condition, error) {
-	conditions := []Condition{}
+// Decode json array of models.Condition structs
+func createConditionsFromSlice(conditionsSlice []interface{}) ([]models.Condition, error) {
+	conditions := []models.Condition{}
 	for _, condition := range conditionsSlice {
 		conditionInstance, err := createConditionFromMap(condition.(map[string]interface{}))
 		if err != nil {
-			return []Condition{}, err
+			return []models.Condition{}, err
 		}
 		conditions = append(conditions, conditionInstance)
 	}
 	return conditions, nil
 }
 
-// Decode json to Condition struct
-func createConditionFromMap(m map[string]interface{}) (Condition, error) {
-	var result Condition
+// Decode json to models.Condition struct
+func createConditionFromMap(m map[string]interface{}) (models.Condition, error) {
+	var result models.Condition
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
 		log.Info(err)
-		return Condition{}, err
+		return models.Condition{}, err
 	}
 
 	validate = validator.New()
 	err = validate.Struct(result)
 	if err != nil {
 		log.Info(err)
-		return Condition{}, err
+		return models.Condition{}, err
 	}
 
 	return result, nil
 }
 
 // Decode json to Action struct
-func createActionFromMap(m map[string]interface{}) (Action, error) {
-	var result Action
+func createActionFromMap(m map[string]interface{}) (models.Action, error) {
+	var result models.Action
 	err := mapstructure.Decode(m, &result)
 	if err != nil {
 		log.Error(err)
-		return Action{}, err
+		return models.Action{}, err
 	}
 
 	validate = validator.New()
 	err = validate.Struct(result)
 	if err != nil {
 		log.Info(err)
-		return Action{}, err
+		return models.Action{}, err
 	}
 	return result, nil
 }
