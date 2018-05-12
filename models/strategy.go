@@ -22,22 +22,22 @@ type Tree struct {
 }
 
 type Condition struct {
-	ConditionType string `validate:"required"`
-	BaseCurrency  string `validate:"required,nefield=QuoteCurrency"`
-	QuoteCurrency string `validate:"required",nefield=BaseCurrency`
-	TimeframeInMS int
-	BaseMetric    string  `validate:"required"`
-	Value         float64 `validate:"required"`
+	ConditionType string  `validate:"required,oneof=percentage-decrease percentage-increase greater-than-or-equal-to less-than-or-equal-to"`
+	BaseCurrency  string  `validate:"required,nefield=QuoteCurrency"`
+	QuoteCurrency string  `validate:"required",nefield=BaseCurrency`
+	TimeframeInMS int     `validate:"omitempty,gt=0"`
+	BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume"`
+	Value         float64 `validate:"required,gte=0"`
 }
 
 type Action struct {
-	OrderType        string `validate:"required"`
-	ValueType        string `validate:"required"`
-	ValueQuoteMetric string
+	OrderType        string  `validate:"required,oneof=limit-buy limit-sell"`
+	ValueType        string  `validate:"required,oneof=absolute relative-above relative-below percentage-above percentage-below"`
+	ValueQuoteMetric string  `validate:"omitempty,oneof=price-ask price-bid price-last"`
 	BaseCurrency     string  `validate:"required,nefield=QuoteCurrency"`
 	QuoteCurrency    string  `validate:"required,nefield=BaseCurrency"`
-	Quantity         float64 `validate:"required"`
-	Value            float64 `validate:"required"`
+	Quantity         float64 `validate:"required,gt=0"`
+	Value            float64 `validate:"required"gt=0`
 }
 
 func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) error {
