@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"os"
 )

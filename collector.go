@@ -28,7 +28,7 @@ func (c *CollectorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonString := string(body)
 
-	jsonTree, err := parseJsonArray(myJson)
+	jsonTree, err := parseJsonArray(jsonString)
 	if err != nil {
 		log.Error(err)
 	}

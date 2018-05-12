@@ -1,22 +1,22 @@
 package main
 
 type Condition struct {
-	ConditionType string
-	BaseCurrency  string
-	QuoteCurrency string
+	ConditionType string `validate:"required"`
+	BaseCurrency  string `validate:"required"`
+	QuoteCurrency string `validate:"required"`
 	TimeframeInMS int
-	BaseMetric    string
-	Value         float64
+	BaseMetric    string  `validate:"required"`
+	Value         float64 `validate:"required"`
 }
 
 type Action struct {
-	OrderType        string
-	ValueType        string
+	OrderType        string `validate:"required"`
+	ValueType        string `validate:"required"`
 	ValueQuoteMetric string
-	BaseCurrency     string
-	QuoteCurrency    string
-	Quantity         float64
-	Value            float64
+	BaseCurrency     string  `validate:"required"`
+	QuoteCurrency    string  `validate:"required"`
+	Quantity         float64 `validate:"required"`
+	Value            float64 `validate:"required"`
 }
 
 type Tree struct {

@@ -5,7 +5,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"gopkg.in/go-playground/validator.v9"
 )
+
+var validate *validator.Validate
 
 // Parse nested array json string to json object
 func parseJsonArray(jsonInput string) ([]interface{}, error) {
@@ -70,6 +73,13 @@ func createConditionFromMap(m map[string]interface{}) Condition {
 	if err != nil {
 		log.Error(err)
 	}
+
+	validate = validator.New()
+	err1 := validate.Struct(result)
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+
 	return result
 }
 
