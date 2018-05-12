@@ -21,10 +21,17 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 
 	jsonTree, err := parseJsonArray(jsonString)
 	if err != nil {
-		log.Error(err)
+		respondWithError(w, 400, err.Error())
+		log.Info("Bad request, responded with error")
+		return
 	}
 
-	binaryTree := parseBinaryTree(jsonTree)
+	binaryTree, err := parseBinaryTree(jsonTree)
+	if err != nil {
+		respondWithError(w, 400, err.Error())
+		log.Info("Bad request, responded with error")
+		return
+	}
 
 	work := WorkRequest{ID: id, Tree: &binaryTree}
 	log.Info("Workrequest created")
