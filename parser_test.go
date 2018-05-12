@@ -3,7 +3,9 @@ package main
 import (
 	// "github.com/stretchr/testify/assert"
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
@@ -76,29 +78,35 @@ func TestCreateActionFromMap(t *testing.T) {
 // Right now the test is dependent on property OrderType of Action. If the property changes this test breaks.
 // Have to find a way to test the tree traversal without using OrderType
 func TestParseBinaryTree(t *testing.T) {
-	var jsonInput = `[{"conditions":[{}],"action":{"OrderType": "A"},"then":[{"conditions":[{}],"action":{"OrderType": "B"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "C"},"then":[]}]}, {"conditions":[{}],"action":{"OrderType": "D"},"then":[]}, {"conditions":[{}],"action":{"OrderType": "E"},"then":[]}]`
-	// var jsonInput = `[{"then":[{"then":[]}, {"then":[]}]}, {"then":[]}, {"then":[]}]`
-	data, err := parseJsonArray(jsonInput)
+
+	jsonInput, err := ioutil.ReadFile("tree-example.json") //
+	jsonInputStr := string(jsonInput)
+
+	data, err := parseJsonArray(jsonInputStr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// t.Logf("%+v", data)
+
 	tree, err := parseBinaryTree(data)
+	log.Info(tree.Left.Conditions)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// t.Logf("%+v", tree)
-	size := 6
+	size := 100
 	ch := make(chan string, size)
-	inOrderTraverse(t, &tree, ch)
+	inOrderTraverse(t, tree.Left, ch)
 
 	expectedCh := make(chan string, size)
-	expectedCh <- "" //root
-	expectedCh <- "A"
-	expectedCh <- "B"
-	expectedCh <- "C"
-	expectedCh <- "D"
-	expectedCh <- "E"
+	expectedCh <- "limit-buy"
+	expectedCh <- "limit-sell"
+	expectedCh <- "limit-sell"
+	expectedCh <- "limit-buy"
+	expectedCh <- "limit-buy"
+	expectedCh <- "limit-sell"
+	expectedCh <- "limit-buy"
+	expectedCh <- "limit-sell"
+	expectedCh <- "limit-buy"
 	close(ch)
 	close(expectedCh)
 
@@ -110,6 +118,7 @@ func TestParseBinaryTree(t *testing.T) {
 }
 
 func inOrderTraverse(t *testing.T, node *models.Tree, ch chan string) {
+
 	if node != nil {
 		ch <- node.Action.OrderType
 		inOrderTraverse(t, node.Left, ch)
