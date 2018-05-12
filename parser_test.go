@@ -23,7 +23,10 @@ func TestCreateConditionsFromSlice(t *testing.T) {
 		t.Fatal("Json input is not a slice")
 	}
 
-	conditions := createConditionsFromSlice(data)
+	conditions, err := createConditionsFromSlice(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectedConditions := []Condition{{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991}, {ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.02}}
 
 	if !reflect.DeepEqual(conditions, expectedConditions) {
@@ -39,7 +42,10 @@ func TestCreateConditionFromMap(t *testing.T) {
 		t.Fatal("Json input is not a map")
 	}
 
-	condition := createConditionFromMap(data)
+	condition, err := createConditionFromMap(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectedCondition := Condition{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.01990991, TimeframeInMS: 3600000}
 
 	if !reflect.DeepEqual(condition, expectedCondition) {
@@ -55,7 +61,10 @@ func TestCreateActionFromMap(t *testing.T) {
 		t.Fatal("Json input is not a map")
 	}
 
-	action := createActionFromMap(data)
+	action, err := createActionFromMap(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectedAction := Action{OrderType: "limit-buy", ValueType: "percentage-above", ValueQuoteMetric: "price-ask", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 10, Value: 0.02}
 
 	if !reflect.DeepEqual(action, expectedAction) {
@@ -73,7 +82,10 @@ func TestParseBinaryTree(t *testing.T) {
 		t.Fatal(err)
 	}
 	// t.Logf("%+v", data)
-	tree := parseBinaryTree(data)
+	tree, err := parseBinaryTree(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// t.Logf("%+v", tree)
 	size := 6
 	ch := make(chan string, size)
