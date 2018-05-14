@@ -54,14 +54,6 @@ func (w *Worker) Start() {
 				root, _ := work.BsonTree.Search(work.State)
 				w.WalkSiblings(root, work)
 				log.Infof("Worker %d work is done", w.ID)
-				work.Status = "paused"
-				_, err = env.DataStore.StrategyUpdate(work)
-				if err != nil {
-					log.Error(err)
-					w.Stop()
-					continue
-				}
-				log.Infof("None of the conditions of each child are true. PAUSING strategy: %s", work.Id.Hex())
 			}
 		}
 	}()
@@ -75,14 +67,12 @@ func (w *Worker) Stop() {
 	}()
 }
 
-func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) {
+func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*models.Strategy, error) {
 	// We could update state also between siblings
 	if tree != nil {
 		latestMarkets, err := env.DataStore.GetLatestMarket()
 		if err != nil {
-			log.Error(err)
-			w.Stop()
-			return
+			return nil, err
 		}
 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
 		doAction := CheckConditions(tree.Conditions, latestMarkets)
@@ -91,39 +81,46 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) {
 			strategy.State = tree.Id
 			_, err = env.DataStore.StrategyUpdate(strategy)
 			if err != nil {
-				log.Error(err)
-				w.Stop()
-				return
+				return nil, err
 			}
 			ExecuteAction(tree.Action)
 
 			if tree.Left == nil {
+				// state == tree.id
 				strategy.Status = "stopped"
 				_, err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
-					log.Error(err)
-					w.Stop()
-					return
+					return nil, err
 				}
 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+				return strategy, nil
 			} else {
 				strategy.Status = "paused"
 				strategy.State = tree.Left.Id
 				_, err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
-					log.Error(err)
-					w.Stop()
-					return
+					return nil, err
 				}
 				log.Info("JUMPING to left")
+				return strategy, nil
 			}
 		} else {
-			if tree.Right != nil {
+			if tree.Right == nil {
+				// state == first sibling id
+				strategy.Status = "paused"
+				_, err = env.DataStore.StrategyUpdate(strategy)
+				if err != nil {
+					return nil, err
+				}
+				log.Infof("None of the conditions of each child are true. PAUSING strategy: %s", strategy.Id.Hex())
+				return strategy, nil
+			} else {
 				log.Info("None of the conditions are true. JUMPING to right sibling.")
-				w.WalkSiblings(tree.Right, strategy)
+				return w.WalkSiblings(tree.Right, strategy)
 			}
 		}
 	}
+	return strategy, nil
 }
 
 func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) bool {
