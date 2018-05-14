@@ -18,7 +18,7 @@ func TestUser(t *testing.T) {
 	}
 
 	// create user
-	user, err = db.UserCreate(user)
+	err = db.UserCreate(user)
 	if err != nil {
 		t.Fatal(err)
 	}

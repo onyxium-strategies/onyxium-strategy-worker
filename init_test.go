@@ -75,13 +75,16 @@ func (FakeDataStore) UserAll() ([]models.User, error) {
 	return users, nil
 }
 
-func (FakeDataStore) UserCreate(user *models.User) (*models.User, error) {
+func (FakeDataStore) UserCreate(user *models.User) error {
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	user.Id = bson.NewObjectId()
 	pwd, err := models.HashAndSalt(user.Password)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	user.Password = pwd
-	return user, nil
+	return nil
 }
 
 func (FakeDataStore) StrategyCreate(strategy *models.Strategy) error {
@@ -93,8 +96,8 @@ func (FakeDataStore) GetPausedStrategies() ([]models.Strategy, error) {
 	return strategies, nil
 }
 
-func (FakeDataStore) StrategyUpdate(strategy *models.Strategy) (*models.Strategy, error) {
-	return strategy, nil
+func (FakeDataStore) StrategyUpdate(strategy *models.Strategy) error {
+	return nil
 }
 
 func TestMain(m *testing.M) {

@@ -43,7 +43,7 @@ func (w *Worker) Start() {
 			case work := <-w.Work:
 				// Receive a work request.
 				work.Status = "running"
-				_, err := env.DataStore.StrategyUpdate(work)
+				err := env.DataStore.StrategyUpdate(work)
 				if err != nil {
 					log.Error(err)
 					w.Stop()
@@ -79,7 +79,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 		if doAction {
 			strategy.Status = "executing"
 			strategy.State = tree.Id
-			_, err = env.DataStore.StrategyUpdate(strategy)
+			err = env.DataStore.StrategyUpdate(strategy)
 			if err != nil {
 				return nil, err
 			}
@@ -88,7 +88,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			if tree.Left == nil {
 				// state == tree.id
 				strategy.Status = "stopped"
-				_, err = env.DataStore.StrategyUpdate(strategy)
+				err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
 					return nil, err
 				}
@@ -97,7 +97,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			} else {
 				strategy.Status = "paused"
 				strategy.State = tree.Left.Id
-				_, err = env.DataStore.StrategyUpdate(strategy)
+				err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
 					return nil, err
 				}
@@ -108,7 +108,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			if tree.Right == nil {
 				// state == first sibling id
 				strategy.Status = "paused"
-				_, err = env.DataStore.StrategyUpdate(strategy)
+				err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
 					return nil, err
 				}

@@ -63,12 +63,12 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	// TODO replace with smtp
 	fmt.Println(string(hash))
 
-	newUser, err := env.DataStore.UserCreate(&user)
+	err = env.DataStore.UserCreate(&user)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	respondWithJSON(w, http.StatusOK, newUser)
+	respondWithJSON(w, http.StatusOK, user)
 }
 
 func UserDelete(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +92,7 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewDecoder(r.Body).Decode(user)
-	user, err = env.DataStore.UserUpdate(user)
+	err = env.DataStore.UserUpdate(user)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return

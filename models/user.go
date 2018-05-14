@@ -57,21 +57,18 @@ func (db *MGO) UserAll() ([]User, error) {
 	return users, nil
 }
 
-func (db *MGO) UserCreate(user *User) (*User, error) {
+func (db *MGO) UserCreate(user *User) error {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 	user.Id = bson.NewObjectId()
 	pwd, err := HashAndSalt(user.Password)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	user.Password = pwd
 	c := db.DB(DatabaseName).C(UserCollection)
 	err = c.Insert(user)
-	if err != nil {
-		return nil, fmt.Errorf("Error creating user with message: %s", err)
-	}
-	return user, nil
+	return err
 }
 
 func (db *MGO) UserGet(id string) (*User, error) {
@@ -89,14 +86,11 @@ func (db *MGO) UserGet(id string) (*User, error) {
 	return user, nil
 }
 
-func (db *MGO) UserUpdate(user *User) (*User, error) {
+func (db *MGO) UserUpdate(user *User) error {
 	user.UpdatedAt = time.Now()
 	c := db.DB(DatabaseName).C(UserCollection)
 	err := c.UpdateId(user.Id, user)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return err
 }
 
 func (db *MGO) UserDelete(id string) error {

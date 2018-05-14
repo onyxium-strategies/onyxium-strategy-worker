@@ -12,13 +12,13 @@ type DataStore interface {
 	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
 	UserActivate(id string, token string) error
 	UserAll() ([]User, error)
-	UserCreate(user *User) (*User, error)
+	UserCreate(user *User) error
 	UserGet(id string) (*User, error)
-	UserUpdate(user *User) (*User, error)
+	UserUpdate(user *User) error
 	UserDelete(id string) error
 	StrategyCreate(strategy *Strategy) error
 	GetPausedStrategies() ([]Strategy, error)
-	StrategyUpdate(strategy *Strategy) (*Strategy, error)
+	StrategyUpdate(strategy *Strategy) error
 }
 
 type MGO struct {

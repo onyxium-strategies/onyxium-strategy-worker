@@ -177,13 +177,10 @@ func (db *MGO) StrategyCreate(strategy *Strategy) error {
 	return err
 }
 
-func (db *MGO) StrategyUpdate(strategy *Strategy) (*Strategy, error) {
+func (db *MGO) StrategyUpdate(strategy *Strategy) error {
 	c := db.DB(DatabaseName).C(StrategyCollection)
 	err := c.UpdateId(strategy.Id, strategy)
-	if err != nil {
-		return nil, err
-	}
-	return strategy, nil
+	return err
 }
 
 func (db *MGO) GetPausedStrategies() ([]Strategy, error) {
