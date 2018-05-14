@@ -2,16 +2,42 @@ package email
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	log "github.com/sirupsen/logrus"
 	"html/template"
-	"net/smtp"
 )
 
-func EmailActivateUser(to, id, token string) error {
+const sendgridAPIKey = "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"
+
+func EmailActivateUser(userEmail, id, token string) error {
+	body, err := parseMailTemplate(id, token)
+	if err != nil {
+		return err
+	}
+	from := mail.NewEmail("Onyxium", "info@onyxium.io")
+	subject := "Activate your account"
+	to := mail.NewEmail("New user", userEmail)
+	message := mail.NewSingleEmail(from, subject, to, body, body)
+	client := sendgrid.NewSendClient(sendgridAPIKey)
+	response, err := client.Send(message)
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
+	return err
+}
+
+func parseMailTemplate(id, token string) (string, error) {
 	t, err := template.New("mail").Parse(tpl)
 	if err != nil {
 		log.Info("Parse ", err)
-		return err
+		return "", err
 	}
 	templateData := struct {
 		URL   string
@@ -26,23 +52,7 @@ func EmailActivateUser(to, id, token string) error {
 	buf := new(bytes.Buffer)
 	if err = t.Execute(buf, templateData); err != nil {
 		log.Info("Execute ", err)
-		return err
+		return "", err
 	}
-	body := buf.String()
-	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	subject := "Subject: Activate your account.\n"
-	// to = "To: " + to + "\n"
-	msg := []byte(subject + mime + "\n" + body)
-	// mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	// subject := "Activate your account.\n"
-	// msg := []byte("To: " + to + "\r\n" +
-	// 	"Subject: " + subject + "\n" +
-	// 	mime + "\r\n" +
-	// 	body + "\r\n")
-	addr := "smtp.gmail.com:587"
-	recipient := []string{to}
-	auth := smtp.PlainAuth("", "alainfh94@gmail.com", "gfqodfvhlfwdmvft", "smtp.gmail.com")
-	from := "alainfh94@gmail.com"
-	err = smtp.SendMail(addr, auth, from, recipient, msg)
-	return err
+	return buf.String(), nil
 }

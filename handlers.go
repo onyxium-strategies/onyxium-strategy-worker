@@ -67,7 +67,7 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	err = email.EmailActivateUser("alainfh94@gmail.com", user.Id.Hex(), string(hash))
+	err = email.EmailActivateUser(user.Email, user.Id.Hex(), string(hash))
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
