@@ -34,7 +34,7 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	strategy, err := env.DataStore.StrategyCreate("teststrategy", jsonString, &binaryTree)
+	strategy, err := env.DataStore.StrategyCreate("teststrategy", jsonString, binaryTree)
 	if err != nil {
 		respondWithError(w, 400, err.Error())
 		log.Info("Bad request StrategyCreate, responded with error")

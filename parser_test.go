@@ -3,7 +3,6 @@ package main
 import (
 	// "github.com/stretchr/testify/assert"
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
-	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"reflect"
@@ -88,14 +87,14 @@ func TestParseBinaryTree(t *testing.T) {
 	}
 
 	tree, err := parseBinaryTree(data)
-	log.Info(tree.Left.Conditions)
+	t.Log(tree.Conditions)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// t.Logf("%+v", tree)
 	size := 100
 	ch := make(chan string, size)
-	inOrderTraverse(t, tree.Left, ch)
+	inOrderTraverse(t, tree, ch)
 
 	expectedCh := make(chan string, size)
 	expectedCh <- "limit-buy"

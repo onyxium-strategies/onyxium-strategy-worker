@@ -32,12 +32,12 @@ func TestUser(t *testing.T) {
 
 	// update user
 	user.Email = "henk"
-	err = db.UserUpdate(user)
+	_, err = db.UserUpdate(user)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = db.UserActivate(hex)
+	err = db.UserActivate("mijnid", hex)
 	if err != nil {
 		t.Fatal(err)
 	}

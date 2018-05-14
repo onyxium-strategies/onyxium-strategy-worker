@@ -25,14 +25,14 @@ func parseJsonArray(jsonInput string) ([]interface{}, error) {
 }
 
 // Parse json tree from frontend to a binary tree for backend
-func parseBinaryTree(tree []interface{}) (models.Tree, error) {
+func parseBinaryTree(tree []interface{}) (*models.Tree, error) {
 	// TODO can we exclude this root node from the tree?
-	root := models.Tree{Left: nil, Right: nil, Conditions: []models.Condition{}, Action: models.Action{}}
-	left, err := _parseBinaryTree(tree, root.Left, 0)
+	// root := &models.Tree{Left: nil, Right: nil, Conditions: []models.Condition{}, Action: models.Action{}}
+	root, err := _parseBinaryTree(tree, nil, 0)
 	if err != nil {
-		return models.Tree{}, err
+		return nil, err
 	}
-	root.Left = left
+	// root.Left = left
 
 	return root, nil
 }

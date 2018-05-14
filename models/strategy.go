@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -20,6 +21,76 @@ type Tree struct {
 	Right      *Tree
 	Conditions []Condition
 	Action     Action
+}
+
+func (t *Tree) SetIdsForBinarySearch() {
+	n := countNodes(t)
+	ch := make(chan int, n)
+	for i := 0; i < n; i++ {
+		ch <- i
+	}
+	close(ch)
+	inOrderTraverseReadChan(t, ch)
+}
+
+func countNodes(t *Tree) int {
+	if t == nil {
+		return 0
+	} else {
+		return 1 + countNodes(t.Left) + countNodes(t.Right)
+	}
+}
+
+func inOrderTraverseReadChan(t *Tree, ch chan int) {
+	if t != nil {
+		inOrderTraverseReadChan(t.Left, ch)
+		t.Id = <-ch
+		inOrderTraverseReadChan(t.Right, ch)
+
+	}
+}
+
+// String prints a visual representation of the tree
+func (t *Tree) String() {
+	fmt.Println("------------------------------------------------")
+	stringify(t, 0)
+	fmt.Println("------------------------------------------------")
+}
+
+// internal recursive function to print a tree
+func stringify(t *Tree, level int) {
+	if t != nil {
+		format := ""
+		for i := 0; i < level; i++ {
+			format += "       "
+		}
+		format += "---[ "
+		level++
+
+		stringify(t.Right, level)
+		fmt.Printf(format+"%d\n", t.Id)
+		stringify(t.Left, level)
+
+	}
+}
+
+// Search returns true if the Item t exists in the tree
+func (t *Tree) Search(id int) (*Tree, error) {
+	return search(t, id)
+}
+
+// internal recursive function to search an item in the tree
+func search(t *Tree, id int) (*Tree, error) {
+	if t == nil {
+		return nil, fmt.Errorf("Did not find node with ID %d", id)
+	}
+	if id < t.Id {
+		return search(t.Left, id)
+	}
+	if id > t.Id {
+		return search(t.Right, id)
+	}
+	return t, nil
 }
 
 type Condition struct {
