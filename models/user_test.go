@@ -32,7 +32,7 @@ func TestUser(t *testing.T) {
 
 	// update user
 	user.Email = "henk"
-	_, err = db.UserUpdate(user)
+	err = db.UserUpdate(user)
 	if err != nil {
 		t.Fatal(err)
 	}
