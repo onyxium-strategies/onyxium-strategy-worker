@@ -36,22 +36,32 @@ func (w *Worker) Start() {
 			w.WorkerQueue <- w.Work
 
 			select {
+			case <-w.QuitChan:
+				// We have been asked to stop.
+				log.Infof("Worker %d stopping", w.ID)
+				return
 			case work := <-w.Work:
 				// Receive a work request.
-				work.Status = "stopped"
-				env.DataStore.StrategyUpdate(work)
+				work.Status = "running"
+				_, err := env.DataStore.StrategyUpdate(work)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
 				root, _ := work.BsonTree.Search(work.State)
 				w.WalkSiblings(root, work)
 				log.Infof("Worker %d work is done", w.ID)
 				work.Status = "paused"
-				env.DataStore.StrategyUpdate(work)
+				_, err = env.DataStore.StrategyUpdate(work)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
 				log.Infof("None of the conditions of each child are true. PAUSING strategy: %s", work.Id.Hex())
-			case <-w.QuitChan:
-				// We have been asked to stop.
-				log.Infof("Worker %d stopping", w.ID)
-				return
 			}
 		}
 	}()
@@ -79,17 +89,32 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) {
 		if doAction {
 			strategy.Status = "executing"
 			strategy.State = tree.Id
-			env.DataStore.StrategyUpdate(strategy)
+			_, err = env.DataStore.StrategyUpdate(strategy)
+			if err != nil {
+				log.Error(err)
+				w.Stop()
+				return
+			}
 			ExecuteAction(tree.Action)
 
 			if tree.Left == nil {
 				strategy.Status = "stopped"
-				env.DataStore.StrategyUpdate(strategy)
+				_, err = env.DataStore.StrategyUpdate(strategy)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					return
+				}
 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 			} else {
 				strategy.Status = "paused"
 				strategy.State = tree.Left.Id
-				env.DataStore.StrategyUpdate(strategy)
+				_, err = env.DataStore.StrategyUpdate(strategy)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					return
+				}
 				log.Info("JUMPING to left")
 			}
 		} else {
