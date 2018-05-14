@@ -5,6 +5,8 @@ import (
 	// "log"
 )
 
+const DatabaseName = "coinflow"
+
 type DataStore interface {
 	GetLatestMarket() (map[string]Market, error)
 	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
@@ -16,6 +18,7 @@ type DataStore interface {
 	UserDelete(id string) error
 	StrategyCreate(name string, jsonTree string, bsonTree *Tree) (*Strategy, error)
 	GetPausedStrategies() ([]Strategy, error)
+	StrategyUpdate(strategy *Strategy) (*Strategy, error)
 }
 
 type MGO struct {

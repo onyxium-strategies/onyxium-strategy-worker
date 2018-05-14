@@ -58,8 +58,8 @@ func TestWalkDeadlock(t *testing.T) {
 			name: "less-than-or-equal-to",
 			w:    NewWorker(0, WorkerQueue),
 			t: &models.Tree{
+				Id: 0,
 				Conditions: []models.Condition{
-					Id: 0,
 					{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 9000},
 				},
 				Action: models.Action{OrderType: "limit-sell", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.088},

@@ -6,6 +6,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const StrategyCollection = "strategy"
+
 type Strategy struct {
 	Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Name     string        `json:"name" bson:"name"`
@@ -163,8 +165,17 @@ func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) (*St
 		Status:   "paused",
 		State:    bsonTree.Id,
 	}
-	c := db.DB("coinflow").C("strategy")
+	c := db.DB(DatabaseName).C(StrategyCollection)
 	err := c.Insert(strategy)
+	if err != nil {
+		return nil, err
+	}
+	return strategy, nil
+}
+
+func (db *MGO) StrategyUpdate(strategy *Strategy) (*Strategy, error) {
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	err := c.UpdateId(strategy.Id, strategy)
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +184,8 @@ func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) (*St
 
 func (db *MGO) GetPausedStrategies() ([]Strategy, error) {
 	var strategies []Strategy
-	c := db.DB("coinflow").C("strategy")
-	err := c.Find(bson.M{"status": "paused"}).All(strategies)
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	err := c.Find(bson.M{"status": "paused"}).All(&strategies)
 	if err != nil {
 		return nil, err
 	}

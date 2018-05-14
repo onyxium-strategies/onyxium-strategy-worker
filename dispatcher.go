@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 var WorkerQueue chan chan *models.Strategy
@@ -30,6 +31,20 @@ func StartDispatcher(nworkers int) {
 					worker <- work
 				}(work)
 			}
+		}
+	}()
+
+	go func() {
+		for {
+			strategies, err := env.DataStore.GetPausedStrategies()
+			log.Info("Dispatching paused strategies")
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, strategy := range strategies {
+				WorkQueue <- &strategy
+			}
+			time.Sleep(time.Second)
 		}
 	}()
 }

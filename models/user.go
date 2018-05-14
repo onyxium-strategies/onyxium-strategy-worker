@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const UserCollection = "user"
+
 type User struct {
 	Id          bson.ObjectId     `json:"id" bson:"_id,omitempty"`
 	Email       string            `json:"email" bson:"email"`
@@ -25,7 +27,7 @@ func (db *MGO) UserActivate(id string, token string) error {
 	if !ok {
 		return fmt.Errorf("Incorrect id hex received: %s", id)
 	}
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	user := &User{}
 	objectId := bson.ObjectIdHex(id)
 	err := c.FindId(objectId).One(user)
@@ -46,7 +48,7 @@ func (db *MGO) UserActivate(id string, token string) error {
 }
 
 func (db *MGO) UserAll() ([]User, error) {
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	var users []User
 	err := c.Find(bson.M{}).All(&users)
 	if err != nil {
@@ -64,7 +66,7 @@ func (db *MGO) UserCreate(user *User) (*User, error) {
 		return nil, err
 	}
 	user.Password = pwd
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	err = c.Insert(user)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating user with message: %s", err)
@@ -77,7 +79,7 @@ func (db *MGO) UserGet(id string) (*User, error) {
 	if !ok {
 		return nil, fmt.Errorf("Incorrect IdHex received: %s", id)
 	}
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	user := &User{}
 	objectId := bson.ObjectIdHex(id)
 	err := c.FindId(objectId).One(user)
@@ -89,7 +91,7 @@ func (db *MGO) UserGet(id string) (*User, error) {
 
 func (db *MGO) UserUpdate(user *User) (*User, error) {
 	user.UpdatedAt = time.Now()
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	err := c.UpdateId(user.Id, user)
 	if err != nil {
 		return nil, err
@@ -102,7 +104,7 @@ func (db *MGO) UserDelete(id string) error {
 	if !ok {
 		return fmt.Errorf("Incorrect id hex received: %s", id)
 	}
-	c := db.DB("coinflow").C("user")
+	c := db.DB(DatabaseName).C(UserCollection)
 	objectId := bson.ObjectIdHex(id)
 	err := c.RemoveId(objectId)
 	return err

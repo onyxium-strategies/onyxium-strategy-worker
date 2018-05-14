@@ -3,7 +3,7 @@ package main
 import (
 	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
-	"time"
+	// "time"
 )
 
 type Worker struct {
@@ -38,12 +38,16 @@ func (w *Worker) Start() {
 			select {
 			case work := <-w.Work:
 				// Receive a work request.
+				work.Status = "stopped"
+				env.DataStore.StrategyUpdate(work)
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
 				root, _ := work.BsonTree.Search(work.State)
-				w.Walk(root, root)
+				w.walkSiblings(root, work)
 				log.Infof("Worker %d work is done", w.ID)
-
+				work.Status = "paused"
+				env.DataStore.StrategyUpdate(work)
+				log.Infof("None of the conditions of each child are true. PAUSING strategy: %s", work.Id.Hex())
 			case <-w.QuitChan:
 				// We have been asked to stop.
 				log.Infof("Worker %d stopping", w.ID)
@@ -61,121 +65,235 @@ func (w *Worker) Stop() {
 	}()
 }
 
-// The worker will walk over the strategy tree till it reaches a leaf.
-func (w *Worker) Walk(tree *models.Tree, root *models.Tree) {
-	i := 0
-	for tree != nil {
-
-		// get latest market update
+func (w *Worker) walkSiblings(tree *models.Tree, strategy *models.Strategy) {
+	// We could update state also between siblings
+	if tree != nil {
 		latestMarkets, err := env.DataStore.GetLatestMarket()
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
+			w.Stop()
+			return
 		}
-
 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
-
-		// If all conditions true do action then models.Tree.Left else go to next sibling models.Tree.Right
-		// If order to check if all conditions are true we check if not any is false
-		// All true == not any False
-		doAction := true
-
-		for _, condition := range tree.Conditions {
-			if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
-				log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
-			} else {
-				log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
-			}
-
-			latestMarket := latestMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
-
-			switch condition.ConditionType {
-			case "greater-than-or-equal-to":
-				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
-				if currentValue < condition.Value {
-					doAction = false
-					log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
-				}
-			case "less-than-or-equal-to":
-				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
-				if currentValue > condition.Value {
-					doAction = false
-					log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
-				}
-			case "percentage-increase":
-				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
-				if err != nil {
-					log.Fatal(err)
-				}
-				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
-
-				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
-
-				percentage := (currentValue - pastValue) / pastValue
-				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
-				if percentage < condition.Value {
-					doAction = false
-					log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
-				}
-
-			case "percentage-decrease":
-				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
-				if err != nil {
-					log.Fatal(err)
-				}
-				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
-
-				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
-				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
-
-				percentage := (currentValue - pastValue) / pastValue
-				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
-				if percentage > -condition.Value {
-					doAction = false
-					log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
-				}
-			default:
-				doAction = false
-				log.Warningf("Unknown ConditionType %s", condition.ConditionType)
-			}
-
-		}
-
+		doAction := checkConditions(tree.Conditions, latestMarkets)
 		if doAction {
-			switch tree.Action.ValueType {
-			case "absolute":
-				log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency, tree.Action.Value*tree.Action.Quantity, tree.Action.BaseCurrency)
-			case "relative-above", "relative-below":
-				log.Infof("Set a %s order for %.8f %s at the future rate of %s +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
-			case "percentage-above", "percentage-below":
-				log.Infof("Set a %s order for %.8f %s at the future rate of %s * (1 +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
-			}
+			strategy.Status = "executing"
+			strategy.State = tree.Id
+			env.DataStore.StrategyUpdate(strategy)
+			executeAction(tree.Action)
 
 			if tree.Left == nil {
+				strategy.Status = "stopped"
+				env.DataStore.StrategyUpdate(strategy)
 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
-				tree = nil
 			} else {
-				root = tree.Left
-				tree = tree.Left
+				strategy.Status = "paused"
+				strategy.State = tree.Left.Id
+				env.DataStore.StrategyUpdate(strategy)
 				log.Info("JUMPING to left")
 			}
-			i = 0
 		} else {
-			if tree.Right == nil {
-				log.Infof("None of the conditions of each child are true. JUMPING to root: %+v", root)
-				time.Sleep(3 * time.Second) // Change in production to check each time new market data is available
-				tree = root
-				i += 1
-				log.Infof("%d condition iterations after last action", i)
-			} else {
+			if tree.Right != nil {
 				log.Info("None of the conditions are true. JUMPING to right sibling.")
-				tree = tree.Right
+				w.walkSiblings(tree.Right, strategy)
 			}
 		}
 	}
 }
+
+func checkConditions(conditions []models.Condition, latestMarkets map[string]models.Market) bool {
+	for _, condition := range conditions {
+		if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
+			log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
+		} else {
+			log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
+		}
+
+		latestMarket := latestMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+		switch condition.ConditionType {
+		case "greater-than-or-equal-to":
+			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
+			if currentValue < condition.Value {
+				return false
+				log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+			}
+		case "less-than-or-equal-to":
+			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
+			if currentValue > condition.Value {
+				return false
+				log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+			}
+		case "percentage-increase":
+			historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
+			if err != nil {
+				log.Fatal(err)
+			}
+			historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			pastValue := getMetricValue(condition.BaseMetric, historyMarket)
+
+			percentage := (currentValue - pastValue) / pastValue
+			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
+			if percentage < condition.Value {
+				return false
+				log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
+			}
+
+		case "percentage-decrease":
+			historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
+			if err != nil {
+				log.Fatal(err)
+			}
+			historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			pastValue := getMetricValue(condition.BaseMetric, historyMarket)
+
+			percentage := (currentValue - pastValue) / pastValue
+			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
+			if percentage > -condition.Value {
+				return false
+				log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
+			}
+		default:
+			return false
+			log.Warningf("Unknown ConditionType %s", condition.ConditionType)
+		}
+	}
+	return true
+}
+
+func executeAction(action models.Action) {
+	switch action.ValueType {
+	case "absolute":
+		log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", action.OrderType, action.Quantity, action.QuoteCurrency, action.Value, action.BaseCurrency, action.QuoteCurrency, action.Value*action.Quantity, action.BaseCurrency)
+	case "relative-above", "relative-below":
+		log.Infof("Set a %s order for %.8f %s at the future rate of %s +/- %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+	case "percentage-above", "percentage-below":
+		log.Infof("Set a %s order for %.8f %s at the future rate of %s * (1 +/- %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+	}
+}
+
+// DEPRECATED
+// The worker will walk over the strategy tree till it reaches a leaf.
+// func (w *Worker) Walk(tree *models.Tree, root *models.Tree) {
+// 	i := 0
+// 	for tree != nil {
+
+// 		// get latest market update
+// 		latestMarkets, err := env.DataStore.GetLatestMarket()
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+
+// 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
+
+// 		// If all conditions true do action then models.Tree.Left else go to next sibling models.Tree.Right
+// 		// If order to check if all conditions are true we check if not any is false
+// 		// All true == not any False
+// 		doAction := true
+
+// 		for _, condition := range tree.Conditions {
+// 			if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
+// 				log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
+// 			} else {
+// 				log.Infof("If the %s on the market %s/%s has %s with %.3f percentage within %d minutes.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value, condition.TimeframeInMS/60000)
+// 			}
+
+// 			latestMarket := latestMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+// 			switch condition.ConditionType {
+// 			case "greater-than-or-equal-to":
+// 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+// 				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
+// 				if currentValue < condition.Value {
+// 					doAction = false
+// 					log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+// 				}
+// 			case "less-than-or-equal-to":
+// 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+// 				log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
+// 				if currentValue > condition.Value {
+// 					doAction = false
+// 					log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+// 				}
+// 			case "percentage-increase":
+// 				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
+// 				if err != nil {
+// 					log.Fatal(err)
+// 				}
+// 				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+// 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+// 				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
+
+// 				percentage := (currentValue - pastValue) / pastValue
+// 				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
+// 				if percentage < condition.Value {
+// 					doAction = false
+// 					log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
+// 				}
+
+// 			case "percentage-decrease":
+// 				historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
+// 				if err != nil {
+// 					log.Fatal(err)
+// 				}
+// 				historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
+
+// 				currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+// 				pastValue := getMetricValue(condition.BaseMetric, historyMarket)
+
+// 				percentage := (currentValue - pastValue) / pastValue
+// 				log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
+// 				if percentage > -condition.Value {
+// 					doAction = false
+// 					log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
+// 				}
+// 			default:
+// 				doAction = false
+// 				log.Warningf("Unknown ConditionType %s", condition.ConditionType)
+// 			}
+
+// 		}
+
+// 		if doAction {
+// 			switch tree.Action.ValueType {
+// 			case "absolute":
+// 				log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency, tree.Action.Value*tree.Action.Quantity, tree.Action.BaseCurrency)
+// 			case "relative-above", "relative-below":
+// 				log.Infof("Set a %s order for %.8f %s at the future rate of %s +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
+// 			case "percentage-above", "percentage-below":
+// 				log.Infof("Set a %s order for %.8f %s at the future rate of %s * (1 +/- %.8f %s/%s per unit.", tree.Action.OrderType, tree.Action.Quantity, tree.Action.QuoteCurrency, tree.Action.ValueQuoteMetric, tree.Action.Value, tree.Action.BaseCurrency, tree.Action.QuoteCurrency)
+// 			}
+
+// 			if tree.Left == nil {
+// 				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+// 				tree = nil
+// 			} else {
+// 				root = tree.Left
+// 				tree = tree.Left
+// 				log.Info("JUMPING to left")
+// 			}
+// 			i = 0
+// 		} else {
+// 			if tree.Right == nil {
+// 				log.Infof("None of the conditions of each child are true. JUMPING to root: %+v", root)
+// 				time.Sleep(3 * time.Second) // Change in production to check each time new market data is available
+// 				tree = root
+// 				i += 1
+// 				log.Infof("%d condition iterations after last action", i)
+// 			} else {
+// 				log.Info("None of the conditions are true. JUMPING to right sibling.")
+// 				tree = tree.Right
+// 			}
+// 		}
+// 	}
+// }
 
 // To get the current market value of a metric
 func getMetricValue(baseMetric string, market models.Market) float64 {

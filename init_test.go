@@ -84,8 +84,8 @@ func (FakeDataStore) UserCreate(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (FakeDataStore) StrategyCreate(name string, jsonTree string, bsonTree *models.Tree) (models.Strategy, error) {
-	strategy := models.Strategy{
+func (FakeDataStore) StrategyCreate(name string, jsonTree string, bsonTree *models.Tree) (*models.Strategy, error) {
+	strategy := &models.Strategy{
 		Id:       bson.NewObjectId(),
 		Name:     name,
 		JsonTree: jsonTree,
