@@ -16,7 +16,7 @@ type DataStore interface {
 	UserGet(id string) (*User, error)
 	UserUpdate(user *User) (*User, error)
 	UserDelete(id string) error
-	StrategyCreate(name string, jsonTree string, bsonTree *Tree) (*Strategy, error)
+	StrategyCreate(strategy *Strategy) error
 	GetPausedStrategies() ([]Strategy, error)
 	StrategyUpdate(strategy *Strategy) (*Strategy, error)
 }

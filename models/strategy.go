@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/tidwall/gjson"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -15,6 +16,21 @@ type Strategy struct {
 	BsonTree *Tree         `json:"bsonTree" bson:"bsonTree"`
 	Status   string        `json:"status" bson:"status"`
 	State    int           `json:"state" bson:"state"`
+}
+
+func NewStrategy(name string, jsonTree string, bsonTree *Tree) (*Strategy, error) {
+	if !gjson.Valid(jsonTree) {
+		return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
+	}
+	strategy := &Strategy{
+		Id:       bson.NewObjectId(),
+		Name:     name,
+		JsonTree: jsonTree,
+		BsonTree: bsonTree,
+		Status:   "paused",
+		State:    bsonTree.Id,
+	}
+	return strategy, nil
 }
 
 type Tree struct {
@@ -147,7 +163,6 @@ func (a *Action) Validate() error {
 
 // Helper for condition Validate()
 func customActionValidation(sl validator.StructLevel) {
-
 	action := sl.Current().Interface().(Action)
 	if action.ValueType != "absolute" {
 		if len(action.ValueQuoteMetric) == 0 {
@@ -156,21 +171,10 @@ func customActionValidation(sl validator.StructLevel) {
 	}
 }
 
-func (db *MGO) StrategyCreate(name string, jsonTree string, bsonTree *Tree) (*Strategy, error) {
-	strategy := &Strategy{
-		Id:       bson.NewObjectId(),
-		Name:     name,
-		JsonTree: jsonTree,
-		BsonTree: bsonTree,
-		Status:   "paused",
-		State:    bsonTree.Id,
-	}
+func (db *MGO) StrategyCreate(strategy *Strategy) error {
 	c := db.DB(DatabaseName).C(StrategyCollection)
 	err := c.Insert(strategy)
-	if err != nil {
-		return nil, err
-	}
-	return strategy, nil
+	return err
 }
 
 func (db *MGO) StrategyUpdate(strategy *Strategy) (*Strategy, error) {

@@ -5,56 +5,6 @@ import (
 	"testing"
 )
 
-func TestStuff(t *testing.T) {
-	bsonTree := &Tree{
-		Conditions: []Condition{
-			{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.072},
-			{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-bid", Value: 0.066},
-		},
-		Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 1, Value: 0.08},
-		Left:   nil,
-		Right: &Tree{
-			Conditions: []Condition{
-				{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-ask", Value: 0.075},
-			},
-			Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 2, Value: 0.08},
-			Left:   nil,
-			Right: &Tree{
-				Conditions: []Condition{
-					{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 8000},
-				},
-				Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 3, Value: 0.08},
-				Left: &Tree{
-					Conditions: []Condition{
-						{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.065},
-					},
-					Action: Action{OrderType: "limit-buy", ValueType: "absolute", BaseCurrency: "BTC", QuoteCurrency: "ETH", Quantity: 4, Value: 0.08},
-					Left:   nil,
-					Right:  nil,
-				},
-				Right: nil,
-			},
-		},
-	}
-	db, err := InitDB("localhost")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
-	// create user
-	strategy, err := db.StrategyCreate("testing", "{hoi}", bsonTree)
-	if err != nil {
-		t.Fatal(err)
-	}
-	strategy.Status = "running"
-
-	_, err = db.StrategyUpdate(strategy)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 // Also tests Tree.Search
 func TestSetIdsForBinarySearch(t *testing.T) {
 	testCases := []struct {
