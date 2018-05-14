@@ -96,10 +96,14 @@ func (FakeDataStore) StrategyCreate(name string, jsonTree string, bsonTree *mode
 	return strategy, nil
 }
 
-// func (FakeDataStore) GetPausedStrategies() ([]models.Strategy, error) {
-// 	var strategies []models.Strategy
-// 	return strategies, nil
-// }
+func (FakeDataStore) GetPausedStrategies() ([]models.Strategy, error) {
+	var strategies []models.Strategy
+	return strategies, nil
+}
+
+func (FakeDataStore) StrategyUpdate(strategy *models.Strategy) (*models.Strategy, error) {
+	return strategy, nil
+}
 
 func TestMain(m *testing.M) {
 	// log.SetLevel(log.DebugLevel)

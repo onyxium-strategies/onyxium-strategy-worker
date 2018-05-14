@@ -43,7 +43,7 @@ func (w *Worker) Start() {
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
 				root, _ := work.BsonTree.Search(work.State)
-				w.walkSiblings(root, work)
+				w.WalkSiblings(root, work)
 				log.Infof("Worker %d work is done", w.ID)
 				work.Status = "paused"
 				env.DataStore.StrategyUpdate(work)
@@ -65,7 +65,7 @@ func (w *Worker) Stop() {
 	}()
 }
 
-func (w *Worker) walkSiblings(tree *models.Tree, strategy *models.Strategy) {
+func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) {
 	// We could update state also between siblings
 	if tree != nil {
 		latestMarkets, err := env.DataStore.GetLatestMarket()
@@ -75,12 +75,12 @@ func (w *Worker) walkSiblings(tree *models.Tree, strategy *models.Strategy) {
 			return
 		}
 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
-		doAction := checkConditions(tree.Conditions, latestMarkets)
+		doAction := CheckConditions(tree.Conditions, latestMarkets)
 		if doAction {
 			strategy.Status = "executing"
 			strategy.State = tree.Id
 			env.DataStore.StrategyUpdate(strategy)
-			executeAction(tree.Action)
+			ExecuteAction(tree.Action)
 
 			if tree.Left == nil {
 				strategy.Status = "stopped"
@@ -95,13 +95,13 @@ func (w *Worker) walkSiblings(tree *models.Tree, strategy *models.Strategy) {
 		} else {
 			if tree.Right != nil {
 				log.Info("None of the conditions are true. JUMPING to right sibling.")
-				w.walkSiblings(tree.Right, strategy)
+				w.WalkSiblings(tree.Right, strategy)
 			}
 		}
 	}
 }
 
-func checkConditions(conditions []models.Condition, latestMarkets map[string]models.Market) bool {
+func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) bool {
 	for _, condition := range conditions {
 		if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
 			log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
@@ -167,7 +167,7 @@ func checkConditions(conditions []models.Condition, latestMarkets map[string]mod
 	return true
 }
 
-func executeAction(action models.Action) {
+func ExecuteAction(action models.Action) {
 	switch action.ValueType {
 	case "absolute":
 		log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", action.OrderType, action.Quantity, action.QuoteCurrency, action.Value, action.BaseCurrency, action.QuoteCurrency, action.Value*action.Quantity, action.BaseCurrency)
