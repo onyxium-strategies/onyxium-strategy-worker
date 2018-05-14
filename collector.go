@@ -8,9 +8,7 @@ import (
 )
 
 // A buffered channel that we can send work requests on.
-var WorkQueue = make(chan models.Strategy, 100)
-
-// var id int
+var WorkQueue = make(chan *models.Strategy, 100)
 
 // Collects requests from the frontend, and place strategy in workQueue
 func Collector(w http.ResponseWriter, r *http.Request) {
@@ -41,12 +39,10 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 		log.Info("Bad request StrategyCreate, responded with error")
 	}
 
-	work := strategy
-
 	log.Info("Workrequest created")
 
 	// Push the work onto the queue.
-	WorkQueue <- work
+	WorkQueue <- strategy
 	log.Info("Work request queued")
 
 	// And let the user know their work request was created.

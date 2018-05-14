@@ -5,11 +5,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var WorkerQueue chan chan models.Strategy
+var WorkerQueue chan chan *models.Strategy
 
 func StartDispatcher(nworkers int) {
 	// First, initialize the channel we are going to put the workers' work channels into.
-	WorkerQueue = make(chan chan models.Strategy, nworkers)
+	WorkerQueue = make(chan chan *models.Strategy, nworkers)
 
 	// Now, create all of our workers.
 	for i := 0; i < nworkers; i++ {
@@ -23,7 +23,7 @@ func StartDispatcher(nworkers int) {
 			select {
 			case work := <-WorkQueue:
 				log.Info("Received work requeust")
-				go func(work models.Strategy) {
+				go func(work *models.Strategy) {
 					worker := <-WorkerQueue
 
 					log.Info("Dispatching work request")

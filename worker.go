@@ -8,19 +8,19 @@ import (
 
 type Worker struct {
 	ID          int
-	Work        chan models.Strategy
-	WorkerQueue chan chan models.Strategy
+	Work        chan *models.Strategy
+	WorkerQueue chan chan *models.Strategy
 	QuitChan    chan bool
 }
 
 // NewWorker creates, and returns a new Worker object. Its only argument
 // is a channel that the worker can add itself to whenever it is done its
 // work.
-func NewWorker(id int, workerQueue chan chan models.Strategy) Worker {
+func NewWorker(id int, workerQueue chan chan *models.Strategy) Worker {
 	// Create, and return the worker.
 	worker := Worker{
 		ID:          id,
-		Work:        make(chan models.Strategy),
+		Work:        make(chan *models.Strategy),
 		WorkerQueue: workerQueue,
 		QuitChan:    make(chan bool)}
 
@@ -40,7 +40,8 @@ func (w *Worker) Start() {
 				// Receive a work request.
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
-				w.Walk(work.BsonTree, work.BsonTree)
+				root, _ := work.BsonTree.Search(work.State)
+				w.Walk(root, root)
 				log.Infof("Worker %d work is done", w.ID)
 
 			case <-w.QuitChan:
