@@ -37,7 +37,9 @@ func StartDispatcher(nworkers int) {
 	go func() {
 		for {
 			strategies, err := env.DataStore.GetPausedStrategies()
-			log.Info("Dispatching paused strategies")
+			if len(strategies) > 0 {
+				log.Info("Dispatching paused strategies")
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
