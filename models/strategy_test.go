@@ -15,7 +15,7 @@ func TestSetIdsForBinarySearch(t *testing.T) {
 		expectedPostOrder []int
 	}{
 		{
-			name: "greater-than-or-equal-to",
+			name: "Tree 1",
 			t: &Tree{
 				Conditions: []Condition{
 					{ConditionType: "greater-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.072},
@@ -51,7 +51,7 @@ func TestSetIdsForBinarySearch(t *testing.T) {
 			expectedPostOrder: []int{2, 3, 1, 0},
 		},
 		{
-			name: "less-than-or-equal-to",
+			name: "Tree 2",
 			t: &Tree{
 				Conditions: []Condition{
 					{ConditionType: "less-than-or-equal-to", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "volume", Value: 9000},
@@ -94,7 +94,7 @@ func TestSetIdsForBinarySearch(t *testing.T) {
 			expectedPostOrder: []int{2, 3, 4, 1, 0},
 		},
 		{
-			name: "percentage-increase",
+			name: "Tree 3",
 			t: &Tree{
 				Conditions: []Condition{
 					{ConditionType: "percentage-increase", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.1, TimeframeInMS: 1},
@@ -130,7 +130,7 @@ func TestSetIdsForBinarySearch(t *testing.T) {
 			expectedPostOrder: []int{1, 3, 2, 0},
 		},
 		{
-			name: "percentage-decrease",
+			name: "Tree 4",
 			t: &Tree{
 				Conditions: []Condition{
 					{ConditionType: "percentage-decrease", BaseCurrency: "BTC", QuoteCurrency: "ETH", BaseMetric: "price-last", Value: 0.045, TimeframeInMS: 0},
@@ -222,7 +222,6 @@ func inOrderTraverseWriteChan(t *Tree, ch chan int) {
 		inOrderTraverseWriteChan(t.Left, ch)
 		ch <- t.Id
 		inOrderTraverseWriteChan(t.Right, ch)
-
 	}
 }
 
@@ -231,7 +230,6 @@ func preOrderTraverseWriteChan(t *Tree, ch chan int) {
 		ch <- t.Id
 		preOrderTraverseWriteChan(t.Left, ch)
 		preOrderTraverseWriteChan(t.Right, ch)
-
 	}
 }
 
