@@ -8,7 +8,7 @@ import (
 
 // TODO assert taken path is expected path
 func TestWalkDeadlock(t *testing.T) {
-	WorkerQueue = make(chan chan WorkRequest, 1)
+	WorkerQueue = make(chan chan models.Strategy, 1)
 	testCases := []struct {
 		name         string
 		w            Worker

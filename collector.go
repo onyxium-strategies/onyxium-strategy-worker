@@ -1,18 +1,18 @@
 package main
 
 import (
-	// "bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 )
 
 // A buffered channel that we can send work requests on.
-var WorkQueue = make(chan WorkRequest, 100)
+var WorkQueue = make(chan models.Strategy, 100)
 
-var id int
+// var id int
 
-// Collects requests from the frontend, and place workrequest in workQueue
+// Collects requests from the frontend, and place strategy in workQueue
 func Collector(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -41,12 +41,9 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 		log.Info("Bad request StrategyCreate, responded with error")
 	}
 
-	work := WorkRequest{ID: id, Strategy: &strategy}
+	work := strategy
 
 	log.Info("Workrequest created")
-
-	// TODO: get last ID from database, use that one + 1
-	id = id + 1
 
 	// Push the work onto the queue.
 	WorkQueue <- work

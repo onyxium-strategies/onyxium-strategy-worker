@@ -1,14 +1,15 @@
 package main
 
 import (
+	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 )
 
-var WorkerQueue chan chan WorkRequest
+var WorkerQueue chan chan models.Strategy
 
 func StartDispatcher(nworkers int) {
 	// First, initialize the channel we are going to put the workers' work channels into.
-	WorkerQueue = make(chan chan WorkRequest, nworkers)
+	WorkerQueue = make(chan chan models.Strategy, nworkers)
 
 	// Now, create all of our workers.
 	for i := 0; i < nworkers; i++ {
@@ -22,7 +23,7 @@ func StartDispatcher(nworkers int) {
 			select {
 			case work := <-WorkQueue:
 				log.Info("Received work requeust")
-				go func(work WorkRequest) {
+				go func(work models.Strategy) {
 					worker := <-WorkerQueue
 
 					log.Info("Dispatching work request")
