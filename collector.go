@@ -33,6 +33,7 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 		log.Info("Bad request parseBinaryTree, responded with error")
 		return
 	}
+	binaryTree.SetIdsForBinarySearch()
 
 	strategy, err := env.DataStore.StrategyCreate("teststrategy", jsonString, binaryTree)
 	if err != nil {
