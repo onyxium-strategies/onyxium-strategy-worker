@@ -72,6 +72,7 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
+	eventUserSignUp()
 	respondWithJSON(w, http.StatusOK, user)
 }
 
@@ -115,6 +116,7 @@ func EmailConfirm(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
+	eventUserActivated()
 	response := map[string]bool{
 		"success": true,
 	}
