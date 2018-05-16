@@ -5,7 +5,6 @@ import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/goware/emailx"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/url"
@@ -42,27 +41,35 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
+type NewUserRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func UserCreate(w http.ResponseWriter, r *http.Request) {
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var newUser NewUserRequest
+	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	err = emailx.Validate(user.Email)
+	user, err := models.NewUser(newUser.Email, newUser.Password)
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "email: "+err.Error())
+		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
+
+	err = env.DataStore.UserCreate(user)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	eventUserSignUp()
+
+	// Email confirmation by user
 	byteEmail := []byte(user.Email)
 	hash, err := bcrypt.GenerateFromPassword(byteEmail, bcrypt.MinCost)
-	if err != nil {
-		respondWithError(w, http.StatusNotFound, err.Error())
-		return
-	}
-
-	err = env.DataStore.UserCreate(&user)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
@@ -72,7 +79,6 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	eventUserSignUp()
 	respondWithJSON(w, http.StatusOK, user)
 }
 

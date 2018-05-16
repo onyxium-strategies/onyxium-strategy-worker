@@ -3,6 +3,7 @@ package models
 import (
 	// omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"fmt"
+	"github.com/goware/emailx"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -20,7 +21,27 @@ type User struct {
 	CreatedAt   time.Time         `json:"createdAt" bson:"createdAt"`
 	UpdatedAt   time.Time         `json:"updatedAt" bson:"updatedAt"`
 	ApiKeys     map[string]string `json:"apiKeys" bson:"apiKeys"`
-	StrategyIds []int             `json:"strategyIds" bson:"strategyIds"`
+	// StrategyIds []int             `json:"strategyIds" bson:"strategyIds"`
+}
+
+func NewUser(email, password string) (*User, error) {
+	err := emailx.Validate(email)
+	if err != nil {
+		return nil, err
+	}
+	hashPassword, err := HashAndSalt(password)
+	if err != nil {
+		return nil, err
+	}
+	user := &User{
+		Id:          bson.NewObjectId(),
+		Email:       email,
+		Password:    hashPassword,
+		IsActivated: false,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	return user, nil
 }
 
 func (db *MGO) UserActivate(id string, token string) error {
@@ -59,16 +80,8 @@ func (db *MGO) UserAll() ([]User, error) {
 }
 
 func (db *MGO) UserCreate(user *User) error {
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
-	user.Id = bson.NewObjectId()
-	pwd, err := HashAndSalt(user.Password)
-	if err != nil {
-		return err
-	}
-	user.Password = pwd
 	c := db.DB(DatabaseName).C(UserCollection)
-	err = c.Insert(user)
+	err := c.Insert(user)
 	if err != nil {
 		return err
 	}
@@ -91,8 +104,8 @@ func (db *MGO) UserGet(id string) (*User, error) {
 }
 
 func (db *MGO) UserUpdate(user *User) error {
-	user.UpdatedAt = time.Now()
 	c := db.DB(DatabaseName).C(UserCollection)
+	user.UpdatedAt = time.Now()
 	err := c.UpdateId(user.Id, user)
 	return err
 }
