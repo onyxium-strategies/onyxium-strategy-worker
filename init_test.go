@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"

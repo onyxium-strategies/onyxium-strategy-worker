@@ -1,7 +1,7 @@
 package omisego_test
 
 import (
-	omg "bitbucket.org/visa-startups/coinflow-strategy-worker/omisego"
+	omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"net/url"
 	"testing"
 )

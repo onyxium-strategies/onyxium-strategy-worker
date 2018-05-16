@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"errors"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"

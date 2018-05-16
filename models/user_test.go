@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	// "gopkg.in/mgo.v2/bson"
 	"testing"
 )

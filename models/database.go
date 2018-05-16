@@ -5,7 +5,7 @@ import (
 	// "log"
 )
 
-const DatabaseName = "coinflow"
+const DatabaseName = "onyxium"
 
 type DataStore interface {
 	GetLatestMarket() (map[string]Market, error)

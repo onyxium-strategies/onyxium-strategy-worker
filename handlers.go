@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/email"
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/email"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/goware/emailx"

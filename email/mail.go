@@ -23,6 +23,7 @@ func EmailActivateUser(userEmail, id, token string) error {
 	client := sendgrid.NewSendClient(sendgridAPIKey)
 	response, err := client.Send(message)
 
+	// TODO needs to be converted to proper error handling
 	if err != nil {
 		log.Println(err)
 	} else {

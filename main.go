@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/visa-startups/coinflow-strategy-worker/models"
+	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"flag"
 	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
@@ -83,7 +83,7 @@ func initLogger(level int) {
 	}
 
 	log.AddHook(&slackrus.SlackrusHook{
-		HookURL:        "https://hooks.slack.com/services/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",
+		HookURL:        "https://hooks.slack.com/services/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",
 		AcceptedLevels: slackrus.LevelThreshold(log.PanicLevel),
 		Channel:        "#development",
 		IconEmoji:      ":robot_face:",

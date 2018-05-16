@@ -30,7 +30,7 @@ type MarketRecord struct {
 
 func (db *MGO) GetLatestMarket() (map[string]Market, error) {
 	record := &MarketRecord{}
-	err := db.DB("coinflow").C("market").Find(nil).Sort("-$natural").One(record)
+	err := db.DB("onyxium").C("market").Find(nil).Sort("-$natural").One(record)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get latest market record.")
 	}
@@ -45,7 +45,7 @@ func (db *MGO) GetHistoryMarket(TimeframeInMS int) (map[string]Market, error) {
 
 	// Get the record that is x millisecond old
 	fromRecord := &MarketRecord{}
-	err := db.DB("coinflow").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(fromRecord)
+	err := db.DB("onyxium").C("market").Find(bson.M{"_id": bson.M{"$gte": fromId, "$lt": toId}}).Sort("$natural").One(fromRecord)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get history market record with TimeframeInMS %d.", TimeframeInMS)
 	}

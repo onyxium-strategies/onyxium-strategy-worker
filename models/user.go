@@ -1,6 +1,7 @@
 package models
 
 import (
+	// omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
@@ -68,6 +69,9 @@ func (db *MGO) UserCreate(user *User) error {
 	user.Password = pwd
 	c := db.DB(DatabaseName).C(UserCollection)
 	err = c.Insert(user)
+	if err != nil {
+		return err
+	}
 	return err
 }
 
