@@ -42,13 +42,7 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondWithError(w, 400, err.Error())
 	}
-
 	log.Info("Workrequest created")
-
-	// Push the work onto the queue.
-	WorkQueue <- strategy
-	log.Info("Work request queued")
-
 	// And let the user know their work request was created.
 	w.WriteHeader(http.StatusCreated)
 }
