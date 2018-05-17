@@ -7,16 +7,13 @@ import (
 	"net/http"
 )
 
-// A buffered channel that we can send work requests on.
-var WorkQueue = make(chan *models.Strategy, 100)
-
 type CollectorBody struct {
 	Name   string        `json:"name"`
 	UserId string        `json:"userId"`
 	Tree   []interface{} `json:"tree"`
 }
 
-// Collects requests from the frontend, and place strategy in workQueue
+// Collects requests from the frontend, and place strategy in the database
 func Collector(w http.ResponseWriter, r *http.Request) {
 	var collector CollectorBody
 	err := json.NewDecoder(r.Body).Decode(&collector)

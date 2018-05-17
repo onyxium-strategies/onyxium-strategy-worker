@@ -70,6 +70,7 @@ func inOrderTraverseReadChan(t *Tree, ch chan int) {
 	}
 }
 
+// TODO should return the string representation instead of print it
 // String prints a visual representation of the tree
 func (t *Tree) String() {
 	fmt.Println("------------------------------------------------")
