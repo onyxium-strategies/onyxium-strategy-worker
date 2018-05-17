@@ -5,7 +5,6 @@ import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/url"
 )
@@ -41,13 +40,13 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
-type NewUserRequest struct {
+type NewUserBody struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 func UserCreate(w http.ResponseWriter, r *http.Request) {
-	var newUser NewUserRequest
+	var newUser NewUserBody
 	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
@@ -65,16 +64,10 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	eventUserSignUp()
+	// eventUserSignUp()
 
 	// Email confirmation by user
-	byteEmail := []byte(user.Email)
-	hash, err := bcrypt.GenerateFromPassword(byteEmail, bcrypt.MinCost)
-	if err != nil {
-		respondWithError(w, http.StatusNotFound, err.Error())
-		return
-	}
-	err = email.EmailActivateUser(user.Email, user.Id.Hex(), string(hash))
+	err = email.EmailActivateUser(user.Email, user.Id.Hex())
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
@@ -122,7 +115,7 @@ func EmailConfirm(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	eventUserActivated()
+	// eventUserActivated()
 	response := map[string]bool{
 		"success": true,
 	}

@@ -1,0 +1,172 @@
+{
+   "name": "tree-example",
+   "userId": "5af9ad5024979075bb93adcb",
+   "tree": [{
+         "conditions": [{
+            "conditionType": "greater-than-or-equal-to",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "baseMetric": "price-last",
+            "value": 0.01990991
+         }],
+         "action": {
+            "orderType": "limit-buy",
+            "valueType": "absolute",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "quantity": 100,
+            "value": 0.02
+         },
+         "then": [{
+               "conditions": [{
+                  "conditionType": "greater-than-or-equal-to",
+                  "baseCurrency": "BTC",
+                  "quoteCurrency": "LTC",
+                  "baseMetric": "price-last",
+                  "value": 0.02
+               }],
+               "action": {
+                  "orderType": "limit-sell",
+                  "valueType": "absolute",
+                  "baseCurrency": "BTC",
+                  "quoteCurrency": "LTC",
+                  "quantity": 10,
+                  "value": 0.02
+               }
+            },
+            {
+               "conditions": [{
+                  "conditionType": "greater-than-or-equal-to",
+                  "baseCurrency": "BTC",
+                  "quoteCurrency": "LTC",
+                  "baseMetric": "price-last",
+                  "value": 0.01990991
+               }],
+               "action": {
+                  "orderType": "limit-sell",
+                  "valueType": "absolute",
+                  "baseCurrency": "BTC",
+                  "quoteCurrency": "LTC",
+                  "quantity": 200,
+                  "value": 0.02
+               },
+               "then": [{
+                  "conditions": [{
+                        "conditionType": "greater-than-or-equal-to",
+                        "baseCurrency": "BTC",
+                        "quoteCurrency": "LTC",
+                        "baseMetric": "price-last",
+                        "value": 0.01990991
+                     },
+                     {
+                        "conditionType": "less-than-or-equal-to",
+                        "baseCurrency": "BTC",
+                        "quoteCurrency": "LTC",
+                        "baseMetric": "price-last",
+                        "value": 0.02
+                     }
+                  ],
+                  "action": {
+                     "orderType": "limit-buy",
+                     "valueType": "absolute",
+                     "baseCurrency": "BTC",
+                     "quoteCurrency": "LTC",
+                     "quantity": 300,
+                     "value": 0.02
+                  },
+                  "then": [{
+                        "conditions": [{
+                           "conditionType": "greater-than-or-equal-to",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "baseMetric": "price-last",
+                           "value": 1
+                        }],
+                        "action": {
+                           "orderType": "limit-buy",
+                           "valueType": "absolute",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "quantity": 10,
+                           "value": 0.02
+                        }
+                     },
+                     {
+                        "conditions": [{
+                           "conditionType": "greater-than-or-equal-to",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "baseMetric": "price-last",
+                           "value": 0.1
+                        }],
+                        "action": {
+                           "orderType": "limit-sell",
+                           "valueType": "absolute",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "quantity": 10,
+                           "value": 0.02
+                        }
+                     },
+                     {
+                        "conditions": [{
+                           "conditionType": "greater-than-or-equal-to",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "baseMetric": "price-last",
+                           "value": 0.1
+                        }],
+                        "action": {
+                           "orderType": "limit-buy",
+                           "valueType": "absolute",
+                           "baseCurrency": "BTC",
+                           "quoteCurrency": "LTC",
+                           "quantity": 10,
+                           "value": 0.02
+                        }
+                     }
+                  ]
+
+               }]
+            }
+         ]
+      },
+      {
+         "conditions": [{
+            "conditionType": "percentage-increase",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "timeframeInMS": 7200000,
+            "baseMetric": "price-last",
+            "value": 0.07
+         }],
+         "action": {
+            "orderType": "limit-sell",
+            "valueType": "absolute",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "quantity": 10,
+            "value": 0.02
+         }
+      },
+      {
+         "conditions": [{
+            "conditionType": "percentage-decrease",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "timeframeInMS": 7200000,
+            "baseMetric": "price-last",
+            "value": 0.09
+         }],
+         "action": {
+            "orderType": "limit-buy",
+            "valueType": "percentage-above",
+            "valueQuoteMetric": "price-ask",
+            "baseCurrency": "BTC",
+            "quoteCurrency": "LTC",
+            "quantity": 10,
+            "value": 0.02
+         }
+      }
+   ]
+}

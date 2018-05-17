@@ -10,7 +10,7 @@ import (
 
 func TestCollector(t *testing.T) {
 	// golden file test
-	content, err := ioutil.ReadFile("tree-example.json")
+	content, err := ioutil.ReadFile("strategy-example.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,8 @@ func TestCollector(t *testing.T) {
 
 	// Check the status code is what we expect.
 	if status := rec.Code; status != http.StatusCreated {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusCreated)
+		body, _ := ioutil.ReadAll(rec.Body)
+		t.Errorf("handler returned wrong status code: got %v want %v with response %s.",
+			status, http.StatusCreated, string(body))
 	}
 }

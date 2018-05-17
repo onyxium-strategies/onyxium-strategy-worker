@@ -6,13 +6,20 @@ import (
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 )
 
 const sendgridAPIKey = "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"
 
-func EmailActivateUser(userEmail, id, token string) error {
-	body, err := parseMailTemplate(id, token)
+func EmailActivateUser(userEmail, id string) error {
+	byteEmail := []byte(userEmail)
+	token, err := bcrypt.GenerateFromPassword(byteEmail, bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+
+	body, err := parseMailTemplate(id, string(token))
 	if err != nil {
 		return err
 	}

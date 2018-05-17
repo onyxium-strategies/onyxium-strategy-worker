@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"github.com/tidwall/gjson"
+	// "github.com/tidwall/gjson"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -12,16 +12,17 @@ const StrategyCollection = "strategy"
 type Strategy struct {
 	Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Name     string        `json:"name" bson:"name"`
-	JsonTree string        `json:"jsonTree" bson:"jsonTree"`
+	JsonTree []interface{} `json:"jsonTree" bson:"jsonTree"`
 	BsonTree *Tree         `json:"bsonTree" bson:"bsonTree"`
 	Status   string        `json:"status" bson:"status"`
 	State    int           `json:"state" bson:"state"`
+	UserId   bson.ObjectId `json:"userId" bson:"userId"`
 }
 
-func NewStrategy(name string, jsonTree string, bsonTree *Tree) (*Strategy, error) {
-	if !gjson.Valid(jsonTree) {
-		return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
-	}
+func NewStrategy(name, userId string, jsonTree []interface{}, bsonTree *Tree) (*Strategy, error) {
+	// if !gjson.Valid(jsonTree) {
+	// 	return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
+	// }
 	strategy := &Strategy{
 		Id:       bson.NewObjectId(),
 		Name:     name,
@@ -29,6 +30,7 @@ func NewStrategy(name string, jsonTree string, bsonTree *Tree) (*Strategy, error
 		BsonTree: bsonTree,
 		Status:   "paused",
 		State:    bsonTree.Id,
+		UserId:   bson.ObjectIdHex(userId),
 	}
 	return strategy, nil
 }
