@@ -12,9 +12,9 @@ type (
 	}
 
 	ErrorResponse struct {
-		Code        string            `mapstructure:"code"`
-		Description string            `mapstructure:"description"`
-		Messages    map[string]string `mapstructure:"messages"`
+		Code        string                 `mapstructure:"code"`
+		Description string                 `mapstructure:"description"`
+		Messages    map[string]interface{} `mapstructure:"messages"`
 	}
 
 	AuthenicationToken struct {

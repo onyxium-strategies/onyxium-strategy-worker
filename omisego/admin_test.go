@@ -20,17 +20,17 @@ var (
 		Host:   "localhost:4000",
 		Path:   "/admin/api",
 	}
-	// aca = &omg.AdminClientAuth{
-	// 	ApiKey:   apiKey,
-	// 	ApiKeyId: apiKeyId,
-	// }
-	// adminClient = omg.AdminAPI{
-	// 	Client: &omg.Client{
-	// 		BaseURL:    adminURL,
-	// 		Auth:       aca,
-	// 		HttpClient: &http.Client{},
-	// 	},
-	// }
+	aca = &omg.AdminClientAuth{
+		ApiKey:   apiKey,
+		ApiKeyId: apiKeyId,
+	}
+	adminClient = omg.AdminAPI{
+		Client: &omg.Client{
+			BaseURL:    adminURL,
+			Auth:       aca,
+			HttpClient: &http.Client{},
+		},
+	}
 
 	loginBody = omg.LoginParams{
 		Email:    email,

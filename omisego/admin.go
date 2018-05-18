@@ -29,14 +29,6 @@ func (a *AdminAPI) Login(reqBody LoginParams) (*AuthenicationToken, error) {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
 	}
 
-	// Log the admin in with new authentication
-	a.Auth = &AdminUserAuth{
-		ApiKey:        a.Auth.(*AdminClientAuth).ApiKey,
-		ApiKeyId:      a.Auth.(*AdminClientAuth).ApiKeyId,
-		UserId:        data.UserId,
-		UserAuthToken: data.AuthenticationToken,
-	}
-
 	return &data, err
 }
 
@@ -149,7 +141,6 @@ func (a *AdminAPI) MintedTokenCreate(reqBody MintedTokenCreateParams) (*MintedTo
 	if err != nil {
 		return nil, fmt.Errorf("Something went wrong with decoding %+v to %T", res.Data, data)
 	}
-
 	return &data, err
 }
 
