@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/email"
+	// "bitbucket.org/onyxium/onyxium-strategy-worker/email"
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
-	omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
@@ -48,14 +46,14 @@ type NewUserBody struct {
 }
 
 func UserCreate(w http.ResponseWriter, r *http.Request) {
-	var newUser NewUserBody
-	err := json.NewDecoder(r.Body).Decode(&newUser)
+	var userBody NewUserBody
+	err := json.NewDecoder(r.Body).Decode(&userBody)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, err := models.NewUser(newUser.Email, newUser.Password)
+	user, err := models.NewUser(userBody.Email, userBody.Password)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -69,36 +67,14 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	// eventUserSignUp() UNCOMMENT ON MASTER
 
 	// Email confirmation by user
-	err = email.EmailActivateUser(user.Email, user.Id.Hex())
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	// err = email.EmailActivateUser(user.Email, user.Id.Hex())
+	// if err != nil {
+	// 	respondWithError(w, http.StatusInternalServerError, err.Error())
+	// 	return
+	// }
+
 	// For our local ledger we need to create a user and credit him starting money
-	userCreateBody := omg.UserParams{
-		ProviderUserId: user.Id.Hex(),
-		Username:       user.Email,
-	}
-	_, err = env.ServerUser.UserCreate(userCreateBody)
-	if err != nil {
-		respondWithError(w, http.StatusServiceUnavailable, err.Error())
-		return
-	}
-
-	var tokenId string
-	if baseTokenId != "" {
-		tokenId = baseTokenId
-	} else {
-		tokenId = os.Getenv("baseTokenId")
-	}
-
-	creditBalanceBody := omg.BalanceAdjustmentParams{
-		ProviderUserId: user.Id.Hex(),
-		TokenId:        tokenId,
-		Amount:         100,
-	}
-
-	_, err = env.ServerUser.UserCreditBalance(creditBalanceBody)
+	err = newUser(user)
 	if err != nil {
 		respondWithError(w, http.StatusServiceUnavailable, err.Error())
 		return
