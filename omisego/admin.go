@@ -85,7 +85,7 @@ func (a *AdminAPI) PasswordUpdate(reqBody PasswordUpdateParams) error {
 /////////////////
 // Minted Token
 /////////////////
-func (a *AdminAPI) MintedTokenAll(reqBody ListParams) (*MintedTokenList, error) {
+func (a *AdminAPI) MintedTokenAll(reqBody *ListParams) (*MintedTokenList, error) {
 	req, err := a.newRequest("POST", "/minted_token.all", reqBody)
 	if err != nil {
 		return nil, err

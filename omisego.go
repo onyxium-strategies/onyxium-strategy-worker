@@ -4,7 +4,8 @@ import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"flag"
-	log "github.com/sirupsen/logrus"
+	// log "github.com/sirupsen/logrus"
+	"github.com/joho/godotenv"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,6 +16,12 @@ var (
 	ServerUser  omg.EWalletAPI
 	baseTokenId string
 	SeedLedger  = flag.Bool("seed", false, "Seed the database with all available minted tokens for users.")
+	currencies  = map[string]string{
+		"BTC": "Bitcoin",
+		"ETH": "Ethereum",
+		"NEO": "NEO",
+		"OMG": "Omisego",
+	}
 )
 
 func initOmisego() error {
@@ -22,14 +29,26 @@ func initOmisego() error {
 	if err != nil {
 		return err
 	}
-	if *SeedLedger {
-		err = seedMintedTokens()
+
+	err = seedMintedTokens()
+	if err != nil {
+		return err
+	}
+
+	if baseTokenId = os.Getenv("baseTokenId"); baseTokenId == "" {
+		tokenList, err := AdminUser.MintedTokenAll(nil)
 		if err != nil {
 			return err
 		}
-	}
-	if baseTokenId == "" {
-		baseTokenId = os.Getenv("baseTokenId")
+		for _, token := range tokenList.Data {
+			if token.Symbol == "BTC" {
+				baseTokenId = token.Id
+				myEnv, err := godotenv.Read()
+				myEnv["baseTokenId"] = token.Id
+				err = godotenv.Write(myEnv, "./.env")
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -91,20 +110,26 @@ func authenticateClient() error {
 }
 
 func seedMintedTokens() error {
-	// Mint tokens for the master account
-	body := omg.MintedTokenCreateParams{
-		Name:          "Ethereum",
-		Symbol:        "ETH",
-		Description:   "Base coin",
-		SubunitToUnit: 1,
-		Amount:        21000000,
-	}
-	mintedToken, err := AdminUser.MintedTokenCreate(body)
+	tokenList, err := AdminUser.MintedTokenAll(nil)
 	if err != nil {
 		return err
 	}
-	baseTokenId = mintedToken.Id
-	log.Info(baseTokenId)
+	for symbol, name := range currencies {
+		if !symbolInSlice(symbol, tokenList.Data) {
+			// Mint tokens for the master account
+			body := omg.MintedTokenCreateParams{
+				Name:          name,
+				Symbol:        symbol,
+				Description:   name,
+				SubunitToUnit: 1,
+				Amount:        21000000,
+			}
+			_, err := AdminUser.MintedTokenCreate(body)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -125,4 +150,13 @@ func newUser(user *models.User) error {
 
 	_, err = ServerUser.UserCreditBalance(creditBalanceBody)
 	return err
+}
+
+func symbolInSlice(a string, list []omg.MintedToken) bool {
+	for _, b := range list {
+		if b.Symbol == a {
+			return true
+		}
+	}
+	return false
 }
