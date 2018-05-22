@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/goware/emailx"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -81,7 +82,17 @@ func (db *MGO) UserAll() ([]User, error) {
 
 func (db *MGO) UserCreate(user *User) error {
 	c := db.DB(DatabaseName).C(UserCollection)
-	err := c.Insert(user)
+
+	index := mgo.Index{
+		Key:    []string{"email"},
+		Unique: true,
+	}
+	err := c.EnsureIndex(index)
+	if err != nil {
+		return err
+	}
+
+	err = c.Insert(user)
 	if err != nil {
 		return err
 	}

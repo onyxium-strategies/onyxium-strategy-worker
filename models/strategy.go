@@ -9,6 +9,8 @@ import (
 
 const StrategyCollection = "strategy"
 
+var validate *validator.Validate
+
 type Strategy struct {
 	Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Name     string        `json:"name" bson:"name"`
