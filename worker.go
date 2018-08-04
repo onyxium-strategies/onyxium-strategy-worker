@@ -51,8 +51,18 @@ func (w *Worker) Start() {
 				}
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
-				root, _ := work.BsonTree.Search(work.State)
-				w.WalkSiblings(root, work)
+				root, err := work.BsonTree.Search(work.State)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
+				_, err = w.WalkSiblings(root, work)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
 				log.Infof("Worker %d work is done", w.ID)
 			}
 		}
