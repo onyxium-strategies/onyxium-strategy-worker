@@ -3,7 +3,6 @@ package main
 import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 var WorkerQueue chan chan *models.Strategy
@@ -22,6 +21,7 @@ func StartDispatcher(nworkers int) {
 		worker.Start()
 	}
 
+	// Checks if there is any work and then dispatches it to a free worker
 	go func() {
 		for {
 			select {
@@ -36,20 +36,4 @@ func StartDispatcher(nworkers int) {
 		}
 	}()
 
-	go func() {
-		for {
-			strategies, err := env.DataStore.GetPausedStrategies()
-			if len(strategies) > 0 {
-				log.Info("Dispatching paused strategies")
-			}
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, strategy := range strategies {
-				log.Infof("strategy: %s", strategy.Id.Hex())
-				WorkQueue <- strategy
-			}
-			time.Sleep(time.Second)
-		}
-	}()
 }

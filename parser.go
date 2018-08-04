@@ -6,10 +6,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-	"gopkg.in/go-playground/validator.v9"
 )
-
-var validate *validator.Validate
 
 // Parse nested array json string to json object
 func parseJsonArray(jsonInput string) ([]interface{}, error) {

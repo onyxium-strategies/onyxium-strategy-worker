@@ -46,10 +46,13 @@ func main() {
 	log.Infof("Starting the dispatcher with %d workers", *NWorkers)
 	StartDispatcher(*NWorkers)
 
+	// Start paused strategies collector
+	PausedStategyCollector()
+
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
-	s.Path("/work").HandlerFunc(Collector).Methods("POST")
+	s.Path("/work").HandlerFunc(NewStrategyCollector).Methods("POST")
 	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
