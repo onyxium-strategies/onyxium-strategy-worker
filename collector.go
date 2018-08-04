@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type CollectorBody struct {
@@ -14,7 +15,7 @@ type CollectorBody struct {
 }
 
 // Collects requests from the frontend, and place strategy in the database
-func Collector(w http.ResponseWriter, r *http.Request) {
+func NewStrategyCollector(w http.ResponseWriter, r *http.Request) {
 	var collector CollectorBody
 	err := json.NewDecoder(r.Body).Decode(&collector)
 	if err != nil {
@@ -39,7 +40,27 @@ func Collector(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondWithError(w, 400, err.Error())
 	}
-	log.Info("Workrequest created")
+	log.Info("Strategy created")
 	// And let the user know their work request was created.
 	w.WriteHeader(http.StatusCreated)
+}
+
+func PausedStategyCollector() {
+	// Puts work into the WorkQueue
+	go func() {
+		for {
+			strategies, err := env.DataStore.GetPausedStrategies()
+			if len(strategies) > 0 {
+				log.Info("Dispatching paused strategies")
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, strategy := range strategies {
+				log.Infof("strategy: %s", strategy.Id.Hex())
+				WorkQueue <- strategy
+			}
+			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second
+		}
+	}()
 }
