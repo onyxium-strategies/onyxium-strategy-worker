@@ -22,7 +22,7 @@ func TestCollector(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(Collector)
+	handler := http.HandlerFunc(NewStrategyCollector)
 	handler.ServeHTTP(rec, req)
 
 	// Check the status code is what we expect.

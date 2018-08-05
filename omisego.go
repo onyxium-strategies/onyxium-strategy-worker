@@ -2,21 +2,20 @@ package main
 
 import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
-	omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
-	"flag"
-	// log "github.com/sirupsen/logrus"
+	// "flag"
+	"fmt"
+	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/joho/godotenv"
-	"net/http"
+	// log "github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 )
 
 var (
-	AdminUser   omg.AdminAPI
-	ServerUser  omg.EWalletAPI
+	OMGProvider omg.AdminAPI
 	baseTokenId string
-	SeedLedger  = flag.Bool("seed", false, "Seed the database with all available minted tokens for users.")
-	currencies  = map[string]string{
+	// SeedLedger  = flag.Bool("seed", false, "Seed the database with all available  tokens for users.")
+	currencies = map[string]string{
 		"BTC": "Bitcoin",
 		"ETH": "Ethereum",
 		"NEO": "NEO",
@@ -30,13 +29,69 @@ func initOmisego() error {
 		return err
 	}
 
-	err = seedMintedTokens()
+	err = seedTokens()
 	if err != nil {
 		return err
 	}
 
+	err = getBaseTokenId()
+	if err != nil {
+		return err
+	}
+
+	err = getPrimaryWalletAddress()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func authenticateClient() error {
+	// Get authentication and connection to the eWallet Admin API.
+	adminURL := &url.URL{
+		Scheme: "http",
+		Host:   "localhost:4000",
+		Path:   "/api/admin",
+	}
+
+	client, err := omg.NewClient(os.Getenv("accessKey"), os.Getenv("secretKey"), adminURL)
+	if err != nil {
+		return err
+	}
+	OMGProvider = omg.AdminAPI{
+		Client: client,
+	}
+	return nil
+}
+
+func seedTokens() error {
+	tokenList, err := OMGProvider.TokenAll(omg.ListParams{})
+	if err != nil {
+		return err
+	}
+	for symbol, name := range currencies {
+		if !symbolInSlice(symbol, tokenList.Data) {
+			// Mint tokens for the master account
+			body := omg.TokenCreateParams{
+				Name:          name,
+				Symbol:        symbol,
+				Description:   name,
+				SubunitToUnit: 1,
+				Amount:        21000000,
+			}
+			_, err := OMGProvider.TokenCreate(body)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func getBaseTokenId() error {
 	if baseTokenId = os.Getenv("baseTokenId"); baseTokenId == "" {
-		tokenList, err := AdminUser.MintedTokenAll(nil)
+		tokenList, err := OMGProvider.TokenAll(omg.ListParams{})
 		if err != nil {
 			return err
 		}
@@ -44,6 +99,9 @@ func initOmisego() error {
 			if token.Symbol == "BTC" {
 				baseTokenId = token.Id
 				myEnv, err := godotenv.Read()
+				if err != nil {
+					return err
+				}
 				myEnv["baseTokenId"] = token.Id
 				err = godotenv.Write(myEnv, "./.env")
 				return err
@@ -53,106 +111,66 @@ func initOmisego() error {
 	return nil
 }
 
-func authenticateClient() error {
-	// Get authentication and connection to the eWallet and Admin API.
-	adminURL := &url.URL{
-		Scheme: "http",
-		Host:   "localhost:4000",
-		Path:   "/admin/api",
+func getPrimaryWalletAddress() error {
+	body := omg.ListByIdParams{
+		os.Getenv("accountId"),
+		omg.ListParams{},
 	}
-	ewalletURL := &url.URL{
-		Scheme: "http",
-		Host:   "localhost:4000",
-		Path:   "/api",
-	}
-
-	loginBody := omg.LoginParams{
-		Email:    os.Getenv("email"),
-		Password: os.Getenv("pwd"),
-	}
-	client, err := omg.NewClient(os.Getenv("apiKeyId"), os.Getenv("apiKey"), adminURL)
+	walletList, err := OMGProvider.AccountGetWallets(body)
 	if err != nil {
 		return err
 	}
-	adminClient := omg.AdminAPI{client}
-	authToken, err := adminClient.Login(loginBody)
-	if err != nil {
-		return err
-	}
-
-	AdminUser = omg.AdminAPI{
-		Client: &omg.Client{
-			BaseURL: adminURL,
-			Auth: &omg.AdminUserAuth{
-				ApiKeyId:      os.Getenv("apiKeyId"),
-				ApiKey:        os.Getenv("apiKey"),
-				UserId:        authToken.UserId,
-				UserAuthToken: authToken.AuthenticationToken,
-			},
-			HttpClient: &http.Client{},
-		},
-	}
-	accessKey, err := AdminUser.AccessKeyCreate()
-	if err != nil {
-		return err
-	}
-	ServerUser = omg.EWalletAPI{
-		Client: &omg.Client{
-			BaseURL: ewalletURL,
-			Auth: &omg.ServerAuth{
-				AccessKey: accessKey.AccessKey,
-				SecretKey: accessKey.SecretKey,
-			},
-			HttpClient: &http.Client{},
-		},
-	}
-	return nil
-}
-
-func seedMintedTokens() error {
-	tokenList, err := AdminUser.MintedTokenAll(nil)
-	if err != nil {
-		return err
-	}
-	for symbol, name := range currencies {
-		if !symbolInSlice(symbol, tokenList.Data) {
-			// Mint tokens for the master account
-			body := omg.MintedTokenCreateParams{
-				Name:          name,
-				Symbol:        symbol,
-				Description:   name,
-				SubunitToUnit: 1,
-				Amount:        21000000,
-			}
-			_, err := AdminUser.MintedTokenCreate(body)
+	for _, wallet := range walletList.Data {
+		if wallet.Identifier == "primary" {
+			myEnv, err := godotenv.Read()
 			if err != nil {
 				return err
 			}
+			myEnv["primaryWalletAddress"] = wallet.Address
+			err = godotenv.Write(myEnv, "./.env")
+			return err
 		}
 	}
 	return nil
 }
 
-func newUser(user *models.User) error {
+func NewUser(user *models.User) error {
+	// create user on ewallet
 	userCreateBody := omg.UserParams{
 		ProviderUserId: user.Id.Hex(),
 		Username:       user.Email,
 	}
-	_, err := ServerUser.UserCreate(userCreateBody)
+	_, err := OMGProvider.UserCreate(userCreateBody)
 	if err != nil {
 		return err
 	}
-	creditBalanceBody := omg.BalanceAdjustmentParams{
-		ProviderUserId: user.Id.Hex(),
-		TokenId:        baseTokenId,
-		Amount:         100,
-	}
 
-	_, err = ServerUser.UserCreditBalance(creditBalanceBody)
-	return err
+	// create primary wallet for user
+	getWalletBody := omg.ProviderUserIdParam{
+		ProviderUserId: user.Id.Hex(),
+	}
+	walletList, err := OMGProvider.UserGetWalletsByProviderUserId(getWalletBody)
+	if err != nil {
+		return err
+	}
+	for _, wallet := range walletList.Data {
+		if wallet.Identifier == "primary" {
+			// send initial funds of 10 BTC
+			transactionBody := omg.TransactionCreateParams{
+				IdempotencyToken: omg.NewIdempotencyToken(),
+				FromAddress:      os.Getenv("primaryWalletAddress"),
+				ToAddress:        wallet.Address,
+				TokenId:          os.Getenv("baseTokenId"),
+				Amount:           10,
+			}
+			_, err = OMGProvider.TransactionCreate(transactionBody)
+			return err
+		}
+	}
+	return fmt.Errorf("Unable to send initial funds to new user.")
 }
 
-func symbolInSlice(a string, list []omg.MintedToken) bool {
+func symbolInSlice(a string, list []omg.Token) bool {
 	for _, b := range list {
 		if b.Symbol == a {
 			return true

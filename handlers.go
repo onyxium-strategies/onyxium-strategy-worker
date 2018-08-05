@@ -74,7 +74,7 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// For our local ledger we need to create a user and credit him starting money
-	err = newUser(user)
+	err = NewUser(user)
 	if err != nil {
 		respondWithError(w, http.StatusServiceUnavailable, err.Error())
 		return
