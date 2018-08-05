@@ -1,7 +1,6 @@
 package models
 
 import (
-	// omg "bitbucket.org/onyxium/onyxium-strategy-worker/omisego"
 	"fmt"
 	"github.com/goware/emailx"
 	"golang.org/x/crypto/bcrypt"
@@ -11,19 +10,6 @@ import (
 )
 
 const UserCollection = "user"
-
-type User struct {
-	Id          bson.ObjectId     `json:"id" bson:"_id,omitempty"`
-	Email       string            `json:"email" bson:"email"`
-	Password    string            `json:"password" bson:"password"`
-	IsActivated bool              `json:"isActivated" bson:"isActivated"`
-	ActivatedAt time.Time         `json:"activatedAt" bson:"activatedAt"`
-	LastLogin   time.Time         `json:"lastLogin" bson:"lastLogin"`
-	CreatedAt   time.Time         `json:"createdAt" bson:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt" bson:"updatedAt"`
-	ApiKeys     map[string]string `json:"apiKeys" bson:"apiKeys"`
-	// StrategyIds []int             `json:"strategyIds" bson:"strategyIds"`
-}
 
 func NewUser(email, password string) (*User, error) {
 	err := emailx.Validate(email)

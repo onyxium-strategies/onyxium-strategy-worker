@@ -7,24 +7,6 @@ import (
 
 const DatabaseName = "onyxium"
 
-type DataStore interface {
-	GetLatestMarket() (map[string]Market, error)
-	GetHistoryMarket(TimeframeInMS int) (map[string]Market, error)
-	UserActivate(id string, token string) error
-	UserAll() ([]User, error)
-	UserCreate(user *User) error
-	UserGet(id string) (*User, error)
-	UserUpdate(user *User) error
-	UserDelete(id string) error
-	StrategyCreate(strategy *Strategy) error
-	GetPausedStrategies() ([]Strategy, error)
-	StrategyUpdate(strategy *Strategy) error
-}
-
-type MGO struct {
-	*mgo.Session
-}
-
 // http://www.alexedwards.net/blog/organising-database-access
 // https://hackernoon.com/how-to-work-with-databases-in-golang-33b002aa8c47
 func InitDB(dataSourceName string) (*MGO, error) {

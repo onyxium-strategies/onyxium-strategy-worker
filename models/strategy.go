@@ -11,16 +11,6 @@ const StrategyCollection = "strategy"
 
 var validate *validator.Validate
 
-type Strategy struct {
-	Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name     string        `json:"name" bson:"name"`
-	JsonTree []interface{} `json:"jsonTree" bson:"jsonTree"`
-	BsonTree *Tree         `json:"bsonTree" bson:"bsonTree"`
-	Status   string        `json:"status" bson:"status"`
-	State    int           `json:"state" bson:"state"`
-	UserId   bson.ObjectId `json:"userId" bson:"userId"`
-}
-
 func NewStrategy(name, userId string, jsonTree []interface{}, bsonTree *Tree) (*Strategy, error) {
 	// if !gjson.Valid(jsonTree) {
 	// 	return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
@@ -35,14 +25,6 @@ func NewStrategy(name, userId string, jsonTree []interface{}, bsonTree *Tree) (*
 		UserId:   bson.ObjectIdHex(userId),
 	}
 	return strategy, nil
-}
-
-type Tree struct {
-	Id         int
-	Left       *Tree
-	Right      *Tree
-	Conditions []Condition
-	Action     Action
 }
 
 func (t *Tree) SetIdsForBinarySearch() {
@@ -116,15 +98,6 @@ func search(t *Tree, id int) (*Tree, error) {
 	return t, nil
 }
 
-type Condition struct {
-	ConditionType string  `validate:"required,oneof=percentage-decrease percentage-increase greater-than-or-equal-to less-than-or-equal-to"`
-	BaseCurrency  string  `validate:"required,nefield=QuoteCurrency"`
-	QuoteCurrency string  `validate:"required",nefield=BaseCurrency`
-	TimeframeInMS int     `validate:"omitempty,gt=0"`
-	BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume"`
-	Value         float64 `validate:"required,gte=0"`
-}
-
 func (c *Condition) Validate() error {
 	validate := validator.New()
 	validate.RegisterStructValidation(customConditionValidation, Condition{})
@@ -144,16 +117,6 @@ func customConditionValidation(sl validator.StructLevel) {
 			sl.ReportError(condition.TimeframeInMS, "TimeframeInMS", "TimeframeInMS", "timeframerequired", "")
 		}
 	}
-}
-
-type Action struct {
-	OrderType        string  `validate:"required,oneof=limit-buy limit-sell"`
-	ValueType        string  `validate:"required,oneof=absolute relative-above relative-below percentage-above percentage-below"`
-	ValueQuoteMetric string  `validate:"omitempty,oneof=price-ask price-bid price-last"`
-	BaseCurrency     string  `validate:"required,nefield=QuoteCurrency"`
-	QuoteCurrency    string  `validate:"required,nefield=BaseCurrency"`
-	Quantity         float64 `validate:"required,gt=0"`
-	Value            float64 `validate:"required"gt=0`
 }
 
 func (a *Action) Validate() error {
