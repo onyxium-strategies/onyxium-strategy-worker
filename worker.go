@@ -211,8 +211,8 @@ func ExecuteAction(action models.Action) {
 }
 
 // To get the current market value of a metric
-func getMetricValue(baseMetric string, market models.Market) float64 {
-	var currentValue float64
+func getMetricValue(baseMetric string, market models.Market) float32 {
+	var currentValue float32
 
 	switch baseMetric {
 	case "price-last":

@@ -1,5 +1,11 @@
 package models
 
+import (
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"time"
+)
+
 type (
 	DataStore interface {
 		GetLatestMarket() (map[string]Market, error)
@@ -21,17 +27,17 @@ type (
 
 	Market struct {
 		MarketName        string      `json:"MarketName" bson:"marketName"`
-		High              float64     `json:"High" bson:"high"`
-		Low               float64     `json:"Low" bson:"low"`
-		Volume            float64     `json:"Volume" bson:"volume"`
-		Last              float64     `json:"Last" bson:"last"`
-		BaseVolume        float64     `json:"BaseVolume" bson:"baseVolume"`
+		High              float32     `json:"High" bson:"high"`
+		Low               float32     `json:"Low" bson:"low"`
+		Volume            float32     `json:"Volume" bson:"volume"`
+		Last              float32     `json:"Last" bson:"last"`
+		BaseVolume        float32     `json:"BaseVolume" bson:"baseVolume"`
 		TimeStamp         string      `json:"TimeStamp" bson:"timeStamp"`
-		Bid               float64     `json:"Bid" bson:"bid"`
-		Ask               float64     `json:"Ask" bson:"ask"`
+		Bid               float32     `json:"Bid" bson:"bid"`
+		Ask               float32     `json:"Ask" bson:"ask"`
 		OpenBuyOrders     int         `json:"OpenBuyOrders" bson:"openBuyOrders"`
 		OpenSellOrders    int         `json:"OpenSellOrders" bson:"openSellOrders"`
-		PrevDay           float64     `json:"PrevDay" bson:"prevDay"`
+		PrevDay           float32     `json:"PrevDay" bson:"prevDay"`
 		Created           string      `json:"Created" bson:"created"`
 		DisplayMarketName interface{} `json:"DisplayMarketName" bson:"displayMarketName"`
 	}
@@ -65,7 +71,7 @@ type (
 		QuoteCurrency string  `validate:"required",nefield=BaseCurrency`
 		TimeframeInMS int     `validate:"omitempty,gt=0"`
 		BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume"`
-		Value         float64 `validate:"required,gte=0"`
+		Value         float32 `validate:"required,gte=0"`
 	}
 
 	Action struct {
@@ -74,8 +80,17 @@ type (
 		ValueQuoteMetric string  `validate:"omitempty,oneof=price-ask price-bid price-last"`
 		BaseCurrency     string  `validate:"required,nefield=QuoteCurrency"`
 		QuoteCurrency    string  `validate:"required,nefield=BaseCurrency"`
-		Quantity         float64 `validate:"required,gt=0"`
-		Value            float64 `validate:"required"gt=0`
+		Quantity         float32 `validate:"required,gt=0"`
+		Value            float32 `validate:"required"gt=0`
+	}
+
+	Order struct {
+		RemoteOrderId string
+		StrategyId    bson.ObjectId
+		NodeId        int
+		Status        string
+		Rate          float32
+		OrderType     string
 	}
 
 	User struct {
