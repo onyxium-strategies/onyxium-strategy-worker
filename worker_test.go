@@ -140,7 +140,7 @@ func TestCheckConditions(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if CheckConditions(tc.conditions, market) != tc.shouldPass {
+			if doAction, _ := CheckConditions(tc.conditions, market); doAction != tc.shouldPass {
 				t.Fail()
 			}
 		})

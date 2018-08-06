@@ -85,7 +85,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			return nil, err
 		}
 		log.Infof("Worker %d is in CURRENT NODE: %+v", w.ID, tree)
-		doAction := CheckConditions(tree.Conditions, latestMarkets)
+		doAction, currentValue := CheckConditions(tree.Conditions, latestMarkets)
 		if doAction {
 			strategy.Status = "executing"
 			strategy.State = tree.Id
@@ -93,7 +93,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			if err != nil {
 				return nil, err
 			}
-			ExecuteAction(tree.Action)
+			ExecuteAction(tree.Action, strategy, currentValue)
 
 			if tree.Left == nil {
 				// state == tree.id
@@ -133,7 +133,8 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 	return strategy, nil
 }
 
-func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) bool {
+func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) (bool, float64) {
+	var currentValue float64
 	for _, condition := range conditions {
 		if condition.ConditionType == "greater-than-or-equal-to" || condition.ConditionType == "less-than-or-equal-to" {
 			log.Infof("If the %s on the market %s/%s is %s than %.8f.", condition.BaseMetric, condition.BaseCurrency, condition.QuoteCurrency, condition.ConditionType, condition.Value)
@@ -145,17 +146,17 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 
 		switch condition.ConditionType {
 		case "greater-than-or-equal-to":
-			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 			if currentValue < condition.Value {
-				return false
+				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 			}
 		case "less-than-or-equal-to":
-			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 			if currentValue > condition.Value {
-				return false
+				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
 			}
 		case "percentage-increase":
@@ -165,13 +166,13 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 			}
 			historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			pastValue := getMetricValue(condition.BaseMetric, historyMarket)
 
 			percentage := (currentValue - pastValue) / pastValue
 			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 			if percentage < condition.Value {
-				return false
+				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
 			}
 
@@ -182,32 +183,50 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 			}
 			historyMarket := historyMarkets[condition.BaseCurrency+"-"+condition.QuoteCurrency]
 
-			currentValue := getMetricValue(condition.BaseMetric, latestMarket)
+			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			pastValue := getMetricValue(condition.BaseMetric, historyMarket)
 
 			percentage := (currentValue - pastValue) / pastValue
 			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 			if percentage > -condition.Value {
-				return false
+				return false, currentValue
 				log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
 			}
 		default:
-			return false
+			return false, currentValue
 			log.Warningf("Unknown ConditionType %s", condition.ConditionType)
 		}
 	}
-	return true
+	return true, currentValue
 }
 
-func ExecuteAction(action models.Action) {
+func ExecuteAction(action models.Action, strategy *models.Strategy, currentValue float64) error {
+	var rate float64
+
 	switch action.ValueType {
 	case "absolute":
 		log.Infof("Set a %s order for %.8f %s at %.8f %s/%s for a total of %.8f %s.", action.OrderType, action.Quantity, action.QuoteCurrency, action.Value, action.BaseCurrency, action.QuoteCurrency, action.Value*action.Quantity, action.BaseCurrency)
-	case "relative-above", "relative-below":
-		log.Infof("Set a %s order for %.8f %s at the future rate of %s +/- %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
-	case "percentage-above", "percentage-below":
-		log.Infof("Set a %s order for %.8f %s at the future rate of %s * (1 +/- %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+		rate = action.Value
+	case "relative-above":
+		log.Infof("Set a %s order for %.8f %s at the rate of %s + %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+		rate = currentValue + action.Value
+	case "relative-below":
+		log.Infof("Set a %s order for %.8f %s at the rate of %s - %.8f %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+		rate = currentValue - action.Value
+	case "percentage-above":
+		log.Infof("Set a %s order for %.8f %s at the  rate of %s * (1 + %.8f) %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+		rate = currentValue * (1 + action.Value)
+	case "percentage-below":
+		log.Infof("Set a %s order for %.8f %s at the  rate of %s * (1 - %.8f) %s/%s per unit.", action.OrderType, action.Quantity, action.QuoteCurrency, action.ValueQuoteMetric, action.Value, action.BaseCurrency, action.QuoteCurrency)
+		rate = currentValue * (1 - action.Value)
 	}
+	// TODO set out order on exchange and get orderUUID
+	order, err := models.NewOrder(action.OrderType, "example-remote-order-id", strategy.Id, strategy.State, rate)
+	if err != nil {
+		return err
+	}
+	err = env.DataStore.OrderCreate(order)
+	return err
 }
 
 // To get the current market value of a metric
