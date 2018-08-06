@@ -79,9 +79,6 @@ func (db *MGO) UserCreate(user *User) error {
 	}
 
 	err = c.Insert(user)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
