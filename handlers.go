@@ -76,11 +76,11 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	// TEST FAIL IF WE UNCOMMENT THIS BECAUSE OMGProvider is not authenticated during tests
 	// Need to look at dependancy injection
 	// For our local ledger we need to create a user and credit him starting money
-	// err = NewUser(user)
-	// if err != nil {
-	// 	respondWithError(w, http.StatusServiceUnavailable, err.Error())
-	// 	return
-	// }
+	err = NewUser(user)
+	if err != nil {
+		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+		return
+	}
 
 	respondWithJSON(w, http.StatusOK, user)
 }

@@ -24,6 +24,8 @@ var (
 	}
 )
 
+const subUnitToUnit = 100000000
+
 func initOmisego() error {
 	err := authenticateClient()
 	if err != nil {
@@ -78,8 +80,8 @@ func seedTokens() error {
 				Name:          name,
 				Symbol:        symbol,
 				Description:   name,
-				SubunitToUnit: 1,
-				Amount:        21000000,
+				SubunitToUnit: subUnitToUnit,
+				Amount:        2100000000000000,
 			}
 			_, err := OMGProvider.TokenCreate(body)
 			if err != nil {
@@ -146,7 +148,7 @@ func NewUser(user *models.User) error {
 		return err
 	}
 
-	// create primary wallet for user
+	// get primary wallet of user
 	getWalletBody := omg.ProviderUserIdParam{
 		ProviderUserId: user.Id.Hex(),
 	}
@@ -162,7 +164,7 @@ func NewUser(user *models.User) error {
 				FromAddress:      os.Getenv("primaryWalletAddress"),
 				ToAddress:        wallet.Address,
 				TokenId:          os.Getenv("baseTokenId"),
-				Amount:           10,
+				Amount:           10 * subUnitToUnit,
 			}
 			_, err = OMGProvider.TransactionCreate(transactionBody)
 			return err

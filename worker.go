@@ -4,6 +4,8 @@ import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	// "time"
+	omg "github.com/Alainy/OmiseGo-Go-SDK"
+	"os"
 )
 
 type Worker struct {
@@ -155,6 +157,10 @@ func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) 
 		}
 
 		// Trade currency
+		err = ExchangeTokens(tree, strategy)
+		if err != nil {
+			return err
+		}
 
 		if tree.Left == nil {
 			strategy.Status = "stopped"
@@ -178,6 +184,92 @@ func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) 
 	log.Info("Order is still pending.")
 	strategy.Status = "paused"
 	err = env.DataStore.StrategyUpdate(strategy)
+	return nil
+}
+
+func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
+	var baseTokenId, quoteTokenId string
+
+	listBody := omg.ListParams{}
+	tokens, err := OMGProvider.TokenAll(listBody)
+	if err != nil {
+		return err
+	}
+	for _, token := range tokens.Data {
+		if token.Symbol == tree.Action.BaseCurrency {
+			baseTokenId = token.Id
+		}
+		if token.Symbol == tree.Action.QuoteCurrency {
+			quoteTokenId = token.Id
+		}
+	}
+
+	// get primary wallet of user
+	getWalletBody := omg.ProviderUserIdParam{
+		ProviderUserId: strategy.UserId.Hex(),
+	}
+	walletList, err := OMGProvider.UserGetWalletsByProviderUserId(getWalletBody)
+	if err != nil {
+		return err
+	}
+
+	// BUY: -base, +quote
+	// SELL: +base, -quote
+	for _, wallet := range walletList.Data {
+		if wallet.Identifier == "primary" {
+			log.Infof("Amount to transfer: %d", int(tree.Action.Value*tree.Action.Quantity*subUnitToUnit))
+			// Note that it is important that the user first sends us money so we can confirm that he has enough
+			// before we send him back tokens
+			if tree.Action.OrderType == "limit-buy" {
+				transactionBody := omg.TransactionCreateParams{
+					IdempotencyToken: omg.NewIdempotencyToken(),
+					FromAddress:      wallet.Address,
+					ToAddress:        os.Getenv("primaryWalletAddress"),
+					TokenId:          baseTokenId,
+					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+				}
+				_, err = OMGProvider.TransactionCreate(transactionBody)
+				if err != nil {
+					return err
+				}
+				transactionBody = omg.TransactionCreateParams{
+					IdempotencyToken: omg.NewIdempotencyToken(),
+					FromAddress:      os.Getenv("primaryWalletAddress"),
+					ToAddress:        wallet.Address,
+					TokenId:          quoteTokenId,
+					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+				}
+				_, err = OMGProvider.TransactionCreate(transactionBody)
+				if err != nil {
+					return err
+				}
+			}
+			if tree.Action.OrderType == "limit-sell" {
+				transactionBody := omg.TransactionCreateParams{
+					IdempotencyToken: omg.NewIdempotencyToken(),
+					FromAddress:      wallet.Address,
+					ToAddress:        os.Getenv("primaryWalletAddress"),
+					TokenId:          quoteTokenId,
+					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+				}
+				_, err = OMGProvider.TransactionCreate(transactionBody)
+				if err != nil {
+					return err
+				}
+				transactionBody = omg.TransactionCreateParams{
+					IdempotencyToken: omg.NewIdempotencyToken(),
+					FromAddress:      os.Getenv("primaryWalletAddress"),
+					ToAddress:        wallet.Address,
+					TokenId:          baseTokenId,
+					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+				}
+				_, err = OMGProvider.TransactionCreate(transactionBody)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return nil
 }
 
