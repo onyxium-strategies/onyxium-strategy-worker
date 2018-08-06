@@ -20,6 +20,7 @@ var (
 		"ETH": "Ethereum",
 		"NEO": "NEO",
 		"OMG": "Omisego",
+		"LTC": "Litecoin",
 	}
 )
 

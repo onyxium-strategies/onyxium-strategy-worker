@@ -41,38 +41,38 @@ func (w *Worker) Start() {
 				log.Infof("Worker %d stopping", w.ID)
 				return
 			case work := <-w.Work:
-				switch work.(type) {
-				case models.Strategy:
-					// Receive a work request.
-					work.Status = "running"
-					err := env.DataStore.StrategyUpdate(work)
-					if err != nil {
-						log.Error(err)
-						w.Stop()
-						continue
-					}
-					log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
+				// Receive a work request.
+				work.Status = "running"
+				err := env.DataStore.StrategyUpdate(work)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
+				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
-					root, err := work.BsonTree.Search(work.State)
+				root, err := work.BsonTree.Search(work.State)
+				if err != nil {
+					log.Error(err)
+					w.Stop()
+					continue
+				}
+				if root.Order != nil {
+					err = w.CheckOrderFilled(root, work)
 					if err != nil {
 						log.Error(err)
 						w.Stop()
 						continue
 					}
+				} else {
 					_, err = w.WalkSiblings(root, work)
 					if err != nil {
 						log.Error(err)
 						w.Stop()
 						continue
 					}
-					log.Infof("Worker %d work is done", w.ID)
-				case models.Order:
-					w.IsOrderFilled(work)
-				default:
-					log.Error("Unkown work received")
-					w.Stop()
-					continue
 				}
+				log.Infof("Worker %d work is done", w.ID)
 			}
 		}
 	}()
@@ -102,27 +102,13 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 			if err != nil {
 				return nil, err
 			}
-			ExecuteAction(tree.Action, strategy, currentValue)
-
-			if tree.Left == nil {
-				// state == tree.id
-				strategy.Status = "stopped"
-				err = env.DataStore.StrategyUpdate(strategy)
-				if err != nil {
-					return nil, err
-				}
-				log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
-				return strategy, nil
-			} else {
-				strategy.Status = "paused"
-				strategy.State = tree.Left.Id
-				err = env.DataStore.StrategyUpdate(strategy)
-				if err != nil {
-					return nil, err
-				}
-				log.Info("JUMPING to left")
-				return strategy, nil
+			ExecuteAction(tree, strategy, currentValue)
+			strategy.Status = "paused"
+			err = env.DataStore.StrategyUpdate(strategy)
+			if err != nil {
+				return nil, err
 			}
+			// return strategy, nil
 		} else {
 			if tree.Right == nil {
 				// state == first sibling id
@@ -143,8 +129,56 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 }
 
 // TODO in the future just get the data from the exchange, for now manually check it
-func (w *Worker) IsOrderFilled(order *models.Order) (bool, error) {
+func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) error {
+	latestMarkets, err := env.DataStore.GetLatestMarket()
+	if err != nil {
+		return err
+	}
+	latestMarket := latestMarkets[tree.Action.BaseCurrency+"-"+tree.Action.QuoteCurrency]
 
+	var filled bool
+	switch tree.Action.OrderType {
+	case "limit-buy":
+		if tree.Order.Rate > latestMarket.Last {
+			filled = true
+		}
+	case "limit-sell":
+		if tree.Order.Rate < latestMarket.Last {
+			filled = true
+		}
+	}
+	if filled {
+		tree.Order.Status = "filled"
+		err = env.DataStore.StrategyUpdate(strategy)
+		if err != nil {
+			return err
+		}
+
+		// Trade currency
+
+		if tree.Left == nil {
+			strategy.Status = "stopped"
+			err = env.DataStore.StrategyUpdate(strategy)
+			if err != nil {
+				return err
+			}
+			log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
+			return nil
+		} else {
+			strategy.Status = "paused"
+			strategy.State = tree.Left.Id
+			err = env.DataStore.StrategyUpdate(strategy)
+			if err != nil {
+				return err
+			}
+			log.Info("JUMPING to left")
+			return nil
+		}
+	}
+	log.Info("Order is still pending.")
+	strategy.Status = "paused"
+	err = env.DataStore.StrategyUpdate(strategy)
+	return nil
 }
 
 func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) (bool, float64) {
@@ -214,8 +248,9 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 	return true, currentValue
 }
 
-func ExecuteAction(action models.Action, strategy *models.Strategy, currentValue float64) error {
+func ExecuteAction(tree *models.Tree, strategy *models.Strategy, currentValue float64) error {
 	var rate float64
+	action := tree.Action
 
 	switch action.ValueType {
 	case "absolute":
@@ -235,11 +270,12 @@ func ExecuteAction(action models.Action, strategy *models.Strategy, currentValue
 		rate = currentValue * (1 - action.Value)
 	}
 	// TODO set out order on exchange and get orderUUID
-	order, err := models.NewOrder(action.OrderType, "example-remote-order-id", strategy.Id, strategy.State, rate)
+	order, err := models.NewOrder("example-remote-order-id", rate)
 	if err != nil {
 		return err
 	}
-	err = env.DataStore.OrderCreate(order)
+	tree.Order = order
+	err = env.DataStore.StrategyUpdate(strategy)
 	return err
 }
 

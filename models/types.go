@@ -19,12 +19,12 @@ type (
 		StrategyCreate(strategy *Strategy) error
 		StrategiesGetPaused() ([]Strategy, error)
 		StrategyUpdate(strategy *Strategy) error
-		OrderAll() ([]Order, error)
-		OrderCreate(order *Order) error
-		OrderGet(id string) (*Order, error)
-		OrdersGetPending() ([]Order, error)
-		OrderUpdate(order *Order) error
-		OrderDelete(id string) error
+		// OrderAll() ([]Order, error)
+		// OrderCreate(order *Order) error
+		// OrderGet(id string) (*Order, error)
+		// OrdersGetPending() ([]Order, error)
+		// OrderUpdate(order *Order) error
+		// OrderDelete(id string) error
 	}
 
 	MGO struct {
@@ -69,6 +69,7 @@ type (
 		Right      *Tree
 		Conditions []Condition
 		Action     Action
+		Order      *Order
 	}
 
 	Condition struct {
@@ -91,13 +92,9 @@ type (
 	}
 
 	Order struct {
-		Id            bson.ObjectId `bson:"_id,omitempty"`
-		RemoteOrderId string        `bson:"remoteOrderId"`
-		StrategyId    bson.ObjectId `bson:"strategyId"`
-		NodeId        int           `bson:"nodeId"`
-		Status        string        `bson:"status"`
-		Rate          float64       `bson:"rate"`
-		OrderType     string        `bson:"orderType"`
+		RemoteOrderId string  `bson:"remoteOrderId"`
+		Status        string  `bson:"status"`
+		Rate          float64 `bson:"rate"`
 	}
 
 	User struct {

@@ -60,27 +60,7 @@ func PausedStategyCollector() {
 				log.Infof("strategy: %s", strategy.Id.Hex())
 				WorkQueue <- strategy
 			}
-			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second
-		}
-	}()
-}
-
-func PendingOrderCollector() {
-	// Puts work into the WorkQueue
-	go func() {
-		for {
-			orders, err := env.DataStore.OrdersGetPending()
-			if len(strategies) > 0 {
-				log.Info("Dispatching pending orders")
-			}
-			if err != nil {
-				log.Fatal(err)
-			}
-			for _, order := range orders {
-				log.Infof("order: %s", order.Id.Hex())
-				WorkQueue <- order
-			}
-			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second
+			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second. Of nog beter is eigenlijk gwn een signaaltje krijgen als er nieuwe data is of wijzigingen in de db
 		}
 	}()
 }

@@ -50,7 +50,7 @@ func main() {
 	PausedStategyCollector()
 
 	// Start pending order collector
-	PendingOrderCollector()
+	// PendingOrderCollector()
 
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()

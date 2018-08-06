@@ -29,7 +29,7 @@ func StartDispatcher(nworkers int) {
 				log.Infof("Received work with id: %s", work.Id.Hex())
 				go func(work models.Strategy) {
 					worker := <-WorkerQueue
-					log.Info("Dispatching work request %s", work.Id.Hex())
+					log.Infof("Dispatching work request %s", work.Id.Hex())
 					worker <- &work
 				}(work)
 			}
