@@ -151,7 +151,7 @@ func (db *MGO) StrategyUpdate(strategy *Strategy) error {
 	return err
 }
 
-func (db *MGO) GetPausedStrategies() ([]Strategy, error) {
+func (db *MGO) StrategiesGetPaused() ([]Strategy, error) {
 	var strategies []Strategy
 	c := db.DB(DatabaseName).C(StrategyCollection)
 	err := c.Find(bson.M{"status": "paused"}).All(&strategies)

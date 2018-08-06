@@ -49,7 +49,7 @@ func PausedStategyCollector() {
 	// Puts work into the WorkQueue
 	go func() {
 		for {
-			strategies, err := env.DataStore.GetPausedStrategies()
+			strategies, err := env.DataStore.StrategiesGetPaused()
 			if len(strategies) > 0 {
 				log.Info("Dispatching paused strategies")
 			}
@@ -59,6 +59,26 @@ func PausedStategyCollector() {
 			for _, strategy := range strategies {
 				log.Infof("strategy: %s", strategy.Id.Hex())
 				WorkQueue <- strategy
+			}
+			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second
+		}
+	}()
+}
+
+func PendingOrderCollector() {
+	// Puts work into the WorkQueue
+	go func() {
+		for {
+			orders, err := env.DataStore.OrdersGetPending()
+			if len(strategies) > 0 {
+				log.Info("Dispatching pending orders")
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, order := range orders {
+				log.Infof("order: %s", order.Id.Hex())
+				WorkQueue <- order
 			}
 			time.Sleep(time.Second) // TODO: check if a second has passed instead of waiting one second
 		}

@@ -70,3 +70,13 @@ func (db *MGO) OrderDelete(id string) error {
 	err := c.RemoveId(objectId)
 	return err
 }
+
+func (db *MGO) OrdersGetPending() ([]Order, error) {
+	var orders []Order
+	c := db.DB(DatabaseName).C(OrderCollection)
+	err := c.Find(bson.M{"status": "pending"}).All(&orders)
+	if err != nil {
+		return nil, err
+	}
+	return orders, nil
+}

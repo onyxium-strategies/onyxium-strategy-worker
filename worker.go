@@ -41,29 +41,38 @@ func (w *Worker) Start() {
 				log.Infof("Worker %d stopping", w.ID)
 				return
 			case work := <-w.Work:
-				// Receive a work request.
-				work.Status = "running"
-				err := env.DataStore.StrategyUpdate(work)
-				if err != nil {
-					log.Error(err)
-					w.Stop()
-					continue
-				}
-				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
+				switch work.(type) {
+				case models.Strategy:
+					// Receive a work request.
+					work.Status = "running"
+					err := env.DataStore.StrategyUpdate(work)
+					if err != nil {
+						log.Error(err)
+						w.Stop()
+						continue
+					}
+					log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
-				root, err := work.BsonTree.Search(work.State)
-				if err != nil {
-					log.Error(err)
+					root, err := work.BsonTree.Search(work.State)
+					if err != nil {
+						log.Error(err)
+						w.Stop()
+						continue
+					}
+					_, err = w.WalkSiblings(root, work)
+					if err != nil {
+						log.Error(err)
+						w.Stop()
+						continue
+					}
+					log.Infof("Worker %d work is done", w.ID)
+				case models.Order:
+					w.IsOrderFilled(work)
+				default:
+					log.Error("Unkown work received")
 					w.Stop()
 					continue
 				}
-				_, err = w.WalkSiblings(root, work)
-				if err != nil {
-					log.Error(err)
-					w.Stop()
-					continue
-				}
-				log.Infof("Worker %d work is done", w.ID)
 			}
 		}
 	}()
@@ -131,6 +140,11 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 		}
 	}
 	return strategy, nil
+}
+
+// TODO in the future just get the data from the exchange, for now manually check it
+func (w *Worker) IsOrderFilled(order *models.Order) (bool, error) {
+
 }
 
 func CheckConditions(conditions []models.Condition, latestMarkets map[string]models.Market) (bool, float64) {

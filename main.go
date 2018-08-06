@@ -49,6 +49,9 @@ func main() {
 	// Start paused strategies collector
 	PausedStategyCollector()
 
+	// Start pending order collector
+	PendingOrderCollector()
+
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.

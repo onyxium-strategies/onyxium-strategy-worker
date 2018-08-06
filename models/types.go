@@ -17,11 +17,12 @@ type (
 		UserUpdate(user *User) error
 		UserDelete(id string) error
 		StrategyCreate(strategy *Strategy) error
-		GetPausedStrategies() ([]Strategy, error)
+		StrategiesGetPaused() ([]Strategy, error)
 		StrategyUpdate(strategy *Strategy) error
 		OrderAll() ([]Order, error)
 		OrderCreate(order *Order) error
 		OrderGet(id string) (*Order, error)
+		OrdersGetPending() ([]Order, error)
 		OrderUpdate(order *Order) error
 		OrderDelete(id string) error
 	}
