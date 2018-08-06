@@ -164,3 +164,39 @@ func (db *MGO) StrategiesGetPaused() ([]Strategy, error) {
 	}
 	return strategies, nil
 }
+
+func (db *MGO) StrategyAll() ([]Strategy, error) {
+	var strategies []Strategy
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	err := c.Find(bson.M{}).All(&strategies)
+	if err != nil {
+		return nil, err
+	}
+	return strategies, nil
+}
+
+func (db *MGO) StrategyGet(id string) (*Strategy, error) {
+	ok := bson.IsObjectIdHex(id)
+	if !ok {
+		return nil, fmt.Errorf("Incorrect IdHex received: %s", id)
+	}
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	strategy := &Strategy{}
+	objectId := bson.ObjectIdHex(id)
+	err := c.FindId(objectId).One(strategy)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting strategy with message: %s", err)
+	}
+	return strategy, nil
+}
+
+func (db *MGO) StrategyDelete(id string) error {
+	ok := bson.IsObjectIdHex(id)
+	if !ok {
+		return fmt.Errorf("Incorrect id hex received: %s", id)
+	}
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	objectId := bson.ObjectIdHex(id)
+	err := c.RemoveId(objectId)
+	return err
+}

@@ -16,9 +16,12 @@ type (
 		UserGet(id string) (*User, error)
 		UserUpdate(user *User) error
 		UserDelete(id string) error
+		StrategyAll() ([]Strategy, error)
 		StrategyCreate(strategy *Strategy) error
-		StrategiesGetPaused() ([]Strategy, error)
+		StrategyGet(id string) (*Strategy, error)
 		StrategyUpdate(strategy *Strategy) error
+		StrategyDelete(id string) error
+		StrategiesGetPaused() ([]Strategy, error) // TODO: inconsistent use of Strategy and Strategies
 		// OrderAll() ([]Order, error)
 		// OrderCreate(order *Order) error
 		// OrderGet(id string) (*Order, error)

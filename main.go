@@ -63,6 +63,11 @@ func main() {
 	s.Path("/user/{id}").HandlerFunc(UserDelete).Methods("DELETE")
 	s.Path("/confirm-email").Queries("token", "{token}").Queries("id", "{id}").HandlerFunc(EmailConfirm).Methods("GET")
 
+	s.Path("/strategy").HandlerFunc(StrategyAll).Methods("GET")
+	s.Path("/strategy/{id}").HandlerFunc(StrategyGet).Methods("GET")
+	s.Path("/strategy/{id}").HandlerFunc(StrategyUpdate).Methods("PUT")
+	s.Path("/strategy/{id}").HandlerFunc(StrategyDelete).Methods("DELETE")
+
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
 	if err := http.ListenAndServe(*HTTPAddr, router); err != nil {

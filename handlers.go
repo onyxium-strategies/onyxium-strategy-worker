@@ -132,3 +132,51 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
+func StrategyAll(w http.ResponseWriter, r *http.Request) {
+	strategies, err := env.DataStore.StrategyAll()
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, strategies)
+}
+
+func StrategyGet(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	strategy, err := env.DataStore.StrategyGet(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, strategy)
+}
+
+func StrategyUpdate(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	strategy, err := env.DataStore.StrategyGet(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+		return
+	}
+	json.NewDecoder(r.Body).Decode(strategy)
+	err = env.DataStore.StrategyUpdate(strategy)
+	if err != nil {
+		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, strategy)
+
+}
+
+func StrategyDelete(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	err := env.DataStore.StrategyDelete(params["id"])
+	if err != nil {
+		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+		return
+	}
+	response := map[string]bool{
+		"success": true,
+	}
+	respondWithJSON(w, http.StatusOK, response)
+}
