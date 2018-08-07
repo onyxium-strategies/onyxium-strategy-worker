@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	OMGProvider omg.AdminAPI
 	baseTokenId string
 	// SeedLedger  = flag.Bool("seed", false, "Seed the database with all available  tokens for users.")
 	currencies = map[string]string{
@@ -27,12 +26,7 @@ var (
 const subUnitToUnit = 100000000
 
 func initOmisego() error {
-	err := authenticateClient()
-	if err != nil {
-		return err
-	}
-
-	err = seedTokens()
+	err := seedTokens()
 	if err != nil {
 		return err
 	}
@@ -43,14 +37,10 @@ func initOmisego() error {
 	}
 
 	err = getPrimaryWalletAddress()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func authenticateClient() error {
+func initOMGClient() (*omg.AdminAPI, error) {
 	// Get authentication and connection to the eWallet Admin API.
 	adminURL := &url.URL{
 		Scheme: "http",
@@ -60,16 +50,16 @@ func authenticateClient() error {
 
 	client, err := omg.NewClient(os.Getenv("accessKey"), os.Getenv("secretKey"), adminURL)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	OMGProvider = omg.AdminAPI{
+	OMGProvider := omg.AdminAPI{
 		Client: client,
 	}
-	return nil
+	return &OMGProvider, nil
 }
 
 func seedTokens() error {
-	tokenList, err := OMGProvider.TokenAll(omg.ListParams{})
+	tokenList, err := env.Ledger.TokenAll(omg.ListParams{})
 	if err != nil {
 		return err
 	}
@@ -83,7 +73,7 @@ func seedTokens() error {
 				SubunitToUnit: subUnitToUnit,
 				Amount:        2100000000000000,
 			}
-			_, err := OMGProvider.TokenCreate(body)
+			_, err := env.Ledger.TokenCreate(body)
 			if err != nil {
 				return err
 			}
@@ -94,7 +84,7 @@ func seedTokens() error {
 
 func getBaseTokenId() error {
 	if baseTokenId = os.Getenv("baseTokenId"); baseTokenId == "" {
-		tokenList, err := OMGProvider.TokenAll(omg.ListParams{})
+		tokenList, err := env.Ledger.TokenAll(omg.ListParams{})
 		if err != nil {
 			return err
 		}
@@ -119,7 +109,7 @@ func getPrimaryWalletAddress() error {
 		os.Getenv("accountId"),
 		omg.ListParams{},
 	}
-	walletList, err := OMGProvider.AccountGetWallets(body)
+	walletList, err := env.Ledger.AccountGetWallets(body)
 	if err != nil {
 		return err
 	}
@@ -137,13 +127,13 @@ func getPrimaryWalletAddress() error {
 	return nil
 }
 
-func NewUser(user *models.User) error {
+func NewOMGUser(user *models.User) error {
 	// create user on ewallet
 	userCreateBody := omg.UserParams{
 		ProviderUserId: user.Id.Hex(),
 		Username:       user.Email,
 	}
-	_, err := OMGProvider.UserCreate(userCreateBody)
+	_, err := env.Ledger.UserCreate(userCreateBody)
 	if err != nil {
 		return err
 	}
@@ -152,7 +142,7 @@ func NewUser(user *models.User) error {
 	getWalletBody := omg.ProviderUserIdParam{
 		ProviderUserId: user.Id.Hex(),
 	}
-	walletList, err := OMGProvider.UserGetWalletsByProviderUserId(getWalletBody)
+	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(getWalletBody)
 	if err != nil {
 		return err
 	}
@@ -166,7 +156,7 @@ func NewUser(user *models.User) error {
 				TokenId:          os.Getenv("baseTokenId"),
 				Amount:           10 * subUnitToUnit,
 			}
-			_, err = OMGProvider.TransactionCreate(transactionBody)
+			_, err = env.Ledger.TransactionCreate(transactionBody)
 			return err
 		}
 	}

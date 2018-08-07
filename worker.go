@@ -191,7 +191,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 	var baseTokenId, quoteTokenId string
 
 	listBody := omg.ListParams{}
-	tokens, err := OMGProvider.TokenAll(listBody)
+	tokens, err := env.Ledger.TokenAll(listBody)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 	getWalletBody := omg.ProviderUserIdParam{
 		ProviderUserId: strategy.UserId.Hex(),
 	}
-	walletList, err := OMGProvider.UserGetWalletsByProviderUserId(getWalletBody)
+	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(getWalletBody)
 	if err != nil {
 		return err
 	}
@@ -228,7 +228,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					TokenId:          baseTokenId,
 					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
 				}
-				_, err = OMGProvider.TransactionCreate(transactionBody)
+				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
 					return err
 				}
@@ -239,7 +239,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					TokenId:          quoteTokenId,
 					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
 				}
-				_, err = OMGProvider.TransactionCreate(transactionBody)
+				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
 					return err
 				}
@@ -252,7 +252,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					TokenId:          quoteTokenId,
 					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
 				}
-				_, err = OMGProvider.TransactionCreate(transactionBody)
+				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
 					return err
 				}
@@ -263,7 +263,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					TokenId:          baseTokenId,
 					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
 				}
-				_, err = OMGProvider.TransactionCreate(transactionBody)
+				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
 					return err
 				}

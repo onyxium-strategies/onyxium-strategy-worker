@@ -3,6 +3,7 @@ package main
 import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"flag"
+	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
 	_ "github.com/joho/godotenv/autoload"
@@ -13,6 +14,7 @@ import (
 
 type Env struct {
 	DataStore models.DataStore
+	Ledger    omg.EwalletAdminAPI
 }
 
 var (
@@ -33,10 +35,15 @@ func main() {
 		log.Panic(err)
 	}
 	defer db.Close()
-
 	env.DataStore = db
 
 	// Connect to the local ledger
+	ledger, err := initOMGClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	env.Ledger = ledger
+
 	err = initOmisego()
 	if err != nil {
 		log.Fatal(err)
