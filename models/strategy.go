@@ -155,6 +155,8 @@ func (db *MGO) StrategyUpdate(strategy *Strategy) error {
 	return err
 }
 
+// TODO: add user argument so you can retrieve the strategies specific to a user
+//
 func (db *MGO) StrategiesGetPaused() ([]Strategy, error) {
 	var strategies []Strategy
 	c := db.DB(DatabaseName).C(StrategyCollection)
@@ -199,4 +201,16 @@ func (db *MGO) StrategyDelete(id string) error {
 	objectId := bson.ObjectIdHex(id)
 	err := c.RemoveId(objectId)
 	return err
+}
+
+func NewOrder(remoteOrderId string, rate float64) (*Order, error) {
+	if remoteOrderId == "" || rate == 0 {
+		return nil, fmt.Errorf("Action, RemoteOrderId, StrategyId and Rate are required to create an Order")
+	}
+	order := &Order{
+		RemoteOrderId: remoteOrderId,
+		Status:        "pending",
+		Rate:          rate,
+	}
+	return order, nil
 }
