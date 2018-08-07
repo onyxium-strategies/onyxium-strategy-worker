@@ -148,7 +148,16 @@ func StrategyGet(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	respondWithJSON(w, http.StatusOK, strategy)
+	payload := map[string]interface{}{
+		"id":        strategy.Id,
+		"name":      strategy.Name,
+		"status":    strategy.Status,
+		"state":     strategy.State,
+		"createdAt": strategy.CreatedAt.Unix(),
+		"updatedAt": strategy.UpdatedAt.Unix(),
+		"tree":      strategy.Tree.ToKaryArray(),
+	}
+	respondWithJSON(w, http.StatusOK, payload)
 }
 
 func StrategyUpdate(w http.ResponseWriter, r *http.Request) {

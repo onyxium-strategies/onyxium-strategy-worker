@@ -12,16 +12,16 @@ const StrategyCollection = "strategy"
 
 var validate *validator.Validate
 
-func NewStrategy(name, userId string, bsonTree *Tree) (*Strategy, error) {
+func NewStrategy(name, userId string, tree *Tree) (*Strategy, error) {
 	// if !gjson.Valid(jsonTree) {
 	// 	return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
 	// }
 	strategy := &Strategy{
 		Id:        bson.NewObjectId(),
 		Name:      name,
-		BsonTree:  bsonTree,
+		Tree:      tree,
 		Status:    "paused",
-		State:     bsonTree.Id,
+		State:     tree.Id,
 		UserId:    bson.ObjectIdHex(userId),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -64,18 +64,18 @@ func (t *Tree) String() {
 	fmt.Println("------------------------------------------------")
 }
 
-func (t *Tree) ToKaryArray() ([]map[string]interface{}, error) {
-	root, err := _toKaryArry(t)
-	return root, err
+func (t *Tree) ToKaryArray() []map[string]interface{} {
+	root := _toKaryArry(t)
+	return root
 }
 
-func _toKaryArry(t *Tree) ([]map[string]interface{}, error) {
+func _toKaryArry(t *Tree) []map[string]interface{} {
 	if t == nil {
-		return make([]map[string]interface{}, 0), nil
+		return make([]map[string]interface{}, 0)
 	}
 	var node []map[string]interface{}
 	if t.Left != nil {
-		children, _ := _toKaryArry(t.Left)
+		children := _toKaryArry(t.Left)
 		node = []map[string]interface{}{{
 			"action":     t.Action,
 			"conditions": t.Conditions,
@@ -95,7 +95,7 @@ func _toKaryArry(t *Tree) ([]map[string]interface{}, error) {
 		node = append(node, _appendChild(t.Right))
 		t = t.Right
 	}
-	return node, nil
+	return node
 }
 
 func _appendChild(t *Tree) map[string]interface{} {
@@ -103,7 +103,7 @@ func _appendChild(t *Tree) map[string]interface{} {
 		return make(map[string]interface{})
 	}
 	if t.Left != nil {
-		children, _ := _toKaryArry(t.Left)
+		children := _toKaryArry(t.Left)
 		return map[string]interface{}{
 			"action":     t.Action,
 			"conditions": t.Conditions,

@@ -53,7 +53,7 @@ func (w *Worker) Start() {
 				}
 				log.Infof("Worker %d Received work request %s", w.ID, work.Id.Hex())
 
-				root, err := work.BsonTree.Search(work.State)
+				root, err := work.Tree.Search(work.State)
 				if err != nil {
 					log.Error(err)
 					w.Stop()

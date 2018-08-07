@@ -40,7 +40,7 @@ func main() {
 
 	// TEMPORARY To test ToKaryArray - needs to be a unit test in future
 	// strategy, _ := env.DataStore.StrategyGet("5b68598724979051f911631d")
-	// array, _ := strategy.BsonTree.ToKaryArray()
+	// array, _ := strategy.Tree.ToKaryArray()
 	// log.Infof("%+v", array)
 	// response, _ := json.Marshal(array)
 	// log.Info(string(response))

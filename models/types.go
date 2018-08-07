@@ -59,7 +59,7 @@ type (
 	Strategy struct {
 		Id        bson.ObjectId `json:"id" bson:"_id,omitempty"`
 		Name      string        `json:"name" bson:"name"`
-		BsonTree  *Tree         `json:"bsonTree" bson:"bsonTree"`
+		Tree      *Tree         `json:"tree" bson:"tree"`
 		Status    string        `json:"status" bson:"status"`
 		State     int           `json:"state" bson:"state"`
 		UserId    bson.ObjectId `json:"userId" bson:"userId"`
@@ -68,7 +68,7 @@ type (
 	}
 
 	Tree struct {
-		Id         int
+		Id         int `json:"id" bson:"id"`
 		Left       *Tree
 		Right      *Tree
 		Conditions []Condition
@@ -77,28 +77,28 @@ type (
 	}
 
 	Condition struct {
-		ConditionType string  `validate:"required,oneof=percentage-decrease percentage-increase greater-than-or-equal-to less-than-or-equal-to"`
-		BaseCurrency  string  `validate:"required,nefield=QuoteCurrency"`
-		QuoteCurrency string  `validate:"required",nefield=BaseCurrency`
-		TimeframeInMS int     `validate:"omitempty,gt=0"`
-		BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume"`
-		Value         float64 `validate:"required,gte=0"`
+		ConditionType string  `validate:"required,oneof=percentage-decrease percentage-increase greater-than-or-equal-to less-than-or-equal-to" json:"conditionType" bson:"conditionType"`
+		BaseCurrency  string  `validate:"required,nefield=QuoteCurrency" json:"baseCurrency" bson:"baseCurrency"`
+		QuoteCurrency string  `validate:"required",nefield=BaseCurrency json:"quoteCurrency" bson:"quoteCurrency"`
+		TimeframeInMS int     `validate:"omitempty,gt=0" json:"timeframeInMS" bson:"timeframeInMS"`
+		BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume" json:"baseMetric" bson:"baseMetric"`
+		Value         float64 `validate:"required,gte=0" json:"value" bson:"value"`
 	}
 
 	Action struct {
-		OrderType        string  `validate:"required,oneof=limit-buy limit-sell"`
-		ValueType        string  `validate:"required,oneof=absolute relative-above relative-below percentage-above percentage-below"`
-		ValueQuoteMetric string  `validate:"omitempty,oneof=price-ask price-bid price-last"`
-		BaseCurrency     string  `validate:"required,nefield=QuoteCurrency"`
-		QuoteCurrency    string  `validate:"required,nefield=BaseCurrency"`
-		Quantity         float64 `validate:"required,gt=0"`
-		Value            float64 `validate:"required"gt=0`
+		OrderType        string  `validate:"required,oneof=limit-buy limit-sell" json:"orderType" bson:"orderType"`
+		ValueType        string  `validate:"required,oneof=absolute relative-above relative-below percentage-above percentage-below" json:"valueType" bson:"valueType"`
+		ValueQuoteMetric string  `validate:"omitempty,oneof=price-ask price-bid price-last" json:"valueQuoteMetric" bson:"valueQuoteMetric"`
+		BaseCurrency     string  `validate:"required,nefield=QuoteCurrency" json:"baseCurrency" bson:"baseCurrency"`
+		QuoteCurrency    string  `validate:"required,nefield=BaseCurrency" json:"quoteCurrency" bson:"quoteCurrency"`
+		Quantity         float64 `validate:"required,gt=0" json:"quantity" bson:"quantity"`
+		Value            float64 `validate:"required"gt=0 json:"value" bson:"value"`
 	}
 
 	Order struct {
-		RemoteOrderId string  `bson:"remoteOrderId"`
-		Status        string  `bson:"status"`
-		Rate          float64 `bson:"rate"`
+		RemoteOrderId string  `json:"remoteOrderId" bson:"remoteOrderId"`
+		Status        string  `json:"status" bson:"status"`
+		Rate          float64 `json:"rate" bson:"rate"`
 	}
 
 	User struct {
