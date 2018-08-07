@@ -15,7 +15,7 @@ func InitDB(dataSourceName string) (*MGO, error) {
 	if err != nil {
 		return nil, err
 	}
-	DBCon.SetMode(mgo.Monotonic, true)
+	DBCon.SetMode(mgo.Monotonic, true) // https://godoc.org/gopkg.in/mgo.v2#Session.SetMode
 
 	if err = DBCon.Ping(); err != nil {
 		return nil, err
