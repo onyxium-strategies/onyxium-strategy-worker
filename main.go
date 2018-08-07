@@ -55,7 +55,6 @@ func main() {
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
-	s.Path("/work").HandlerFunc(NewStrategyCollector).Methods("POST")
 	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
@@ -63,6 +62,7 @@ func main() {
 	s.Path("/user/{id}").HandlerFunc(UserDelete).Methods("DELETE")
 	s.Path("/confirm-email").Queries("token", "{token}").Queries("id", "{id}").HandlerFunc(EmailConfirm).Methods("GET")
 
+	s.Path("/strategy").HandlerFunc(StrategyCreateCollector).Methods("POST")
 	s.Path("/strategy").HandlerFunc(StrategyAll).Methods("GET")
 	s.Path("/strategy/{id}").HandlerFunc(StrategyGet).Methods("GET")
 	s.Path("/strategy/{id}").HandlerFunc(StrategyUpdate).Methods("PUT")

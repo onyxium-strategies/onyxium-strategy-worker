@@ -15,7 +15,7 @@ type CollectorBody struct {
 }
 
 // Collects requests from the frontend, and place strategy in the database
-func NewStrategyCollector(w http.ResponseWriter, r *http.Request) {
+func StrategyCreateCollector(w http.ResponseWriter, r *http.Request) {
 	var collector CollectorBody
 	err := json.NewDecoder(r.Body).Decode(&collector)
 	if err != nil {
