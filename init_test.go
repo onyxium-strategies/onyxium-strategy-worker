@@ -3,6 +3,8 @@ package main
 import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"fmt"
+	omg "github.com/Alainy/OmiseGo-Go-SDK"
+	"github.com/icrowley/fake"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
@@ -100,9 +102,95 @@ func (FakeDataStore) StrategyUpdate(strategy *models.Strategy) error {
 	return nil
 }
 
+type FakeLedger struct {
+	omg.EwalletAdminAPI
+}
+
+func (FakeLedger) UserCreate(reqBody omg.UserParams) (*omg.User, error) {
+	log.Info("hoi")
+	user := omg.User{
+		Object:         "user",
+		Id:             fake.CharactersN(8),
+		Username:       fake.UserName(),
+		ProviderUserId: fake.CharactersN(8),
+		Email:          fake.EmailAddress(),
+		CreatedAt:      time.Now().String(),
+		UpdatedAt:      time.Now().String(),
+	}
+	return &user, nil
+}
+
+func (FakeLedger) UserGetWalletsByProviderUserId(reqBody omg.ProviderUserIdParam) (*omg.WalletList, error) {
+	walletList := omg.WalletList{
+		Object: "walletlist",
+		Data: []omg.Wallet{{
+			Object:     "wallet",
+			Address:    fake.CharactersN(16),
+			Name:       "primary",
+			Identifier: "primary",
+		}},
+	}
+	return &walletList, nil
+}
+
+func (FakeLedger) TokenAll(reqBody omg.ListParams) (*omg.TokenList, error) {
+	tokenList := omg.TokenList{
+		Object: "tokenlist",
+		Data: []omg.Token{{
+			Object:        "token",
+			Id:            fake.CharactersN(16),
+			Symbol:        fake.CharactersN(3),
+			SubunitToUnit: 100000000,
+		}},
+	}
+	return &tokenList, nil
+}
+
+func (FakeLedger) TokenCreate(reqBody omg.TokenCreateParams) (*omg.Token, error) {
+	token := omg.Token{
+		Object:        "token",
+		Id:            fake.CharactersN(16),
+		Symbol:        fake.CharactersN(3),
+		SubunitToUnit: 100000000,
+	}
+	return &token, nil
+}
+
+func (FakeLedger) AccountGetWallets(reqBody omg.ListByIdParams) (*omg.WalletList, error) {
+	walletList := omg.WalletList{
+		Object: "walletlist",
+		Data: []omg.Wallet{{
+			Object:     "wallet",
+			Address:    fake.CharactersN(16),
+			Name:       "primary",
+			Identifier: "primary",
+		}},
+	}
+	return &walletList, nil
+}
+
+func (FakeLedger) TransactionCreate(reqBody omg.TransactionCreateParams) (*omg.Transaction, error) {
+	transaction := omg.Transaction{
+		Object: "transaction",
+		Id:     fake.CharactersN(16),
+		From: omg.TransactionSource{
+			Object:  "transactionsource",
+			Address: reqBody.FromAddress,
+			Amount:  float64(reqBody.Amount),
+		},
+		To: omg.TransactionSource{
+			Object:  "transactionsource",
+			Address: reqBody.ToAddress,
+			Amount:  float64(reqBody.Amount),
+		},
+	}
+	return &transaction, nil
+}
+
 func TestMain(m *testing.M) {
 	// log.SetLevel(log.DebugLevel)
 	log.SetOutput(ioutil.Discard)
 	env.DataStore = FakeDataStore{}
+	env.Ledger = FakeLedger{}
 	os.Exit(m.Run())
 }
