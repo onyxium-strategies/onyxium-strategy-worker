@@ -30,7 +30,7 @@ func NewStrategyCollector(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	binaryTree.SetIdsForBinarySearch()
-	strategy, err := models.NewStrategy(collector.Name, collector.UserId, collector.Tree, binaryTree)
+	strategy, err := models.NewStrategy(collector.Name, collector.UserId, binaryTree)
 	if err != nil {
 		respondWithError(w, 400, err.Error())
 		log.Infof("Bad request StrategyCreate, responded with error msg: %s", err)

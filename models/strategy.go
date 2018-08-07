@@ -12,14 +12,13 @@ const StrategyCollection = "strategy"
 
 var validate *validator.Validate
 
-func NewStrategy(name, userId string, jsonTree []interface{}, bsonTree *Tree) (*Strategy, error) {
+func NewStrategy(name, userId string, bsonTree *Tree) (*Strategy, error) {
 	// if !gjson.Valid(jsonTree) {
 	// 	return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
 	// }
 	strategy := &Strategy{
 		Id:        bson.NewObjectId(),
 		Name:      name,
-		JsonTree:  jsonTree,
 		BsonTree:  bsonTree,
 		Status:    "paused",
 		State:     bsonTree.Id,
