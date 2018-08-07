@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
+	// "encoding/json"
 	"flag"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
@@ -36,6 +37,14 @@ func main() {
 	}
 	defer db.Close()
 	env.DataStore = db
+
+	// TEMPORARY To test ToKaryArray - needs to be a unit test in future
+	// strategy, _ := env.DataStore.StrategyGet("5b68598724979051f911631d")
+	// array, _ := strategy.BsonTree.ToKaryArray()
+	// log.Infof("%+v", array)
+	// response, _ := json.Marshal(array)
+	// log.Info(string(response))
+	// log.Fatal("stop")
 
 	// Connect to the local ledger
 	ledger, err := initOMGClient()

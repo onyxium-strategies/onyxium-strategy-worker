@@ -65,6 +65,63 @@ func (t *Tree) String() {
 	fmt.Println("------------------------------------------------")
 }
 
+func (t *Tree) ToKaryArray() ([]map[string]interface{}, error) {
+	root, err := _toKaryArry(t)
+	return root, err
+}
+
+func _toKaryArry(t *Tree) ([]map[string]interface{}, error) {
+	if t == nil {
+		return make([]map[string]interface{}, 0), nil
+	}
+	var node []map[string]interface{}
+	if t.Left != nil {
+		children, _ := _toKaryArry(t.Left)
+		node = []map[string]interface{}{{
+			"action":     t.Action,
+			"conditions": t.Conditions,
+			"id":         t.Id,
+			"order":      t.Order,
+			"then":       children,
+		}}
+	} else {
+		node = []map[string]interface{}{{
+			"action":     t.Action,
+			"conditions": t.Conditions,
+			"id":         t.Id,
+			"order":      t.Order,
+		}}
+	}
+	for t.Right != nil {
+		node = append(node, _appendChild(t.Right))
+		t = t.Right
+	}
+	return node, nil
+}
+
+func _appendChild(t *Tree) map[string]interface{} {
+	if t == nil {
+		return make(map[string]interface{})
+	}
+	if t.Left != nil {
+		children, _ := _toKaryArry(t.Left)
+		return map[string]interface{}{
+			"action":     t.Action,
+			"conditions": t.Conditions,
+			"id":         t.Id,
+			"order":      t.Order,
+			"then":       children,
+		}
+	} else {
+		return map[string]interface{}{
+			"action":     t.Action,
+			"conditions": t.Conditions,
+			"id":         t.Id,
+			"order":      t.Order,
+		}
+	}
+}
+
 // internal recursive function to print a tree
 func stringify(t *Tree, level int) {
 	if t != nil {
