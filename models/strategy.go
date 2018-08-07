@@ -5,6 +5,7 @@ import (
 	// "github.com/tidwall/gjson"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 const StrategyCollection = "strategy"
@@ -16,13 +17,15 @@ func NewStrategy(name, userId string, jsonTree []interface{}, bsonTree *Tree) (*
 	// 	return nil, fmt.Errorf("Invalid json structure received: %s", jsonTree)
 	// }
 	strategy := &Strategy{
-		Id:       bson.NewObjectId(),
-		Name:     name,
-		JsonTree: jsonTree,
-		BsonTree: bsonTree,
-		Status:   "paused",
-		State:    bsonTree.Id,
-		UserId:   bson.ObjectIdHex(userId),
+		Id:        bson.NewObjectId(),
+		Name:      name,
+		JsonTree:  jsonTree,
+		BsonTree:  bsonTree,
+		Status:    "paused",
+		State:     bsonTree.Id,
+		UserId:    bson.ObjectIdHex(userId),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	return strategy, nil
 }
@@ -147,6 +150,7 @@ func (db *MGO) StrategyCreate(strategy *Strategy) error {
 
 func (db *MGO) StrategyUpdate(strategy *Strategy) error {
 	c := db.DB(DatabaseName).C(StrategyCollection)
+	strategy.UpdatedAt = time.Now()
 	err := c.UpdateId(strategy.Id, strategy)
 	return err
 }
@@ -159,4 +163,40 @@ func (db *MGO) StrategiesGetPaused() ([]Strategy, error) {
 		return nil, err
 	}
 	return strategies, nil
+}
+
+func (db *MGO) StrategyAll() ([]Strategy, error) {
+	var strategies []Strategy
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	err := c.Find(bson.M{}).All(&strategies)
+	if err != nil {
+		return nil, err
+	}
+	return strategies, nil
+}
+
+func (db *MGO) StrategyGet(id string) (*Strategy, error) {
+	ok := bson.IsObjectIdHex(id)
+	if !ok {
+		return nil, fmt.Errorf("Incorrect IdHex received: %s", id)
+	}
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	strategy := &Strategy{}
+	objectId := bson.ObjectIdHex(id)
+	err := c.FindId(objectId).One(strategy)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting strategy with message: %s", err)
+	}
+	return strategy, nil
+}
+
+func (db *MGO) StrategyDelete(id string) error {
+	ok := bson.IsObjectIdHex(id)
+	if !ok {
+		return fmt.Errorf("Incorrect id hex received: %s", id)
+	}
+	c := db.DB(DatabaseName).C(StrategyCollection)
+	objectId := bson.ObjectIdHex(id)
+	err := c.RemoveId(objectId)
+	return err
 }
