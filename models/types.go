@@ -79,7 +79,7 @@ type (
 	Condition struct {
 		ConditionType string  `validate:"required,oneof=percentage-decrease percentage-increase greater-than-or-equal-to less-than-or-equal-to" json:"conditionType" bson:"conditionType"`
 		BaseCurrency  string  `validate:"required,nefield=QuoteCurrency" json:"baseCurrency" bson:"baseCurrency"`
-		QuoteCurrency string  `validate:"required",nefield=BaseCurrency" json:"quoteCurrency" bson:"quoteCurrency"`
+		QuoteCurrency string  `validate:"required,nefield=BaseCurrency" json:"quoteCurrency" bson:"quoteCurrency"`
 		TimeframeInMS int     `validate:"omitempty,gt=0" json:"timeframeInMS" bson:"timeframeInMS"`
 		BaseMetric    string  `validate:"required,oneof=price-ask price-bid price-last volume" json:"baseMetric" bson:"baseMetric"`
 		Value         float64 `validate:"required,gte=0" json:"value" bson:"value"`
@@ -92,7 +92,7 @@ type (
 		BaseCurrency     string  `validate:"required,nefield=QuoteCurrency" json:"baseCurrency" bson:"baseCurrency"`
 		QuoteCurrency    string  `validate:"required,nefield=BaseCurrency" json:"quoteCurrency" bson:"quoteCurrency"`
 		Quantity         float64 `validate:"required,gt=0" json:"quantity" bson:"quantity"`
-		Value            float64 `validate:"required"gt=0" json:"value" bson:"value"`
+		Value            float64 `validate:"required,gt=0" json:"value" bson:"value"`
 	}
 
 	Order struct {
