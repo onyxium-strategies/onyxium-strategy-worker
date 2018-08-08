@@ -41,8 +41,18 @@ func StrategyCreateCollector(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, 400, err.Error())
 	}
 	log.Info("Strategy created")
+
 	// And let the user know their work request was created.
-	w.WriteHeader(http.StatusCreated)
+	payload := map[string]interface{}{
+		"id":        strategy.Id,
+		"name":      strategy.Name,
+		"status":    strategy.Status,
+		"state":     strategy.State,
+		"createdAt": strategy.CreatedAt.Unix(),
+		"updatedAt": strategy.UpdatedAt.Unix(),
+		"tree":      strategy.Tree.ToKaryArray(),
+	}
+	respondWithJSON(w, http.StatusOK, payload)
 }
 
 func PausedStategyCollector() {
