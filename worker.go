@@ -237,7 +237,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					FromAddress:      os.Getenv("primaryWalletAddress"),
 					ToAddress:        wallet.Address,
 					TokenId:          quoteTokenId,
-					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+					Amount:           int(tree.Action.Quantity * subUnitToUnit),
 				}
 				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
@@ -250,7 +250,7 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 					FromAddress:      wallet.Address,
 					ToAddress:        os.Getenv("primaryWalletAddress"),
 					TokenId:          quoteTokenId,
-					Amount:           int(tree.Action.Value * tree.Action.Quantity * subUnitToUnit),
+					Amount:           int(tree.Action.Quantity * subUnitToUnit),
 				}
 				_, err = env.Ledger.TransactionCreate(transactionBody)
 				if err != nil {
