@@ -17,7 +17,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"alainyyyyyy@gmail.com\",\n\t\"password\": \"goedpassword\"\n}"
+					"raw": "{\n\t\"email\": \"alainyyyyyyy@gmail.com\",\n\t\"password\": \"goedpassword\"\n}"
 				},
 				"url": {
 					"raw": "127.0.0.1:8000/api/user",
@@ -31,6 +31,37 @@
 					"path": [
 						"api",
 						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"alain@gmail.com\",\n\t\"password\": \"goedpassword\"\n}"
+				},
+				"url": {
+					"raw": "127.0.0.1:8000/api/login",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"login"
 					]
 				}
 			},
@@ -199,7 +230,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n   \"name\": \"tree-example\",\n   \"userId\": \"5b6c2e34249790e6a4df9c7b\",\n   \"tree\": [\n   \t  {\n         \"conditions\": [{\n            \"conditionType\": \"greater-than-or-equal-to\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.005\n         }],\n         \"action\": {\n            \"orderType\": \"limit-buy\",\n            \"valueType\": \"absolute\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 200,\n            \"value\": 0.03\n         },\n         \"then\": [{\n               \"conditions\": [{\n                  \"conditionType\": \"greater-than-or-equal-to\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"baseMetric\": \"price-last\",\n                  \"value\": 0.02\n               }],\n               \"action\": {\n                  \"orderType\": \"limit-sell\",\n                  \"valueType\": \"absolute\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"quantity\": 10,\n                  \"value\": 0.02\n               }\n            },\n            {\n               \"conditions\": [{\n                  \"conditionType\": \"less-than-or-equal-to\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"baseMetric\": \"price-last\",\n                  \"value\": 0.03\n               }],\n               \"action\": {\n                  \"orderType\": \"limit-sell\",\n                  \"valueType\": \"absolute\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"quantity\": 50,\n                  \"value\": 0.01\n               },\n               \"then\": [{\n                  \"conditions\": [{\n                        \"conditionType\": \"greater-than-or-equal-to\",\n                        \"baseCurrency\": \"BTC\",\n                        \"quoteCurrency\": \"LTC\",\n                        \"baseMetric\": \"price-last\",\n                        \"value\": 0.005\n                     },\n                     {\n                        \"conditionType\": \"less-than-or-equal-to\",\n                        \"baseCurrency\": \"BTC\",\n                        \"quoteCurrency\": \"LTC\",\n                        \"baseMetric\": \"price-last\",\n                        \"value\": 0.04\n                     }\n                  ],\n                  \"action\": {\n                     \"orderType\": \"limit-sell\",\n                     \"valueType\": \"absolute\",\n                     \"baseCurrency\": \"BTC\",\n                     \"quoteCurrency\": \"LTC\",\n                     \"quantity\": 50,\n                     \"value\": 0.01\n                  },\n                  \"then\": [{\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"ETH\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.04\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-buy\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"ETH\",\n                           \"quantity\": 20,\n                           \"value\": 0.07\n                        }\n                     },\n                     {\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.1\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-sell\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"quantity\": 10,\n                           \"value\": 0.02\n                        }\n                     },\n                     {\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.1\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-buy\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"quantity\": 10,\n                           \"value\": 0.02\n                        }\n                     }\n                  ]\n\n               }]\n            }\n         ]\n      },\n      {\n         \"conditions\": [{\n            \"conditionType\": \"less-than-or-equal-to\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.02\n         }],\n         \"action\": {\n            \"orderType\": \"limit-sell\",\n            \"valueType\": \"absolute\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 10,\n            \"value\": 0.01\n         }\n      },\n      {\n         \"conditions\": [{\n            \"conditionType\": \"percentage-decrease\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"timeframeInMS\": 7200000,\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.09\n         }],\n         \"action\": {\n            \"orderType\": \"limit-buy\",\n            \"valueType\": \"percentage-above\",\n            \"valueQuoteMetric\": \"price-ask\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 10,\n            \"value\": 0.02\n         }\n      }\n   ]\n}\n"
+					"raw": "{\n   \"name\": \"tree-example\",\n   \"userId\": \"5b6c4cd4249790f82d666d2a\",\n   \"tree\": [\n   \t  {\n         \"conditions\": [{\n            \"conditionType\": \"greater-than-or-equal-to\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.005\n         }],\n         \"action\": {\n            \"orderType\": \"limit-buy\",\n            \"valueType\": \"absolute\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 200,\n            \"value\": 0.03\n         },\n         \"then\": [{\n               \"conditions\": [{\n                  \"conditionType\": \"greater-than-or-equal-to\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"baseMetric\": \"price-last\",\n                  \"value\": 0.02\n               }],\n               \"action\": {\n                  \"orderType\": \"limit-sell\",\n                  \"valueType\": \"absolute\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"quantity\": 10,\n                  \"value\": 0.02\n               }\n            },\n            {\n               \"conditions\": [{\n                  \"conditionType\": \"less-than-or-equal-to\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"baseMetric\": \"price-last\",\n                  \"value\": 0.03\n               }],\n               \"action\": {\n                  \"orderType\": \"limit-sell\",\n                  \"valueType\": \"absolute\",\n                  \"baseCurrency\": \"BTC\",\n                  \"quoteCurrency\": \"LTC\",\n                  \"quantity\": 50,\n                  \"value\": 0.01\n               },\n               \"then\": [{\n                  \"conditions\": [{\n                        \"conditionType\": \"greater-than-or-equal-to\",\n                        \"baseCurrency\": \"BTC\",\n                        \"quoteCurrency\": \"LTC\",\n                        \"baseMetric\": \"price-last\",\n                        \"value\": 0.005\n                     },\n                     {\n                        \"conditionType\": \"less-than-or-equal-to\",\n                        \"baseCurrency\": \"BTC\",\n                        \"quoteCurrency\": \"LTC\",\n                        \"baseMetric\": \"price-last\",\n                        \"value\": 0.04\n                     }\n                  ],\n                  \"action\": {\n                     \"orderType\": \"limit-sell\",\n                     \"valueType\": \"absolute\",\n                     \"baseCurrency\": \"BTC\",\n                     \"quoteCurrency\": \"LTC\",\n                     \"quantity\": 50,\n                     \"value\": 0.01\n                  },\n                  \"then\": [{\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"ETH\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.04\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-buy\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"ETH\",\n                           \"quantity\": 20,\n                           \"value\": 0.07\n                        }\n                     },\n                     {\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.1\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-sell\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"quantity\": 10,\n                           \"value\": 0.02\n                        }\n                     },\n                     {\n                        \"conditions\": [{\n                           \"conditionType\": \"greater-than-or-equal-to\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"baseMetric\": \"price-last\",\n                           \"value\": 0.1\n                        }],\n                        \"action\": {\n                           \"orderType\": \"limit-buy\",\n                           \"valueType\": \"absolute\",\n                           \"baseCurrency\": \"BTC\",\n                           \"quoteCurrency\": \"LTC\",\n                           \"quantity\": 10,\n                           \"value\": 0.02\n                        }\n                     }\n                  ]\n\n               }]\n            }\n         ]\n      },\n      {\n         \"conditions\": [{\n            \"conditionType\": \"less-than-or-equal-to\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.02\n         }],\n         \"action\": {\n            \"orderType\": \"limit-sell\",\n            \"valueType\": \"absolute\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 10,\n            \"value\": 0.01\n         }\n      },\n      {\n         \"conditions\": [{\n            \"conditionType\": \"percentage-decrease\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"timeframeInMS\": 7200000,\n            \"baseMetric\": \"price-last\",\n            \"value\": 0.09\n         }],\n         \"action\": {\n            \"orderType\": \"limit-buy\",\n            \"valueType\": \"percentage-above\",\n            \"valueQuoteMetric\": \"price-ask\",\n            \"baseCurrency\": \"BTC\",\n            \"quoteCurrency\": \"LTC\",\n            \"quantity\": 10,\n            \"value\": 0.02\n         }\n      }\n   ]\n}\n"
 				},
 				"url": {
 					"raw": "127.0.0.1:8000/api/strategy",
@@ -228,7 +259,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "127.0.0.1:8000/api/strategy",
+					"raw": "127.0.0.1:8000/api/strategy?userId=5b6c4cd4249790f82d666d2a",
 					"host": [
 						"127",
 						"0",
@@ -239,6 +270,12 @@
 					"path": [
 						"api",
 						"strategy"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "5b6c4cd4249790f82d666d2a"
+						}
 					]
 				}
 			},
@@ -337,7 +374,7 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "127.0.0.1:8000/api//balances/5b6c2e34249790e6a4df9c7b",
+					"raw": "127.0.0.1:8000/api//balances/5b6c4cd4249790f82d666d2a",
 					"host": [
 						"127",
 						"0",
@@ -349,7 +386,7 @@
 						"api",
 						"",
 						"balances",
-						"5b6c2e34249790e6a4df9c7b"
+						"5b6c4cd4249790f82d666d2a"
 					]
 				}
 			},

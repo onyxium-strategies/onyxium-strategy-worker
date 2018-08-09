@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"net/url"
@@ -161,11 +162,26 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 func StrategyAll(w http.ResponseWriter, r *http.Request) {
-	strategies, err := env.DataStore.StrategyAll()
-	if err != nil {
-		respondWithError(w, http.StatusNotFound, err.Error())
-		return
+	v := r.URL.Query()
+	userId := v.Get("userId")
+	var err error
+	var strategies []models.Strategy
+	if userId != "" {
+		mgo := env.DataStore.(*models.MGO)
+		c := mgo.DB(models.DatabaseName).C(models.StrategyCollection)
+		err := c.Find(bson.M{"userId": bson.ObjectIdHex(userId)}).All(&strategies)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, err.Error())
+			return
+		}
+	} else {
+		strategies, err = env.DataStore.StrategyAll()
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, err.Error())
+			return
+		}
 	}
+
 	payload := make([]map[string]interface{}, 0)
 	for _, strategy := range strategies {
 		payload = append(payload, map[string]interface{}{
