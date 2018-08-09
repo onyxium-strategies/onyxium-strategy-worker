@@ -84,6 +84,9 @@ func main() {
 	s.Path("/strategy/{id}").HandlerFunc(StrategyUpdate).Methods("PUT")
 	s.Path("/strategy/{id}").HandlerFunc(StrategyDelete).Methods("DELETE")
 
+	s.Path("/balances/{userId}").HandlerFunc(BalancesGet).Methods("GET")
+	// s.Path("/transactions/{userId}").HandlerFunc(TransactionsGet).Methods("GET")
+
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
 	if err := http.ListenAndServe(*HTTPAddr, router); err != nil {

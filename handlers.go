@@ -4,6 +4,7 @@ import (
 	// "bitbucket.org/onyxium/onyxium-strategy-worker/email"
 	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"encoding/json"
+	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/url"
@@ -200,3 +201,36 @@ func StrategyDelete(w http.ResponseWriter, r *http.Request) {
 	}
 	respondWithJSON(w, http.StatusOK, response)
 }
+
+func BalancesGet(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	body := omg.ProviderUserIdParam{
+		params["userId"],
+	}
+	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(body)
+	if err != nil {
+		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+		return
+	}
+	var payload []omg.Balance
+	for _, wallet := range walletList.Data {
+		if wallet.Identifier == "primary" {
+			// send initial funds of 10 BTC
+			payload = wallet.Balances
+		}
+	}
+	respondWithJSON(w, http.StatusOK, payload)
+}
+
+// func TransactionsGet(w http.ResponseWriter, r *http.Request) {
+// 	params := mux.Vars(r)
+// 	body := omg.ProviderUserIdParam{
+// 		params["userId"],
+// 	}
+// 	transactionList, err := env.Ledger.UserGetTransactionsByProviderUserId(body)
+// 	if err != nil {
+// 		respondWithError(w, http.StatusServiceUnavailable, err.Error())
+// 		return
+// 	}
+// 	respondWithJSON(w, http.StatusOK, payload)
+// }
