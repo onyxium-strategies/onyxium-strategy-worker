@@ -289,15 +289,15 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 			if currentValue < condition.Value {
-				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with value %.8f is < than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+				return false, currentValue
 			}
 		case "less-than-or-equal-to":
 			currentValue = getMetricValue(condition.BaseMetric, latestMarket)
 			log.Debugf("MARKET %s: %.8f", condition.BaseMetric, currentValue)
 			if currentValue > condition.Value {
-				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with value %.8f is > than condition value %.8f", condition.BaseMetric, currentValue, condition.Value)
+				return false, currentValue
 			}
 		case "percentage-increase":
 			historyMarkets, err := env.DataStore.GetHistoryMarket(condition.TimeframeInMS)
@@ -312,8 +312,8 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 			percentage := (currentValue - pastValue) / pastValue
 			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 			if percentage < condition.Value {
-				return false, currentValue
 				log.Debugf("doAction FALSE: Market %s with percentage difference of %.3f is < than condition value %.3f", condition.BaseMetric, percentage, condition.Value)
+				return false, currentValue
 			}
 
 		case "percentage-decrease":
@@ -329,8 +329,8 @@ func CheckConditions(conditions []models.Condition, latestMarkets map[string]mod
 			percentage := (currentValue - pastValue) / pastValue
 			log.Debugf("MARKET %s changed with %.3f", condition.BaseMetric, percentage)
 			if percentage > -condition.Value {
-				return false, currentValue
 				log.Debugf("COMPARISON Market %s with percentage difference of %.3f is > than condition value -%.3f", condition.BaseMetric, percentage, condition.Value)
+				return false, currentValue
 			}
 		default:
 			return false, currentValue
