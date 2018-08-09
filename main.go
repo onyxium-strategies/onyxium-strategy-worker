@@ -5,6 +5,7 @@ import (
 	// "encoding/json"
 	"flag"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/johntdyer/slackrus"
 	_ "github.com/joho/godotenv/autoload"
@@ -68,6 +69,8 @@ func main() {
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
+	s.Path("/login").HandlerFunc(Login).Methods("POST")
+
 	s.Path("/user").HandlerFunc(UserAll).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserGet).Methods("GET")
 	s.Path("/user/{id}").HandlerFunc(UserUpdate).Methods("PUT")
@@ -86,7 +89,7 @@ func main() {
 
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)
-	if err := http.ListenAndServe(*HTTPAddr, router); err != nil {
+	if err := http.ListenAndServe(*HTTPAddr, handlers.LoggingHandler(os.Stdout, router)); err != nil {
 		log.Fatal(err)
 	}
 }

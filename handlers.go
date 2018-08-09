@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"net/url"
 	"os"
@@ -35,6 +36,31 @@ type NewUserBody struct {
 	Password string `json:"password"`
 }
 
+func Login(w http.ResponseWriter, r *http.Request) {
+	var userBody NewUserBody
+	err := json.NewDecoder(r.Body).Decode(&userBody)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	mgo := env.DataStore.(*models.MGO)
+
+	c := mgo.DB(models.DatabaseName).C(models.UserCollection)
+	user := &models.User{}
+	err = c.Find(bson.M{"email": userBody.Email}).One(user)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if ok, err := models.ComparePasswords(user.Password, []byte(userBody.Password)); ok && err == nil {
+		payload := map[string]string{
+			"userId": user.Id.Hex(),
+		}
+		respondWithJSON(w, http.StatusOK, payload)
+	} else {
+		respondWithError(w, http.StatusBadRequest, "Incorrect password")
+	}
+}
 func UserCreate(w http.ResponseWriter, r *http.Request) {
 	var userBody NewUserBody
 	err := json.NewDecoder(r.Body).Decode(&userBody)
