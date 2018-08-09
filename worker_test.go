@@ -194,7 +194,7 @@ func TestWorker_WalkSiblings(t *testing.T) {
 				},
 			},
 			expectedState:  0,
-			expectedStatus: "stopped",
+			expectedStatus: "finished",
 		},
 		{
 			name: "Last sibling is true and has left node.",
@@ -265,7 +265,7 @@ func TestWorker_WalkSiblings(t *testing.T) {
 				},
 			},
 			expectedState:  2,
-			expectedStatus: "stopped",
+			expectedStatus: "finished",
 		},
 		{
 			name: "No sibling is true.",

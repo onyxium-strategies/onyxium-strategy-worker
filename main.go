@@ -63,7 +63,7 @@ func main() {
 	StartDispatcher(*NWorkers)
 
 	// Start paused strategies collector
-	PausedStategyCollector()
+	IdleStategyCollector()
 
 	// Start pending order collector
 	// PendingOrderCollector()

@@ -186,7 +186,6 @@ func StrategyUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithJSON(w, http.StatusOK, strategy)
-
 }
 
 func StrategyDelete(w http.ResponseWriter, r *http.Request) {

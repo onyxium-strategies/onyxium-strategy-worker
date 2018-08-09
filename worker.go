@@ -163,7 +163,7 @@ func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) 
 		}
 
 		if tree.Left == nil {
-			strategy.Status = "stopped"
+			strategy.Status = "finished"
 			err = env.DataStore.StrategyUpdate(strategy)
 			if err != nil {
 				return err

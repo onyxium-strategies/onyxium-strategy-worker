@@ -93,7 +93,7 @@ func (FakeDataStore) StrategyCreate(strategy *models.Strategy) error {
 	return nil
 }
 
-func (FakeDataStore) StrategiesGetPaused() ([]models.Strategy, error) {
+func (FakeDataStore) StrategiesGetIdle() ([]models.Strategy, error) {
 	var strategies []models.Strategy
 	return strategies, nil
 }

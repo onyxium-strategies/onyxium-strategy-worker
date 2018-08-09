@@ -55,13 +55,13 @@ func StrategyCreateCollector(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, payload)
 }
 
-func PausedStategyCollector() {
+func IdleStategyCollector() {
 	// Puts work into the WorkQueue
 	go func() {
 		for {
-			strategies, err := env.DataStore.StrategiesGetPaused()
+			strategies, err := env.DataStore.StrategiesGetIdle()
 			if len(strategies) > 0 {
-				log.Info("Dispatching paused strategies")
+				log.Info("Dispatching idle strategies")
 			}
 			if err != nil {
 				log.Fatal(err)

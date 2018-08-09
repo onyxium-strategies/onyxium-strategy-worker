@@ -20,7 +20,7 @@ func NewStrategy(name, userId string, tree *Tree) (*Strategy, error) {
 		Id:        bson.NewObjectId(),
 		Name:      name,
 		Tree:      tree,
-		Status:    "paused",
+		Status:    "idle",
 		State:     tree.Id,
 		UserId:    bson.ObjectIdHex(userId),
 		CreatedAt: time.Now(),
@@ -213,10 +213,10 @@ func (db *MGO) StrategyUpdate(strategy *Strategy) error {
 
 // TODO: add user argument so you can retrieve the strategies specific to a user
 //
-func (db *MGO) StrategiesGetPaused() ([]Strategy, error) {
+func (db *MGO) StrategiesGetIdle() ([]Strategy, error) {
 	var strategies []Strategy
 	c := db.DB(DatabaseName).C(StrategyCollection)
-	err := c.Find(bson.M{"status": "paused"}).All(&strategies)
+	err := c.Find(bson.M{"status": "idle"}).All(&strategies)
 	if err != nil {
 		return nil, err
 	}

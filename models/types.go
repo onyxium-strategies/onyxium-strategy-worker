@@ -21,7 +21,7 @@ type (
 		StrategyGet(id string) (*Strategy, error)
 		StrategyUpdate(strategy *Strategy) error
 		StrategyDelete(id string) error
-		StrategiesGetPaused() ([]Strategy, error) // TODO: inconsistent use of Strategy and Strategies
+		StrategiesGetIdle() ([]Strategy, error) // TODO: inconsistent use of Strategy and Strategies
 		// OrderAll() ([]Order, error)
 		// OrderCreate(order *Order) error
 		// OrderGet(id string) (*Order, error)
