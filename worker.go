@@ -105,7 +105,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 				return nil, err
 			}
 			ExecuteAction(tree, strategy, currentValue)
-			strategy.Status = "paused"
+			strategy.Status = "idle"
 			err = env.DataStore.StrategyUpdate(strategy)
 			if err != nil {
 				return nil, err
@@ -114,7 +114,7 @@ func (w *Worker) WalkSiblings(tree *models.Tree, strategy *models.Strategy) (*mo
 		} else {
 			if tree.Right == nil {
 				// state == first sibling id
-				strategy.Status = "paused"
+				strategy.Status = "idle"
 				err = env.DataStore.StrategyUpdate(strategy)
 				if err != nil {
 					return nil, err
@@ -171,7 +171,7 @@ func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) 
 			log.Info("NO MORE STATEMENT AFTER THIS ACTION STATEMENT, I'M DONE")
 			return nil
 		} else {
-			strategy.Status = "paused"
+			strategy.Status = "idle"
 			strategy.State = tree.Left.Id
 			err = env.DataStore.StrategyUpdate(strategy)
 			if err != nil {
@@ -182,7 +182,7 @@ func (w *Worker) CheckOrderFilled(tree *models.Tree, strategy *models.Strategy) 
 		}
 	}
 	log.Info("Order is still pending.")
-	strategy.Status = "paused"
+	strategy.Status = "idle"
 	err = env.DataStore.StrategyUpdate(strategy)
 	return nil
 }
