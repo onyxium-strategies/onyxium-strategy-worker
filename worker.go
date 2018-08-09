@@ -205,8 +205,9 @@ func ExchangeTokens(tree *models.Tree, strategy *models.Strategy) error {
 	}
 
 	// get primary wallet of user
-	getWalletBody := omg.ProviderUserIdParam{
-		ProviderUserId: strategy.UserId.Hex(),
+	getWalletBody := omg.ListByProviderUserIdParams{
+		strategy.UserId.Hex(),
+		omg.ListParams{},
 	}
 	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(getWalletBody)
 	if err != nil {

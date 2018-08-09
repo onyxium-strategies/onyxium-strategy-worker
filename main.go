@@ -65,9 +65,6 @@ func main() {
 	// Start paused strategies collector
 	IdleStategyCollector()
 
-	// Start pending order collector
-	// PendingOrderCollector()
-
 	router := mux.NewRouter()
 	s := router.PathPrefix("/api").Subrouter()
 	// Register our collector as an HTTP handler function.
@@ -85,7 +82,7 @@ func main() {
 	s.Path("/strategy/{id}").HandlerFunc(StrategyDelete).Methods("DELETE")
 
 	s.Path("/balances/{userId}").HandlerFunc(BalancesGet).Methods("GET")
-	// s.Path("/transactions/{userId}").HandlerFunc(TransactionsGet).Methods("GET")
+	s.Path("/transactions/{userId}").HandlerFunc(TransactionsGet).Methods("GET")
 
 	// Start the HTTP server!
 	log.Infof("HTTP server listening on %s", *HTTPAddr)

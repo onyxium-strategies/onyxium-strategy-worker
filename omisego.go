@@ -139,8 +139,9 @@ func NewOMGUser(user *models.User) error {
 	}
 
 	// get primary wallet of user
-	getWalletBody := omg.ProviderUserIdParam{
-		ProviderUserId: user.Id.Hex(),
+	getWalletBody := omg.ListByProviderUserIdParams{
+		user.Id.Hex(),
+		omg.ListParams{},
 	}
 	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(getWalletBody)
 	if err != nil {

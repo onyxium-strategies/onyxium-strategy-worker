@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 func UserAll(w http.ResponseWriter, r *http.Request) {
@@ -204,8 +205,9 @@ func StrategyDelete(w http.ResponseWriter, r *http.Request) {
 
 func BalancesGet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	body := omg.ProviderUserIdParam{
+	body := omg.ListByProviderUserIdParams{
 		params["userId"],
+		omg.ListParams{},
 	}
 	walletList, err := env.Ledger.UserGetWalletsByProviderUserId(body)
 	if err != nil {
@@ -222,15 +224,47 @@ func BalancesGet(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, payload)
 }
 
-// func TransactionsGet(w http.ResponseWriter, r *http.Request) {
-// 	params := mux.Vars(r)
-// 	body := omg.ProviderUserIdParam{
-// 		params["userId"],
-// 	}
-// 	transactionList, err := env.Ledger.UserGetTransactionsByProviderUserId(body)
-// 	if err != nil {
-// 		respondWithError(w, http.StatusServiceUnavailable, err.Error())
-// 		return
-// 	}
-// 	respondWithJSON(w, http.StatusOK, payload)
-// }
+func TransactionsGet(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var lastPage bool
+	page := 1
+	var payload []map[string]interface{}
+
+	for !lastPage {
+		body := omg.ListByProviderUserIdParams{
+			params["userId"],
+			omg.ListParams{
+				PerPage: 100,
+				Page:    page,
+			},
+		}
+		transactionList, err := env.Ledger.UserGetTransactionsByProviderUserId(body)
+		if err != nil {
+			respondWithError(w, http.StatusServiceUnavailable, err.Error())
+			return
+		}
+		lastPage = transactionList.IsLastPage
+
+		for _, transaction := range transactionList.Data {
+			// BUY
+			if transaction.From.Address == os.Getenv("primaryWalletAddress") {
+				payload = append(payload, map[string]interface{}{
+					"Amount":        transaction.From.Amount,
+					"Symbol":        transaction.From.Symbol,
+					"SubunitToUnit": transaction.From.SubunitToUnit,
+					"CreatedAt":     transaction.CreatedAt,
+				})
+			} else { // SELL
+				payload = append(payload, map[string]interface{}{
+					"Amount":        -transaction.To.Amount,
+					"Symbol":        transaction.To.Symbol,
+					"SubunitToUnit": transaction.To.SubunitToUnit,
+					"CreatedAt":     transaction.CreatedAt,
+				})
+			}
+		}
+		page += 1
+	}
+
+	respondWithJSON(w, http.StatusOK, payload)
+}
