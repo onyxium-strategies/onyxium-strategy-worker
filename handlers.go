@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"net/url"
@@ -54,10 +53,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if ok, err := models.ComparePasswords(user.Password, []byte(userBody.Password)); ok && err == nil {
-		payload := map[string]string{
-			"userId": user.Id.Hex(),
-		}
-		respondWithJSON(w, http.StatusOK, payload)
+		respondWithJSON(w, http.StatusOK, user)
 	} else {
 		respondWithError(w, http.StatusBadRequest, "Incorrect password")
 	}
