@@ -2,7 +2,7 @@ package main
 
 import (
 	// "github.com/stretchr/testify/assert"
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"reflect"

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"bytes"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"

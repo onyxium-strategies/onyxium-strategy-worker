@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"encoding/json"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"

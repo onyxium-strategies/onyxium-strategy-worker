@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"fmt"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/icrowley/fake"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"

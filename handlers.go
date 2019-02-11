@@ -1,11 +1,11 @@
 package main
 
 import (
-	// "bitbucket.org/onyxium/onyxium-strategy-worker/email"
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
+	// "github.com/onyxium-strategies/onyxium-strategy-worker/email"
 	"encoding/json"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
 	"github.com/gorilla/mux"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"net/url"

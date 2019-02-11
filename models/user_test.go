@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	// "gopkg.in/mgo.v2/bson"
 	"testing"
 )

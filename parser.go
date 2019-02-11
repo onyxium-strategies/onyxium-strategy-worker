@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
 	"errors"
 	"github.com/mitchellh/mapstructure"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )

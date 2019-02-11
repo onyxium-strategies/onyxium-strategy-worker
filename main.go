@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/onyxium/onyxium-strategy-worker/models"
+	"github.com/onyxium-strategies/onyxium-strategy-worker/models"
 	// "encoding/json"
 	"flag"
 	omg "github.com/Alainy/OmiseGo-Go-SDK"
