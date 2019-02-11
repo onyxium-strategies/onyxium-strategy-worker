@@ -3,8 +3,8 @@ An end user specifies the conditions and actions of his strategy in the frontend
 
 # Getting started
 Install go: https://golang.org/dl/
-Make sure your $GOPATH is correct. In order to clone a private bitbucket repo we need to enable default cloning with SSH instead of https.
-`go get https://github.com/onyxium-strategies/o yxiumstrategy-worker.git`
+Make sure your $GOPATH is correct.
+`go get https://github.com/onyxium-strategies/onyxium-strategy-worker.git`
 `cd $GOPATH/bin`
 `./onyxium-strategy-worker`
 
