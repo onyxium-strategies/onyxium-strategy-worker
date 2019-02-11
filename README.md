@@ -1,5 +1,5 @@
 # Onyxium Strategy Worker
-An end user specifies the conditions and actions of his strategy in the frontend (see [onyxium-webapp-client](https://github.com/onyxium-strategies/onyxium-webapp-client). When the end user is done this strategy is send to the collector which collects all jobs. All jobs are parsed to a K-ary tree structure. Then the collector send it to the dispatcher which dispatches the job to a worker. The worker keeps running the job untill it is finished.
+An end user specifies the conditions and actions of his strategy in the frontend (see [onyxium-webapp-client](https://github.com/onyxium-strategies/onyxium-webapp-client)). When the end user is done this strategy is send to the collector which collects all jobs. All jobs are parsed to a K-ary tree structure. Then the collector send it to the dispatcher which dispatches the job to a worker. The worker keeps running the job untill it is finished.
 
 # Getting started
 Install go: https://golang.org/dl/
