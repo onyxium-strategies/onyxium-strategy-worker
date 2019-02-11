@@ -1,11 +1,10 @@
-# Coinflow Strategy Worker
-An end user specifies the conditions and actions of his strategy in the frontend. When the end user is done this strategy is send to the collector which collects all jobs. All jobs are parsed to a K-ary tree structure. Then the collector send it to the dispatcher which dispatches the job to a worker. The worker keeps running the job untill it is finished.
+# Onyxium Strategy Worker
+An end user specifies the conditions and actions of his strategy in the frontend (see [onyxium-webapp-client](https://github.com/onyxium-strategies/onyxium-webapp-client). When the end user is done this strategy is send to the collector which collects all jobs. All jobs are parsed to a K-ary tree structure. Then the collector send it to the dispatcher which dispatches the job to a worker. The worker keeps running the job untill it is finished.
 
 # Getting started
 Install go: https://golang.org/dl/
 Make sure your $GOPATH is correct. In order to clone a private bitbucket repo we need to enable default cloning with SSH instead of https.
-`git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"`
-`go get bitbucket.org/onyxium/onyxium-strategy-worker`
+`go get https://github.com/onyxium-strategies/o yxiumstrategy-worker.git`
 `cd $GOPATH/bin`
 `./onyxium-strategy-worker`
 
@@ -31,4 +30,3 @@ Add new dependency to project: `dep ensure -add github.com/foo/bar`
 * [TDD](https://www.binpress.com/tutorial/getting-started-with-go-and-test-driven-development/160)
 * [Organising DB access](http://www.alexedwards.net/blog/organising-database-access)
 * [K-ary tree data structure](https://en.m.wikipedia.org/wiki/Left-child_right-sibling_binary_tree)
-
